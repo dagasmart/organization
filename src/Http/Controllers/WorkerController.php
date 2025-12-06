@@ -49,7 +49,7 @@ class WorkerController extends AdminController
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
                 amis()->TableColumn('teacher_name', '姓名')->sortable()->searchable()->set('fixed','left'),
-                amis()->TableColumn('school_id', '所属学校')
+                amis()->TableColumn('school_id', '所属单位')
                     ->searchable([
                         ['type'=>'tree-select', 'searchable'=>true, 'options'=>$this->service->getEnterpriseAll()],
                         ['type'=>'tree-select', 'searchable'=>true, 'options'=>$this->service->getEnterpriseAll()]
@@ -347,10 +347,10 @@ class WorkerController extends AdminController
                         ->required(),
                 ]),
             ]),
-            // 学校信息
-            amis()->Tab()->title('学校信息')->body([
+            // 单位信息
+            amis()->Tab()->title('单位信息')->body([
                 amis()->ComboControl('combo', false)->items([
-                    amis()->SelectControl('school_id', '学校${index+1}')
+                    amis()->SelectControl('school_id', '单位${index+1}')
                         ->options($this->service->getEnterpriseAll())
                         ->searchable()
                         ->required(),
@@ -487,9 +487,9 @@ class WorkerController extends AdminController
                 ]),
             ]),
             // 家庭情况
-            amis()->Tab()->title('学校信息')->body([
+            amis()->Tab()->title('单位信息')->body([
                 amis()->ComboControl('combo', false)->items([
-                    amis()->SelectControl('school_id', '学校${index+1}')
+                    amis()->SelectControl('school_id', '单位${index+1}')
                         ->options($this->service->getEnterpriseAll())->required(),
                     amis()->HiddenControl('teacher_id')->value('${id}'),
                     amis()->TreeSelectControl('department_id', '部门')

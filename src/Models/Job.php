@@ -1,8 +1,8 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
-use DagaSmart\School\Enums\Enum;
+use DagaSmart\Organization\Enums\Enum;
 
 /**
  * 基础-职务类

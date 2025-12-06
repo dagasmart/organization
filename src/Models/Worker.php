@@ -79,7 +79,7 @@ class Worker extends Model
 
     public function schoolThrough(): HasManyThrough
     {
-        return $this->hasManyThrough(School::class, SchoolTeacher::class,
+        return $this->hasManyThrough(Enterprise::class, SchoolTeacher::class,
             'teacher_id',
             'id',
             'id',
@@ -89,12 +89,12 @@ class Worker extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(SchoolDepartmentJobTeacher::class)->with(['job','department','school']);
+        return $this->hasOne(EnterpriseDepartmentJobWorker::class)->with(['job','department','school']);
     }
 
     public function school(): HasOne
     {
-        return $this->hasOne(SchoolDepartmentJobTeacher::class,
+        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
             'teacher_id',
             'id'
             )->select(admin_raw("
@@ -108,7 +108,7 @@ class Worker extends Model
 
     public function combo(): HasMany
     {
-        return $this->hasMany(SchoolDepartmentJobTeacher::class,
+        return $this->hasMany(EnterpriseDepartmentJobWorker::class,
             'teacher_id',
             'id'
             )
@@ -118,7 +118,7 @@ class Worker extends Model
 
     public function job(): HasOne
     {
-        return $this->HasOne(SchoolDepartmentJobTeacher::class,
+        return $this->HasOne(EnterpriseDepartmentJobWorker::class,
             'teacher_id',
             'id'
             )
@@ -129,14 +129,14 @@ class Worker extends Model
 
     public function schoolData(): Collection
     {
-        return School::query()->whereNull('deleted_at')->pluck('school_name','id');
+        return Enterprise::query()->whereNull('deleted_at')->pluck('school_name','id');
     }
 
     public function schoolJobs(): BelongsToMany
     {
         return $this->belongsToMany(
             Job::class,
-            SchoolDepartmentJobTeacher::class,
+            EnterpriseDepartmentJobWorker::class,
             'teacher_id',
             'job_id'
             )

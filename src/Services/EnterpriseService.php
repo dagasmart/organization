@@ -91,8 +91,10 @@ class EnterpriseService extends AdminService
      */
     public function getStageAll(): array
     {
+        $type = is_school_module() ? 'school' : 'default';
         $model = new Stage;
         return $model->query()
+            ->where('type', $type)
             ->orderBy('sort')
             ->get(['id as value', 'stage_name as label'])
             ->toArray();

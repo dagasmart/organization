@@ -5,7 +5,7 @@ namespace DagaSmart\Organization\Services;
 use DagaSmart\Organization\Models\Department;
 use DagaSmart\Organization\Models\Job;
 use DagaSmart\Organization\Models\Enterprise;
-use DagaSmart\Organization\Models\EnterpriseDepartmentJobTeacher;
+use DagaSmart\Organization\Models\EnterpriseDepartmentJobWorker;
 use DagaSmart\Organization\Models\Worker;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -126,7 +126,7 @@ class WorkerService extends AdminService
                     $row['module'] = $module;
                     $row['mer_id'] = $mer_id;
                     $current[] = $row;
-                    SchoolDepartmentJobTeacher::query()->where($row)->forceDelete();
+                    EnterpriseDepartmentJobWorker::query()->where($row)->forceDelete();
                 });
             });
             $model->schoolJobs()->sync($current);

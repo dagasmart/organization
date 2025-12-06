@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\hasOne;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * 基础-学校模型类
+ * 基础-机构模型类
  */
 class Enterprise extends Model
 {

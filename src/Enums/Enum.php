@@ -168,5 +168,34 @@ enum Enum
         return Enums::family();
     }
 
+    /**
+     * 机构性质
+     * @return array
+     */
+    public static function nature(): array
+    {
+        $school = [
+            ['label' => '公办学校‌', 'value' => 1],
+            ['label' => '民办学校‌', 'value' => 2],
+            ['label' => '独立学院‌', 'value' => 3],
+            ['label' => '‌中外办学', 'value' => 4],
+            ['label' => '私立学校‌', 'value' => 5],
+        ];
+        $company = [
+            ['label' => '政府机关', 'value' => 11],
+            ['label' => '事业单位', 'value' => 12],
+            ['label' => '国有企业', 'value' => 13],
+            ['label' => '集体企业', 'value' => 14],
+            ['label' => '民营企业', 'value' => 15],
+            ['label' => '外资企业', 'value' => 16],
+            ['label' => '‌合资企业', 'value' => 17],
+            ['label' => '股份公司', 'value' => 18],
+            ['label' => '责任公司', 'value' => 19],
+            ['label' => '个体工商户', 'value' => 20],
+        ];
+        return is_school_module() ? $school : $company;
+    }
+
+
 
 }

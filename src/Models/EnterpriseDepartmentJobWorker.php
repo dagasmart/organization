@@ -1,21 +1,21 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 基础-老师-职务模型类
+ * 基础-机构-部门-职务-员工模型类
  */
-class SchoolDepartmentJobTeacher extends Model
+class EnterpriseDepartmentJobWorker extends Model
 {
-	protected $table = 'biz_school_department_job_teacher';
+	protected $table = 'biz_enterprise_department_job_worker';
 
     public $timestamps = false;
 
     /**
-     * 关联学校
+     * 关联机构
      * @return void
      */
     protected static function booted(): void
@@ -33,7 +33,7 @@ class SchoolDepartmentJobTeacher extends Model
      */
     public function school(): hasOne
     {
-        return $this->hasOne(School::class, 'id', 'school_id')->select(['id', 'school_name']);
+        return $this->hasOne(Enterprise::class, 'id', 'school_id')->select(['id', 'school_name']);
     }
 
     /**

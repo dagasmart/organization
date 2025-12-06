@@ -36,7 +36,7 @@ class EnterpriseController extends AdminController
                     ->clearable()
                     ->placeholder('机构名称'),
                 amis()->SelectControl('enterprise_nature', '机构性质')
-                    ->options(Enum::Nature)
+                    ->options(Enum::nature())
                     ->clearable(),
                 amis()->SelectControl('enterprise_mode', '开办模式')
                     ->options($this->service->getStageAll())
@@ -66,9 +66,9 @@ class EnterpriseController extends AdminController
                     ->set('static', true),
                 amis()->TableColumn('enterprise_nature', '机构性质')
                     ->set('type', 'select')
-                    ->set('options', Enum::Nature)
-                    ->filterable(['options' => Enum::Nature])
-                    ->searchable(['name' => 'enterprise_nature', 'type' => 'select', 'options' => Enum::Nature])
+                    ->set('options', Enum::nature())
+                    ->filterable(['options' => Enum::nature()])
+                    ->searchable(['name' => 'enterprise_nature', 'type' => 'select', 'options' => Enum::nature()])
                     ->set('static', true),
                 amis()->TableColumn('region', '所属地区')
                     ->searchable(['name'=>'region','type'=>'input-city'])
@@ -117,7 +117,7 @@ class EnterpriseController extends AdminController
                         amis()->TextControl('enterprise_name', '机构名称')->required(),
                         amis()->TextControl('enterprise_code', '机构代码'),
                         amis()->SelectControl('enterprise_nature', '机构性质')
-                            ->options(Enum::Nature)
+                            ->options(Enum::nature())
                             ->required(),
                         amis()->SelectControl('enterprise_mode', '开办模式')
                             ->options($this->service->getStageAll())
@@ -191,11 +191,11 @@ class EnterpriseController extends AdminController
                         ->options($this->service->getGradeAll())
                         ->required()
                 ])
-            ]),
+            ])->visible(is_school_module()),
             // 商户信息
             amis()->Tab()->title('商户信息')->body([
                 amis()->SelectControl('module', '模块')
-                    ->options(admin_module_all())
+                    ->options(app_module_all())
                     ->clearable()
                     ->size('md'),
                 amis()->SelectControl('mer_id', '商户')
@@ -217,7 +217,7 @@ class EnterpriseController extends AdminController
                         amis()->TextControl('enterprise_name', '机构名称'),
                         amis()->TextControl('enterprise_code', '机构代码'),
                         amis()->SelectControl('enterprise_nature', '机构性质')
-                            ->options(Enum::Nature),
+                            ->options(Enum::nature()),
                         amis()->SelectControl('enterprise_mode', '开办模式')
                             ->options($this->service->getStageAll()),
                         amis()->DateControl('register_time', '注册日期'),
@@ -274,7 +274,7 @@ class EnterpriseController extends AdminController
                 ])
                 ->disabled()
                 ->static(false)
-            ]),
+            ])->visible(is_school_module()),
         ])->static();
 	}
 
