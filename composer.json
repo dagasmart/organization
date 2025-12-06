@@ -1,0 +1,36 @@
+{
+    "name": "dagasmart/organization",
+    "alias": "数智",
+    "description": "Description...",
+    "type": "library",
+    "keywords": [
+        "bizadmin",
+        "extension",
+        "organization"
+    ],
+    "homepage": "https://github.com/dagasmart/organization",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "北京永易",
+            "email": "dagasmart@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "dagasmart/bizadmin": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "DagaSmart\\Organization\\": "src/"
+        }
+    },
+    "extra": {
+        "bizadmin": "DagaSmart\\Organization\\OrganizationServiceProvider",
+        "laravel": {
+            "providers": [
+                "DagaSmart\\Organization\\OrganizationServiceProvider"
+            ]
+        }
+    }
+}
