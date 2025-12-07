@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
-use DagaSmart\School\Models\Classes;
-use DagaSmart\School\Models\EnterpriseGradeClasses;
+use DagaSmart\Organization\Models\Classes;
+use DagaSmart\Organization\Models\EnterpriseGradeClasses;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -38,7 +38,7 @@ class DepartmentService extends AdminService
         parent::saved($model, $isEdit);
         $request = request()->all();
         $data = [
-            'school_id' => $request['school_id'],
+            'enterprise_id' => $request['enterprise_id'],
             'grade_id' => $request['grade_id'],
             'classes_id' => $model->id
         ];
@@ -64,10 +64,10 @@ class DepartmentService extends AdminService
      * @param $grade_id
      * @return array
      */
-    public function SchoolGradeClasses(int $school_id, $grade_id): array
+    public function enterpriseGradeClasses(int $school_id, $grade_id): array
     {
-        $classes_id = EnterpriseGradeClasses::query()
-            ->where('school_id', $school_id)
+        $classes_id = enterpriseGradeClasses::query()
+            ->where('enterprise_id', $school_id)
             ->where('grade_id', $grade_id)
             ->pluck('classes_id')
             ->unique()

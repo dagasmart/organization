@@ -1,8 +1,8 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\School\Services\FacilityService;
+use DagaSmart\Organization\Services\FacilityService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
@@ -34,9 +34,9 @@ class FacilityController extends AdminController
                 amis()->TableColumn('id', 'ID')
                     ->sortable()
                     ->set('fixed','left'),
-                amis()->TableColumn('rel.school.school_name', '学校')
+                amis()->TableColumn('rel.school.enterprise_name', '学校')
                     ->searchable([
-                        'name' => 'school_id',
+                        'name' => 'enterprise_id',
                         'type' => 'select',
                         'multiple' => false,
                         'searchable' => true,
@@ -69,16 +69,16 @@ class FacilityController extends AdminController
 	public function form($isEdit = false): Form
     {
 		return $this->baseForm()->body([
-            amis()->SelectControl('school_id', '学校')
+            amis()->SelectControl('enterprise_id', '学校')
                 ->options($this->service->getSchoolAll())
                 ->value('${rel.school.id}')
                 ->searchable()
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('parent_id', '选择主体')
-                ->source(admin_url('biz/school/${school_id||0}/facility/${id||0}/options'))
+                ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/${id||0}/options'))
                 ->options($this->service->options())
-                ->disabledOn('${!school_id}')
+                ->disabledOn('${!enterprise_id}')
                 ->searchable()
                 ->clearable(),
             amis()->TextControl('facility_name', '设施名称')
@@ -104,16 +104,16 @@ class FacilityController extends AdminController
     {
 		return $this->baseDetail()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
-            amis()->SelectControl('school_id', '学校')
+            amis()->SelectControl('enterprise_id', '学校')
                 ->options($this->service->getSchoolAll())
                 ->value('${rel.school.id}')
                 ->searchable()
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('parent_id', '选择主体')
-                ->source(admin_url('biz/school/${school_id||0}/facility/${id||0}/options'))
+                ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/${id||0}/options'))
                 ->options($this->service->options())
-                ->disabledOn('${!school_id}')
+                ->disabledOn('${!enterprise_id}')
                 ->searchable()
                 ->clearable(),
             amis()->TextControl('facility_name', '设施名称')

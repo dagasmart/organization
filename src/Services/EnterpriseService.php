@@ -2,9 +2,9 @@
 
 namespace DagaSmart\Organization\Services;
 
-use DagaSmart\School\Models\Grade;
+use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Enterprise;
-use DagaSmart\School\Models\Stage;
+use DagaSmart\Organization\Models\Stage;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -35,18 +35,18 @@ class EnterpriseService extends AdminService
     public function saving(&$data, $primaryKey = ''): void
     {
         $data = clear_array_trim($data);
-        if (!empty($data['school_grade'])) {
+        if (!empty($data['enterprise_grade'])) {
             //学段年级
-            $school_grade = explode(',', $data['school_grade']);
+            $enterprise_grade = explode(',', $data['enterprise_grade']);
             //获取年级学段
             $parent = Grade::query()
-                ->whereIn('id', $school_grade)
+                ->whereIn('id', $enterprise_grade)
                 ->distinct()
                 ->pluck('parent_id')
                 ->filter()
                 ->unique()
                 ->toArray();
-            $data['school_grade'] = admin_sort(array_unique(array_merge($parent, $school_grade)), 'desc');
+            $data['enterprise_grade'] = admin_sort(array_unique(array_merge($parent, $enterprise_grade)), 'desc');
         }
         $id = $data['id'] ?? null;
         $enterprise_name = $data['enterprise_name'] ?? null;
@@ -58,7 +58,7 @@ class EnterpriseService extends AdminService
                 })
                 ->exists();
             if ($exists) {
-                admin_abort('当前学校名称已存在，请检查重试');
+                admin_abort('当前机构名称已存在，请检查重试');
             }
         }
         $credit_code = $data['credit_code'] ?? null;
@@ -70,7 +70,7 @@ class EnterpriseService extends AdminService
                 })
                 ->exists();
             if ($exists) {
-                admin_abort('当前学校信用代码已被占用，请检查重试');
+                admin_abort('当前机构信用代码已被占用，请检查重试');
             }
         }
         //地区代码

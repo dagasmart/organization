@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
-use DagaSmart\School\Models\Facility;
-use DagaSmart\School\Models\SchoolFacility;
+use DagaSmart\Organization\Models\Facility;
+use DagaSmart\Organization\Models\EnterpriseFacility;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -42,14 +42,14 @@ class FacilityService extends AdminService
         parent::saved($model, $isEdit);
         $request = request()->all();
         $data = [
-            'school_id' => $request['school_id'],
+            'enterprise_id' => $request['enterprise_id'],
             'facility_id' => $model->id,
         ];
         admin_transaction(function () use ($data) {
             if ($data['facility_id']) {
-                SchoolFacility::query()->where('facility_id', $data['facility_id'])->delete();
+                EnterpriseFacility::query()->where('facility_id', $data['facility_id'])->delete();
             }
-            SchoolFacility::query()->insert($data);
+            EnterpriseFacility::query()->insert($data);
         });
     }
 
@@ -68,12 +68,12 @@ class FacilityService extends AdminService
     public function options(): array
     {
         $id = request()->id;
-        $school_id = request()->school_id;
+        $school_id = request()->enterprise_id;
         $data = $this->query()->from('biz_facility as a')
-            ->join('biz_school_facility as b','a.id','=','b.facility_id')
+            ->join('biz_enterprise_facility as b','a.id','=','b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
             ->when($school_id, function($query) use ($school_id) {
-                $query->where('b.school_id', $school_id);
+                $query->where('b.enterprise_id', $school_id);
             })
             ->when($id, function($query) use ($id) {
                 $query->where('b.facility_id', '<>', $id);

@@ -1,10 +1,10 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
-use DagaSmart\School\Models\Classes;
-use DagaSmart\School\Models\EnterpriseGradeClasses;
-use DagaSmart\School\Models\SchoolGradeClassesStudent;
+use DagaSmart\Organization\Models\Classes;
+use DagaSmart\Organization\Models\EnterpriseGradeClasses;
+use DagaSmart\Organization\Models\EnterpriseGradeClassesStudent;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -27,12 +27,12 @@ class ClassesService extends AdminService
     {
         parent::searchable($query);
         $query->whereHas('school', function (Builder $builder) {
-            $school_id = request('school_id');
+            $school_id = request('enterprise_id');
             $builder->when($school_id, function (Builder $builder) use (&$school_id) {
                 if (!is_array($school_id)) {
                     $school_id = explode(',', $school_id);
                 }
-                $builder->whereIn('school_id', $school_id);
+                $builder->whereIn('enterprise_id', $school_id);
             });
             $grade_id = request('grade_id');
             $builder->when($grade_id, function (Builder $builder) use (&$grade_id) {
@@ -71,7 +71,7 @@ class ClassesService extends AdminService
         parent::saved($model, $isEdit);
         $request = request()->all();
         $data = [
-            'school_id' => $request['school_id'],
+            'enterprise_id' => $request['enterprise_id'],
             'grade_id' => $request['grade_id'],
             'classes_id' => $model->id
         ];
@@ -90,7 +90,7 @@ class ClassesService extends AdminService
         }
         admin_abort_if(!$ids, '请选择删除项');
         //获取存在学生的班级id组
-        $oids = SchoolGradeClassesStudent::query()
+        $oids = EnterpriseGradeClassesStudent::query()
             ->whereIn('classes_id', $ids)
             ->pluck('classes_id')
             ->toArray();
@@ -115,10 +115,10 @@ class ClassesService extends AdminService
      * @param $grade_id
      * @return array
      */
-    public function SchoolGradeClasses(int $school_id, $grade_id): array
+    public function enterpriseGradeClasses(int $school_id, $grade_id): array
     {
         $classes_id = EnterpriseGradeClasses::query()
-            ->where('school_id', $school_id)
+            ->where('enterprise_id', $school_id)
             ->where('grade_id', $grade_id)
             ->pluck('classes_id')
             ->unique()

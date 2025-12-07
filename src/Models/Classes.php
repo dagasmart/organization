@@ -1,6 +1,6 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;

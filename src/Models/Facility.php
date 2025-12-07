@@ -1,6 +1,6 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -19,12 +19,12 @@ class Facility extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(SchoolFacility::class)->with(['school']);
+        return $this->hasOne(EnterpriseFacility::class)->with(['school']);
     }
 
     public function school(): HasOne
     {
-        return $this->hasOne(SchoolFacility::class,
+        return $this->hasOne(EnterpriseFacility::class,
             'facility_id',
             'id'
         )->with(['school']);

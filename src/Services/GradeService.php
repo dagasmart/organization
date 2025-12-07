@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
-use DagaSmart\School\Models\Grade;
-use DagaSmart\School\Models\School;
+use DagaSmart\Organization\Models\Grade;
+use DagaSmart\Organization\Models\Enterprise;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -21,12 +21,12 @@ class GradeService extends AdminService
      * @param int $school_id
      * @return array
      */
-    public function SchoolGrade(int $school_id): array
+    public function EnterpriseGrade(int $school_id): array
     {
         $schoolGrade = [];
         if ($school_id) {
-            $school_grade = School::query()->where('id', $school_id)->value('school_grade');
-            $schoolGrade = array_filter(explode(',', $school_grade));
+            $enterprise_grade = Enterprise::query()->where('id', $school_id)->value('enterprise_grade');
+            $schoolGrade = array_filter(explode(',', $enterprise_grade));
         }
         $model = new Grade;
         $data = $model->query()

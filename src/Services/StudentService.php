@@ -1,12 +1,12 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
-use DagaSmart\School\Models\Classes;
-use DagaSmart\School\Models\Grade;
-use DagaSmart\School\Models\School;
-use DagaSmart\School\Models\SchoolGradeClassesStudent;
-use DagaSmart\School\Models\Student;
+use DagaSmart\Organization\Models\Classes;
+use DagaSmart\Organization\Models\Grade;
+use DagaSmart\Organization\Models\Enterprise;
+use DagaSmart\Organization\Models\EnterpriseGradeClassesStudent;
+use DagaSmart\Organization\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
 /**
  * 基础-学生服务类
@@ -26,12 +26,12 @@ class StudentService extends AdminService
     {
         parent::searchable($query);
         $query->whereHas('rel', function (Builder $builder) {
-            $school_id = request('school_id');
+            $school_id = request('enterprise_id');
             $builder->when($school_id, function (Builder $builder) use (&$school_id) {
                 if (!is_array($school_id)) {
                     $school_id = explode(',', $school_id);
                 }
-                $builder->whereIn('school_id', $school_id);
+                $builder->whereIn('enterprise_id', $school_id);
             });
             $grade_id = request('grade_id');
             $builder->when($grade_id, function (Builder $builder) use (&$grade_id) {
@@ -99,22 +99,22 @@ class StudentService extends AdminService
         parent::saved($model, $isEdit);
         $request = request()->all();
         $data = [
-            'school_id' => $request['school_id'],
+            'enterprise_id' => $request['enterprise_id'],
             'grade_id' => $request['grade_id'],
             'classes_id' => $request['classes_id'],
             'student_id' => $model->id
         ];
         admin_transaction(function () use ($data) {
             if ($data['classes_id']) {
-                SchoolGradeClassesStudent::query()->where('student_id', $data['student_id'])->delete();
+                EnterpriseGradeClassesStudent::query()->where('student_id', $data['student_id'])->delete();
             }
-            SchoolGradeClassesStudent::query()->insert($data);
+            EnterpriseGradeClassesStudent::query()->insert($data);
         });
     }
 
 //    public function deleted($ids): void
 //    {
-//        $this->getModel()->rel_school_grade_classes_student()->whereIn($this->primaryKey(), $ids)->delete();
+//        $this->getModel()->rel_enterprise_grade_classes_student()->whereIn($this->primaryKey(), $ids)->delete();
 //    }
 
     /**
@@ -123,8 +123,8 @@ class StudentService extends AdminService
      */
     public function getSchoolAll(): array
     {
-        $model = new School;
-        return $model->query()->whereNull('deleted_at')->get(['id as value','school_name as label'])->toArray();
+        $model = new Enterprise;
+        return $model->query()->whereNull('deleted_at')->get(['id as value','enterprise_name as label'])->toArray();
     }
 
     /**

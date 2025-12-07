@@ -33,7 +33,7 @@ class EnterpriseDepartmentJobWorker extends Model
      */
     public function school(): hasOne
     {
-        return $this->hasOne(Enterprise::class, 'id', 'school_id')->select(['id', 'school_name']);
+        return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
     /**

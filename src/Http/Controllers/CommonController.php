@@ -1,8 +1,8 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\School\Services\CommonService;
+use DagaSmart\Organization\Services\CommonService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;

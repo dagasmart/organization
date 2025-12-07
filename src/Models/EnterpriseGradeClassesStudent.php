@@ -1,6 +1,6 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * 基础-学校-年级-班级-学生-关联模型类
  */
-class SchoolGradeClassesStudent extends Model
+class EnterpriseGradeClassesStudent extends Model
 {
-	protected $table = 'biz_school_grade_classes_student';
+	protected $table = 'biz_enterprise_grade_classes_student';
 
     // 允许批量赋值的字段
-    protected $fillable = ['school_id','grade_id','classes_id','student_id'];
+    protected $fillable = ['enterprise_id','grade_id','classes_id','student_id'];
 
     public $timestamps = false;
 
@@ -60,7 +60,7 @@ class SchoolGradeClassesStudent extends Model
      */
     public function school(): hasOne
     {
-        return $this->hasOne(School::class, 'id', 'school_id')->select(['id', 'school_name']);
+        return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
 }

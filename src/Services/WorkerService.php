@@ -29,12 +29,12 @@ class WorkerService extends AdminService
     {
         parent::searchable($query);
         $query->whereHas('school', function (Builder $builder) {
-            $school_id = request('school_id');
-            $builder->when($school_id, function (Builder $builder) use (&$school_id) {
-                if (!is_array($school_id)) {
-                    $school_id = explode(',', $school_id);
+            $enterprise_id = request('enterprise_id');
+            $builder->when($enterprise_id, function (Builder $builder) use (&$enterprise_id) {
+                if (!is_array($enterprise_id)) {
+                    $enterprise_id = explode(',', $enterprise_id);
                 }
-                $builder->whereIn('school_id', $school_id);
+                $builder->whereIn('enterprise_id', $enterprise_id);
             });
             $department_id = request('department_id');
             $builder->when($department_id, function (Builder $builder) use (&$department_id) {
@@ -112,36 +112,36 @@ class WorkerService extends AdminService
             array_walk($combo, function ($item) use ($model, &$current) {
                 $jobs = explode(',', $item['job_id']);
                 array_walk($jobs, function ($value) use ($model, $item, &$current) {
-                    $school_id = $item['school_id'];
+                    $enterprise_id = $item['enterprise_id'];
                     $department_id = $item['department_id'];
-                    $teacher_id = $model->id;
+                    $worker_id = $model->id;
                     $module = $item['module'] ?? admin_current_module();
                     $mer_id = $item['mer_id'] ?? admin_mer_id();
                     $row = [];
-                    $row['school_id'] = $school_id;
+                    $row['enterprise_id'] = $enterprise_id;
                     $row['department_id'] = $department_id;
                     $row['job_id'] = $value;
-                    $row['teacher_id'] = $teacher_id;
-                    $row['teacher_sn'] = $school_id . $teacher_id;
+                    $row['worker_id'] = $worker_id;
+                    $row['worker_sn'] = $enterprise_id . $worker_id;
                     $row['module'] = $module;
                     $row['mer_id'] = $mer_id;
                     $current[] = $row;
                     EnterpriseDepartmentJobWorker::query()->where($row)->forceDelete();
                 });
             });
-            $model->schoolJobs()->sync($current);
+            $model->enterpriseJobs()->sync($current);
         }
     }
 
     /**
      * 机构列表
      */
-    public function schoolData(): \Illuminate\Support\Collection
+    public function enterpriseData(): \Illuminate\Support\Collection
     {
-        return $this->getModel()->schoolData();
+        return $this->getModel()->enterpriseData();
     }
 
-    public function SchoolTeacherCheck($id_card)
+    public function EnterpriseWorkerCheck($id_card)
     {
         return $this->query()
             ->where(['id_card' => $id_card])

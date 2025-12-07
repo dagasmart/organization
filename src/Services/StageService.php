@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
 use Illuminate\Database\Eloquent\Builder;
-use DagaSmart\School\Models\Stage;
+use DagaSmart\Organization\Models\Stage;
 
 
 /**

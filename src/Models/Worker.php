@@ -80,64 +80,64 @@ class Worker extends Model
     public function schoolThrough(): HasManyThrough
     {
         return $this->hasManyThrough(Enterprise::class, SchoolTeacher::class,
-            'teacher_id',
+            'worker_id',
             'id',
             'id',
-            'school_id'
-        )->select(admin_raw("id as value, school_name as label"));
+            'enterprise_id'
+        )->select(admin_raw("id as value, enterprise_name as label"));
     }
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseDepartmentJobWorker::class)->with(['job','department','school']);
+        return $this->hasOne(EnterpriseDepartmentJobWorker::class)->with(['job','department','enterprise']);
     }
 
     public function school(): HasOne
     {
         return $this->hasOne(EnterpriseDepartmentJobWorker::class,
-            'teacher_id',
+            'worker_id',
             'id'
             )->select(admin_raw("
-                teacher_id
-                ,string_agg (DISTINCT school_id::VARCHAR, ',' ) as school_id
+                worker_id
+                ,string_agg (DISTINCT enterprise_id::VARCHAR, ',' ) as enterprise_id
                 ,string_agg (DISTINCT department_id::VARCHAR, ',' ) as department_id
                 ,string_agg (DISTINCT job_id::VARCHAR, ',' ) as job_id
             "))
-            ->groupBy('teacher_id');
+            ->groupBy('worker_id');
     }
 
     public function combo(): HasMany
     {
         return $this->hasMany(EnterpriseDepartmentJobWorker::class,
-            'teacher_id',
+            'worker_id',
             'id'
             )
             ->withoutGlobalScope('ActiveScope')
-            ->select(admin_raw("school_id,department_id,job_id,teacher_id,teacher_sn,module,mer_id"));
+            ->select(admin_raw("enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id"));
     }
 
     public function job(): HasOne
     {
         return $this->HasOne(EnterpriseDepartmentJobWorker::class,
-            'teacher_id',
+            'worker_id',
             'id'
             )
-            ->select(admin_raw("teacher_id,string_agg(job_id::varchar, ',') job_id"))
+            ->select(admin_raw("worker_id,string_agg(job_id::varchar, ',') job_id"))
             ->orderBy('job_id')
-            ->groupBy(['teacher_id']);
+            ->groupBy(['worker_id']);
     }
 
-    public function schoolData(): Collection
+    public function enterpriseData(): Collection
     {
-        return Enterprise::query()->whereNull('deleted_at')->pluck('school_name','id');
+        return Enterprise::query()->whereNull('deleted_at')->pluck('enterprise_name','id');
     }
 
-    public function schoolJobs(): BelongsToMany
+    public function enterpriseJobs(): BelongsToMany
     {
         return $this->belongsToMany(
             Job::class,
             EnterpriseDepartmentJobWorker::class,
-            'teacher_id',
+            'worker_id',
             'job_id'
             )
             ->wherePivot('mer_id', admin_mer_id());

@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\School\Enums\Enum;
-use DagaSmart\School\Services\DepartmentService;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\DepartmentService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
@@ -32,9 +32,9 @@ class DepartmentController extends AdminController
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
-                amis()->TableColumn('rel.school.school_name', '学校')
+                amis()->TableColumn('rel.school.enterprise_name', '学校')
                     ->searchable([
-                        'name' => 'school_id',
+                        'name' => 'enterprise_id',
                         'type' => 'select',
                         'multiple' => true,
                         'searchable' => true,
@@ -60,17 +60,17 @@ class DepartmentController extends AdminController
     {
 		return $this->baseForm()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
-            amis()->SelectControl('school_id', '学校')
+            amis()->SelectControl('enterprise_id', '学校')
                 ->options($this->service->getSchoolAll())
-                ->value('${rel.school_id}')
+                ->value('${rel.enterprise_id}')
                 ->searchable()
                 ->clearable()
                 ->required(),
             amis()->SelectControl('grade_id', '年级')
-                ->source(admin_url('biz/school/${school_id||0}/grade'))
+                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
                 ->value('${rel.grade_id}')
                 ->selectMode('group')
-                ->disabledOn('${!school_id}')
+                ->disabledOn('${!enterprise_id}')
                 ->searchable()
                 ->clearable()
                 ->required(),
@@ -91,13 +91,13 @@ class DepartmentController extends AdminController
     {
 		return $this->baseDetail()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
-            amis()->SelectControl('school_id', '学校')
+            amis()->SelectControl('enterprise_id', '学校')
                 ->options($this->service->getSchoolAll())
                 ->searchable()
                 ->clearable()
                 ->required(),
             amis()->SelectControl('grade_id', '年级')
-                ->source(admin_url('biz/school/${school_id||0}/grade'))
+                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
                 ->selectMode('group')
                 ->searchable()
                 ->clearable()
@@ -120,9 +120,9 @@ class DepartmentController extends AdminController
      * @param $grade_id
      * @return array
      */
-    public function SchoolGradeClasses($school_id, $grade_id): array
+    public function enterpriseGradeClasses($school_id, $grade_id): array
     {
-        return $this->service->SchoolGradeClasses($school_id, $grade_id);
+        return $this->service->enterpriseGradeClasses($school_id, $grade_id);
 
     }
 

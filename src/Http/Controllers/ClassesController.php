@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\School\Enums\Enum;
-use DagaSmart\School\Services\ClassesService;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\ClassesService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
@@ -33,14 +33,14 @@ class ClassesController extends AdminController
 	}
 
     /**
-     * 学校年级班级列表
+     * 机构年级班级列表
      * @param $school_id
      * @param $grade_id
      * @return array
      */
-    public function SchoolGradeClasses($school_id, $grade_id): array
+    public function enterpriseGradeClasses($school_id, $grade_id): array
     {
-        return $this->service->SchoolGradeClasses($school_id, $grade_id);
+        return $this->service->enterpriseGradeClasses($school_id, $grade_id);
 
     }
 

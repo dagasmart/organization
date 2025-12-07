@@ -1,6 +1,6 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -72,16 +72,16 @@ class Student extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(SchoolGradeClassesStudent::class)->with(['classes','grade','school']);
+        return $this->hasOne(EnterpriseGradeClassesStudent::class)->with(['classes','grade','school']);
     }
 
     public function classes(): belongsToMany
     {
-        return $this->belongsToMany(Classes::class, SchoolGradeClassesStudent::class, 'student_id', 'classes_id');
+        return $this->belongsToMany(Classes::class, EnterpriseGradeClassesStudent::class, 'student_id', 'classes_id');
     }
-    public function rel_school_grade_classes_student(): hasMany
+    public function rel_enterprise_grade_classes_student(): hasMany
     {
-        return $this->hasMany(SchoolGradeClassesStudent::class, 'student_id', 'id');
+        return $this->hasMany(EnterpriseGradeClassesStudent::class, 'student_id', 'id');
     }
 
 }

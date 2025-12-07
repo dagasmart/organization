@@ -1,6 +1,6 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * 基础-学校-设施-设备关联类
  */
-class SchoolFacilityDevice extends Model
+class EnterpriseFacilityDevice extends Model
 {
-	protected $table = 'biz_school_facility_device';
+	protected $table = 'biz_enterprise_facility_device';
 
     public $timestamps = false;
 
@@ -27,7 +27,7 @@ class SchoolFacilityDevice extends Model
      */
     public function school(): hasOne
     {
-        return $this->hasOne(School::class, 'id', 'school_id')->select(['id', 'school_name']);
+        return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
     /**

@@ -23,7 +23,7 @@ use function Laravel\Prompts\error;
 use function Swow\Utils\success;
 
 /**
- * 基础-老师类
+ * 基础-员工类
  *
  * @property WorkerService $service
  */
@@ -48,37 +48,36 @@ class WorkerController extends AdminController
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
-                amis()->TableColumn('teacher_name', '姓名')->sortable()->searchable()->set('fixed','left'),
-                amis()->TableColumn('school_id', '所属单位')
+                amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed','left'),
+                amis()->TableColumn('enterprise_id', '所属机构')
                     ->searchable([
                         ['type'=>'tree-select', 'searchable'=>true, 'options'=>$this->service->getEnterpriseAll()],
-                        ['type'=>'tree-select', 'searchable'=>true, 'options'=>$this->service->getEnterpriseAll()]
                     ])
                     //->breakpoint('*')
                     ->set('type','input-tag')
                     ->set('options',$this->service->getEnterpriseAll())
-                    ->set('value','${school.school_id}')
+                    ->set('value','${enterprise.enterprise_id}')
                     ->set('fixed','left')
                     ->set('static', true),
                 amis()->TableColumn('department_id', '部门')
                     ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->getDepartmentAll()])
                     ->set('type', 'input-tag')
                     ->set('options', $this->service->getDepartmentAll())
-                    ->set('value','${school.department_id}')
+                    ->set('value','${enterprise.department_id}')
                     ->set('multiple', true)
                     ->set('width', 150)
                     ->set('static', true),
-                amis()->TableColumn('job_id', '教师职务')
+                amis()->TableColumn('job_id', '职务')
                     ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->getJobAll()])
                     ->set('type', 'input-tag')
                     ->set('options', $this->service->getJobAll())
-                    ->set('value','${school.job_id}')
+                    ->set('value','${enterprise.job_id}')
                     ->set('multiple', true)
                     ->set('width', 150)
                     ->set('static', true),
-                amis()->TableColumn('teacher_no','教师编码')->searchable()->sortable(),
+                amis()->TableColumn('worker_no','编码')->searchable()->sortable(),
                 amis()->TableColumn('id_card','身份证号')->searchable()->sortable(),
-                amis()->TableColumn('avatar', '老师照片')
+                amis()->TableColumn('avatar', '照片')
                     ->set('src','${avatar}')
                     ->set('type','avatar')
                     ->set('fit','cover')
@@ -114,7 +113,7 @@ class WorkerController extends AdminController
 //                    ->set('type','input-city')
 //                    ->set('static',true)
 //                    ->sortable(),
-                amis()->TableColumn('alipay_user_id', '支付宝刷脸账号')->searchable(),
+                amis()->TableColumn('alipay_user_id', '刷脸账号')->searchable(),
                 amis()->TableColumn('updated_at', '更新时间')->type('datetime')->width(150),
                 $this->rowActions('dialog')
                     ->set('align','center')
@@ -153,7 +152,7 @@ class WorkerController extends AdminController
                                             'actionType' => 'ajax',
                                             'api' => [
                                                 'method' => 'GET',
-                                                'url' => admin_url('biz/school/teacher/${id_card||0}/check'),
+                                                'url' => admin_url('biz/enterprise/worker/${id_card||0}/check'),
                                             ],
                                         ],
                                         [
@@ -175,37 +174,37 @@ class WorkerController extends AdminController
                                         ],
                                         [
                                             'actionType'  => 'setValue',
-                                            'componentName' => 'teacher_name',
+                                            'componentName' => 'worker_name',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.teacher_name||null}'
+                                                'value' => '${event.data.responseResult.responseData.worker_name||null}'
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
-                                            'componentName' => 'teacher_name',
-                                            'expression' => '${!!event.data.responseResult.responseData.teacher_name}'
+                                            'componentName' => 'worker_name',
+                                            'expression' => '${!!event.data.responseResult.responseData.worker_name}'
                                         ],
                                         [
                                             'actionType' => 'enabled',
-                                            'componentName' => 'teacher_name',
-                                            'expression' => '${!event.data.responseResult.responseData.teacher_name}'
+                                            'componentName' => 'worker_name',
+                                            'expression' => '${!event.data.responseResult.responseData.worker_name}'
                                         ],
                                         [
                                             'actionType'  => 'setValue',
-                                            'componentName' => 'teacher_no',
+                                            'componentName' => 'worker_no',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.teacher_no||null}'
+                                                'value' => '${event.data.responseResult.responseData.worker_no||null}'
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
-                                            'componentName' => 'teacher_no',
-                                            'expression' => '${!!event.data.responseResult.responseData.teacher_no}'
+                                            'componentName' => 'worker_no',
+                                            'expression' => '${!!event.data.responseResult.responseData.worker_no}'
                                         ],
                                         [
                                             'actionType' => 'enabled',
-                                            'componentName' => 'teacher_no',
-                                            'expression' => '${!event.data.responseResult.responseData.teacher_no}'
+                                            'componentName' => 'worker_no',
+                                            'expression' => '${!event.data.responseResult.responseData.worker_no}'
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -312,8 +311,8 @@ class WorkerController extends AdminController
                                     ]
                                 ]
                             ]),
-                        amis()->TextControl('teacher_name', '教师姓名')->id('teacher_name')->required(),
-                        amis()->TextControl('teacher_no', '教师编码')->labelRemark('全国统一教师资格代码'),
+                        amis()->TextControl('worker_name', '姓名')->id('worker_name')->required(),
+                        amis()->TextControl('worker_no', '工号')->labelRemark('员工编号'),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号')->required(),
                     ]),
@@ -347,10 +346,10 @@ class WorkerController extends AdminController
                         ->required(),
                 ]),
             ]),
-            // 单位信息
-            amis()->Tab()->title('单位信息')->body([
+            // 机构单位信息
+            amis()->Tab()->title('职务信息')->body([
                 amis()->ComboControl('combo', false)->items([
-                    amis()->SelectControl('school_id', '单位${index+1}')
+                    amis()->SelectControl('enterprise_id', '机构单位${index+1}')
                         ->options($this->service->getEnterpriseAll())
                         ->searchable()
                         ->required(),
@@ -371,7 +370,7 @@ class WorkerController extends AdminController
                         ->hideNodePathLabel()
                         ->searchable()
                         ->required(),
-                    amis()->HiddenControl('teacher_id')->value('${id}'),
+                    amis()->HiddenControl('worker_id')->value('${id}'),
                     amis()->HiddenControl('module')->value(admin_current_module()),
                     amis()->HiddenControl('mer_id')->value(admin_mer_id()),
                 ])
@@ -446,8 +445,8 @@ class WorkerController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('teacher_name', '姓名'),
-                        amis()->TextControl('teacher_sn', '教师编码'),
+                        amis()->TextControl('worker_name', '姓名'),
+                        amis()->TextControl('worker_sn', '员工编码'),
                         amis()->TextControl('id_card', '身份证号'),
                         amis()->TextControl('work_sn', '工号'),
                         amis()->RadiosControl('sex', '性别')
@@ -480,18 +479,16 @@ class WorkerController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->SelectControl('full_teacher', '专职老师')
-                        ->options(Enum::IsFull),
                     amis()->SelectControl('work_status', '工作状态')
                         ->options(Enum::WorkStatus),
                 ]),
             ]),
-            // 家庭情况
-            amis()->Tab()->title('单位信息')->body([
+            // 职务信息
+            amis()->Tab()->title('职务信息')->body([
                 amis()->ComboControl('combo', false)->items([
-                    amis()->SelectControl('school_id', '单位${index+1}')
+                    amis()->SelectControl('enterprise_id', '单位${index+1}')
                         ->options($this->service->getEnterpriseAll())->required(),
-                    amis()->HiddenControl('teacher_id')->value('${id}'),
+                    amis()->HiddenControl('worker_id')->value('${id}'),
                     amis()->TreeSelectControl('department_id', '部门')
                         ->options($this->service->getDepartmentAll())
                         ->onlyChildren()
@@ -564,10 +561,10 @@ class WorkerController extends AdminController
         ])->static();
 	}
 
-    public function SchoolTeacherCheck(): JsonResponse|JsonResource
+    public function EnterpriseWorkerCheck(): JsonResponse|JsonResource
     {
         $id_card = request()->id_card ?? null;
-        $res = $this->service->SchoolTeacherCheck($id_card);
+        $res = $this->service->EnterpriseWorkerCheck($id_card);
         return $this->response()->success($res);
     }
 
@@ -581,17 +578,17 @@ class WorkerController extends AdminController
                     ->icon('fa fa-wpforms')
                     ->className('float-right')
                     ->actionType('saveAs')
-                    ->api(Storage::url('template/teacher.csv')),
+                    ->api(Storage::url('template/worker.csv')),
                 amis()->Divider()->color('transparent'),
                 amis()->Form()->mode('normal')->api($api)->body([
                     amis()->FileControl()
                         ->name('file')
                         ->label('限制只能上传csv文件')
                         ->accept('.csv')
-                        ->receiver('school/teacher/import')
-                        //->startChunkApi('school/teacher/import')
-                        //->chunkApi('school/teacher/import')
-                        ->finishChunkApi('school/teacher/importChunk')
+                        ->receiver('enterprise/worker/import')
+                        //->startChunkApi('enterprise/worker/import')
+                        //->chunkApi('enterprise/worker/import')
+                        ->finishChunkApi('enterprise/worker/importChunk')
                         ->required()
                         ->drag()
                         ->onEvent([
@@ -600,7 +597,7 @@ class WorkerController extends AdminController
                                     [
                                         'actionType' => 'ajax',
                                         'api' => [
-                                            'url' => 'school/common/remove',
+                                            'url' => 'enterprise/common/remove',
                                             'method' => 'post',
                                             'data' => [
                                                 'path' => '${event.data.value}'

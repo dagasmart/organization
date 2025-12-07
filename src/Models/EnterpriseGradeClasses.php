@@ -48,7 +48,7 @@ class EnterpriseGradeClasses extends Model
      */
     public function enterprise(): hasOne
     {
-        return $this->hasOne(Enterprise::class, 'id', 'school_id')->select(['id', 'enterprise_name']);
+        return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
 

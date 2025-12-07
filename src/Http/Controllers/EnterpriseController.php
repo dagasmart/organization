@@ -196,6 +196,7 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('商户信息')->body([
                 amis()->SelectControl('module', '模块')
                     ->options(app_module_all())
+                    ->value(admin_current_module())
                     ->clearable()
                     ->size('md'),
                 amis()->SelectControl('mer_id', '商户')
@@ -294,7 +295,7 @@ class EnterpriseController extends AdminController
         if ($dialog) {
             $form = $this
                 ->authForm(true)
-                ->api('put:/biz/school/${id}/auth')
+                ->api('put:/biz/enterprise/${id}/auth')
                 ->redirect('');
 
             if ($dialog === 'drawer') {

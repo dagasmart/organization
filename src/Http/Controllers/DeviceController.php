@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\School\Enums\Enum;
-use DagaSmart\School\Services\DeviceService;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\DeviceService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
@@ -35,9 +35,9 @@ class DeviceController extends AdminController
                 amis()->TableColumn('id', 'ID')
                     ->sortable()
                     ->set('fixed','left'),
-                amis()->TableColumn('rel.school.school_name', '学校')
+                amis()->TableColumn('rel.school.enterprise_name', '学校')
                     ->searchable([
-                        'name' => 'school_id',
+                        'name' => 'enterprise_id',
                         'type' => 'select',
                         'multiple' => false,
                         'searchable' => true,
@@ -89,17 +89,17 @@ class DeviceController extends AdminController
 	public function form($isEdit = false): Form
     {
 		return $this->baseForm()->body([
-            amis()->SelectControl('school_id', '学校')
+            amis()->SelectControl('enterprise_id', '学校')
                 ->options($this->service->getSchoolAll())
-                ->value('${rel.school_id}')
+                ->value('${rel.enterprise_id}')
                 ->searchable()
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('facility_id', '设施主体')
-                ->source(admin_url('biz/school/${school_id||0}/facility/options'))
+                ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/options'))
                 ->options($this->service->options())
                 ->value('${rel.facility.id}')
-                ->disabledOn('${!school_id}')
+                ->disabledOn('${!enterprise_id}')
                 ->onlyLeaf()
                 ->searchable()
                 ->clearable()
@@ -129,15 +129,15 @@ class DeviceController extends AdminController
     {
 		return $this->baseDetail()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
-            amis()->SelectControl('school_id', '学校')
+            amis()->SelectControl('enterprise_id', '学校')
                 ->options($this->service->getSchoolAll())
-                ->value('${rel.school_id}')
+                ->value('${rel.enterprise_id}')
                 ->searchable()
                 ->clearable()
                 ->required(),
             amis()->TextControl('facility_id', '设施主体')
                 ->value('${rel.facility.level_name}')
-                ->disabledOn('${!school_id}')
+                ->disabledOn('${!enterprise_id}')
                 ->clearable()
                 ->required(),
             amis()->SelectControl('device_type','设备类型')->options(Enum::DeviceType),

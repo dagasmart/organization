@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Model extends BaseModel
 {
 
-    protected $connection = 'school'; // 使用school数据库连接
+    const string schema = 'school'; //连接的数据库名
+
+    protected $connection = self::schema; // 使用school数据库连接
 
     public function __construct()
     {
@@ -24,14 +26,14 @@ class Model extends BaseModel
 
     protected static function booted(): void
     {
-        static::addGlobalScope(new ActiveScope('school'));
+        static::addGlobalScope(new ActiveScope(self::schema));
         parent::booted();
     }
 
     //关联学校
     public function base(): hasMany
     {
-        return $this->hasMany(Enterprise::class, 'id', 'school_id');
+        return $this->hasMany(Enterprise::class, 'id', 'enterprise_id');
     }
 
 }

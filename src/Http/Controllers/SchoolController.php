@@ -1,9 +1,9 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\School\Enums\Enum;
-use DagaSmart\School\Services\SchoolService;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\SchoolService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
@@ -31,7 +31,7 @@ class SchoolController extends AdminController
                     ->size('md')
                     ->clearable()
                     ->placeholder('学校代码'),
-                amis()->TextControl('school_name', '学校名称')
+                amis()->TextControl('enterprise_name', '学校名称')
                     ->size('md')
                     ->clearable()
                     ->placeholder('学校名称'),
@@ -49,7 +49,7 @@ class SchoolController extends AdminController
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
-                amis()->TableColumn('school_name', '学校名称')
+                amis()->TableColumn('enterprise_name', '学校名称')
                     ->searchable()
                     ->width(200)
                     ->set('fixed','left'),
@@ -114,7 +114,7 @@ class SchoolController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('school_name', '学校名称')->required(),
+                        amis()->TextControl('enterprise_name', '学校名称')->required(),
                         amis()->TextControl('school_code', '学校代码'),
                         amis()->SelectControl('school_nature', '学校性质')
                             ->options(Enum::Nature)
@@ -185,7 +185,7 @@ class SchoolController extends AdminController
             // 学段管理
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->CheckboxesControl('school_grade',null)
+                    amis()->CheckboxesControl('enterprise_grade',null)
                         ->checkAll()
                         ->columnsCount(1)
                         ->options($this->service->getGradeAll())
@@ -214,7 +214,7 @@ class SchoolController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('school_name', '学校名称'),
+                        amis()->TextControl('enterprise_name', '学校名称'),
                         amis()->TextControl('school_code', '学校代码'),
                         amis()->SelectControl('school_nature', '学校性质')
                             ->options(Enum::Nature),
@@ -267,7 +267,7 @@ class SchoolController extends AdminController
             // 学段管理
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->CheckboxesControl('school_grade',null)
+                    amis()->CheckboxesControl('enterprise_grade',null)
                         ->checkAll()
                         ->columnsCount(1)
                         ->options($this->service->getGradeAll())
@@ -294,7 +294,7 @@ class SchoolController extends AdminController
         if ($dialog) {
             $form = $this
                 ->authForm(true)
-                ->api('put:/biz/school/${id}/auth')
+                ->api('put:/biz/enterprise/${id}/auth')
                 ->redirect('');
 
             if ($dialog === 'drawer') {
@@ -331,7 +331,7 @@ class SchoolController extends AdminController
                 ->body('提示：<p>1.授权给角色时，角色下所有用户可以访问；</p><p>2.授权给用户时，只有授权用户可访问。</p>'),
             amis()->TextControl('id', 'ID')->static(),
             amis()->TextControl('school_code', '学校代码')->static(),
-            amis()->TextControl('school_name', '学校名称')->static(),
+            amis()->TextControl('enterprise_name', '学校名称')->static(),
             amis()->TreeSelectControl('authorize.roles', '授权角色')
                 ->multiple()
                 //->autoCheckChildren(false)

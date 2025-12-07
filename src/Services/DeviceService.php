@@ -1,10 +1,10 @@
 <?php
 
-namespace DagaSmart\School\Services;
+namespace DagaSmart\Organization\Services;
 
 use DagaSmart\BizAdmin\Renderers\Json;
-use DagaSmart\School\Models\Device;
-use DagaSmart\School\Models\SchoolFacilityDevice;
+use DagaSmart\Organization\Models\Device;
+use DagaSmart\Organization\Models\EnterpriseFacilityDevice;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -65,7 +65,7 @@ class DeviceService extends AdminService
 //        $model->save();
 //        $request = request()->all();
 //        $data = [
-//            'school_id' => $request['school_id'],
+//            'enterprise_id' => $request['enterprise_id'],
 //            'facility_id' => $request['facility_id'],
 //        ];
 //        $model->relation()->syncWithPivotValues($model->id, $data);
@@ -77,7 +77,7 @@ class DeviceService extends AdminService
     public function getSchoolAll(): array
     {
         return (new SchoolService)->query()
-            ->select(['id as value', 'school_name as label', 'id'])
+            ->select(['id as value', 'enterprise_name as label', 'id'])
             ->get()
             ->toArray();
     }
@@ -89,12 +89,12 @@ class DeviceService extends AdminService
     public function options(): array
     {
         $id = request()->id;
-        $school_id = request()->school_id;
+        $school_id = request()->enterprise_id;
         $data = $this->query()->from('biz_facility as a')
-            ->join('biz_school_facility as b','a.id','=','b.facility_id')
+            ->join('biz_enterprise_facility as b','a.id','=','b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
             ->when($school_id, function($query) use ($school_id) {
-                $query->where('b.school_id', $school_id);
+                $query->where('b.enterprise_id', $school_id);
             })
             ->when($id, function($query) use ($id) {
                 $query->where('b.facility_id', '<>', $id);
@@ -136,7 +136,7 @@ class DeviceService extends AdminService
         }
         if ($model->save()) {
             $extra = [
-                'school_id' => $data['school_id'],
+                'enterprise_id' => $data['enterprise_id'],
                 'facility_id' => $data['facility_id'],
             ];
             $model->relation()->sync([$model->id => $extra]);

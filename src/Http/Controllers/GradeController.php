@@ -1,10 +1,10 @@
 <?php
 
-namespace DagaSmart\School\Http\Controllers;
+namespace DagaSmart\Organization\Http\Controllers;
 
 use DagaSmart\BizAdmin\Renderers\DialogAction;
-use DagaSmart\School\Enums\Enum;
-use DagaSmart\School\Services\GradeService;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\GradeService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use Illuminate\Http\JsonResponse;
@@ -25,9 +25,9 @@ class GradeController extends AdminController
      * @param $school_id
      * @return array
      */
-    public function SchoolGrade($school_id): array
+    public function EnterpriseGrade($school_id): array
     {
-        return $this->service->SchoolGrade($school_id);
+        return $this->service->EnterpriseGrade($school_id);
 
     }
 

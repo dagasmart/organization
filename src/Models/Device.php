@@ -1,6 +1,6 @@
 <?php
 
-namespace DagaSmart\School\Models;
+namespace DagaSmart\Organization\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -18,12 +18,12 @@ class Device extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(SchoolFacilityDevice::class,'device_id','id')->with(['school','facility']);
+        return $this->hasOne(EnterpriseFacilityDevice::class,'device_id','id')->with(['school','facility']);
     }
 
     public function school(): HasOne
     {
-        return $this->hasOne(SchoolFacilityDevice::class,
+        return $this->hasOne(EnterpriseFacilityDevice::class,
             'device_id',
             'id'
             )->with(['school']);
@@ -33,7 +33,7 @@ class Device extends Model
     {
         return $this->belongsToMany(
             static::class,
-            SchoolFacilityDevice::class,
+            EnterpriseFacilityDevice::class,
             'device_id'
         );
     }
