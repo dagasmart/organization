@@ -6,7 +6,7 @@ use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 基础-学校-设施-设备关联类
+ * 基础-机构-设施-设备关联类
  */
 class EnterpriseFacilityDevice extends Model
 {
