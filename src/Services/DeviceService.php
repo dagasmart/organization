@@ -74,9 +74,9 @@ class DeviceService extends AdminService
     /**
      * 学校列表
      */
-    public function getSchoolAll(): array
+    public function getEnterpriseAll(): array
     {
-        return (new SchoolService)->query()
+        return (new EnterpriseService)->query()
             ->select(['id as value', 'enterprise_name as label', 'id'])
             ->get()
             ->toArray();

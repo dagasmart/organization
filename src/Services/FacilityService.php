@@ -19,7 +19,7 @@ class FacilityService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->with(['school','rel']);
+        $query->with(['enterprise','rel']);
     }
 
     public function sortable($query): void
@@ -56,9 +56,9 @@ class FacilityService extends AdminService
     /**
      * 学校列表
      */
-    public function getSchoolAll(): array
+    public function getEnterpriseAll(): array
     {
-        return (new StudentService)->getSchoolAll();
+        return (new StudentService)->getEnterpriseAll();
     }
 
     /**

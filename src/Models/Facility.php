@@ -19,15 +19,15 @@ class Facility extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseFacility::class)->with(['school']);
+        return $this->hasOne(EnterpriseFacility::class)->with(['enterprise']);
     }
 
-    public function school(): HasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(EnterpriseFacility::class,
             'facility_id',
             'id'
-        )->with(['school']);
+        )->with(['enterprise']);
     }
 
     public function getLevelNameAttribute()

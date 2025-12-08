@@ -121,7 +121,7 @@ class StudentService extends AdminService
      * 学校列表
      * @return array
      */
-    public function getSchoolAll(): array
+    public function getEnterpriseAll(): array
     {
         $model = new Enterprise;
         return $model->query()->whereNull('deleted_at')->get(['id as value','enterprise_name as label'])->toArray();

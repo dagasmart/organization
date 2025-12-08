@@ -24,12 +24,12 @@ class Enterprise extends Model
     public $hidden = []; //排除字段
 
 
-    public function getSchoolLogoAttribute($value): ?string
+    public function getEnterpriseLogoAttribute($value): ?string
     {
         return empty($value) ? null : env('APP_URL') . $value;
     }
 
-    public function setSchoolLogoAttribute($value): void
+    public function setEnterpriseLogoAttribute($value): void
     {
         $this->attributes['enterprise_logo'] = null;
         if ($value) {
@@ -43,7 +43,7 @@ class Enterprise extends Model
         return [['value'=>1, 'label'=>'男'], ['value'=>2, 'label'=>'女']];
     }
 
-    public function school(): hasOne
+    public function enterprise(): hasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select('id','enterprise_name');
     }

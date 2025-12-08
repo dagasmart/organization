@@ -53,9 +53,9 @@ class DepartmentService extends AdminService
     /**
      * 学校列表
      */
-    public function getSchoolAll(): array
+    public function getEnterpriseAll(): array
     {
-        return (new StudentService)->getSchoolAll();
+        return (new StudentService)->getEnterpriseAll();
     }
 
     /**

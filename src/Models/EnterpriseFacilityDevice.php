@@ -22,10 +22,10 @@ class EnterpriseFacilityDevice extends Model
 //    }
 
     /**
-     * 学校
+     * 机构
      * @return HasOne
      */
-    public function school(): hasOne
+    public function enterprise(): hasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }

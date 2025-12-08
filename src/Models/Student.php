@@ -72,7 +72,7 @@ class Student extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseGradeClassesStudent::class)->with(['classes','grade','school']);
+        return $this->hasOne(EnterpriseGradeClassesStudent::class)->with(['classes','grade','enterprise']);
     }
 
     public function classes(): belongsToMany

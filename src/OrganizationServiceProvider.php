@@ -31,7 +31,7 @@ class OrganizationServiceProvider extends ServiceProvider
             ],
             [
                 'parent' => '基础维护',
-                'title' => '员工管理',
+                'title' => is_school_module() ? '老师管理' : '员工管理',
                 'url' => '/biz/enterprise/worker',
                 'url_type' => 1,
                 'icon' => 'la:chalkboard-teacher',

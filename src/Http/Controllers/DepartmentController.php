@@ -32,13 +32,13 @@ class DepartmentController extends AdminController
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
-                amis()->TableColumn('rel.school.enterprise_name', '学校')
+                amis()->TableColumn('rel.enterprise.enterprise_name', '学校')
                     ->searchable([
                         'name' => 'enterprise_id',
                         'type' => 'select',
                         'multiple' => true,
                         'searchable' => true,
-                        'options' => $this->service->getSchoolAll(),
+                        'options' => $this->service->getEnterpriseAll(),
                     ])
                     ->width(200),
                 amis()->TableColumn('rel.grade.grade_name', '年级')->width(100),
@@ -61,7 +61,7 @@ class DepartmentController extends AdminController
 		return $this->baseForm()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
             amis()->SelectControl('enterprise_id', '学校')
-                ->options($this->service->getSchoolAll())
+                ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
                 ->searchable()
                 ->clearable()
@@ -92,7 +92,7 @@ class DepartmentController extends AdminController
 		return $this->baseDetail()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
             amis()->SelectControl('enterprise_id', '学校')
-                ->options($this->service->getSchoolAll())
+                ->options($this->service->getEnterpriseAll())
                 ->searchable()
                 ->clearable()
                 ->required(),

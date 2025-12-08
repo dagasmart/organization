@@ -18,7 +18,7 @@ class Department extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade','school']);
+        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade','enterprise']);
     }
 
 }

@@ -18,15 +18,15 @@ class Device extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseFacilityDevice::class,'device_id','id')->with(['school','facility']);
+        return $this->hasOne(EnterpriseFacilityDevice::class,'device_id','id')->with(['enterprise','facility']);
     }
 
-    public function school(): HasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(EnterpriseFacilityDevice::class,
             'device_id',
             'id'
-            )->with(['school']);
+            )->with(['enterprise']);
     }
 
     public function relation(): belongsToMany

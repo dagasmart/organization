@@ -37,7 +37,7 @@ class StudentController extends AdminController
                 amis()->SelectControl('enterprise_id', '学校')
                     ->multiple()
                     ->searchable()
-                    ->options($this->service->getSchoolAll())
+                    ->options($this->service->getEnterpriseAll())
                     ->clearable()
                     ->placeholder('请选择学校...')
                     ->size('lg'),
@@ -56,13 +56,13 @@ class StudentController extends AdminController
                 amis()->TableColumn('id', 'ID')->sortable()->fixed('left'),
                 amis()->TableColumn('student_name', '姓名')->searchable()->fixed('left'),
                 amis()->TableColumn('student_code', '国网学籍号')->searchable(),
-                amis()->TableColumn('rel.school.enterprise_name', '学校')
+                amis()->TableColumn('rel.enterprise.enterprise_name', '学校')
                     ->searchable([
                         'name' => 'enterprise_id',
                         'type' => 'select',
                         'multiple' => true,
                         'searchable' => true,
-                        'options' => $this->service->getSchoolAll(),
+                        'options' => $this->service->getEnterpriseAll(),
                     ])
                     ->width(200),
                 amis()->TableColumn('rel.grade.grade_name', '年级')->width(100),
@@ -130,8 +130,8 @@ class StudentController extends AdminController
                         amis()->TextControl('student_name', '姓名')->required(),
                         amis()->HiddenControl('student_code', '国网学籍号')->value('G${id_number}'),
                         amis()->SelectControl('enterprise_id', '学校')
-                            ->options($this->service->getSchoolAll())
-                            ->value('${rel.school.id}')
+                            ->options($this->service->getEnterpriseAll())
+                            ->value('${rel.enterprise.id}')
                             ->searchable()
                             ->clearable()
                             ->required(),
@@ -275,20 +275,20 @@ class StudentController extends AdminController
                         amis()->TextControl('id_card', '身份证号')
                             ->required(),
                         amis()->HiddenControl('student_code', '国网学籍号')->value('G${id_number}'),
-                        amis()->SelectControl('rel.school.id', '学校')
-                            ->options($this->service->getSchoolAll())
+                        amis()->SelectControl('rel.enterprise.id', '学校')
+                            ->options($this->service->getEnterpriseAll())
                             ->searchable()
                             ->required(),
                         amis()->SelectControl('rel.grade.id', '年级')
                             //->options($this->service->getGradeAll())
-                            ->source(admin_url('biz/enterprise/${rel.school.id||0}/grade'))
+                            ->source(admin_url('biz/enterprise/${rel.enterprise.id||0}/grade'))
                             ->selectMode('group')
                             ->searchable()
-                            ->disabledOn('${!rel.school.id}')
+                            ->disabledOn('${!rel.enterprise.id}')
                             ->required(),
                         amis()->SelectControl('rel.classes.id', '班级')
                             //->options($this->service->getClassesAll())
-                            ->source(admin_url('biz/enterprise/${rel.school.id||0}/grade/${rel.grade.id||0}/classes'))
+                            ->source(admin_url('biz/enterprise/${rel.enterprise.id||0}/grade/${rel.grade.id||0}/classes'))
                             ->selectMode('group')
                             ->searchable()
                             ->disabledOn('${!rel.grade.id}')
@@ -352,7 +352,7 @@ class StudentController extends AdminController
                         ->name('file')
                         ->label('限制只能上传csv文件')
                         ->accept('.csv')
-                        ->receiver('school/student/import')
+                        ->receiver('enterprise/student/import')
                         ->required()
                         ->drag()
                         ->onEvent([
@@ -361,7 +361,7 @@ class StudentController extends AdminController
                                     [
                                         'actionType' => 'ajax',
                                         'api' => [
-                                            'url' => 'school/common/remove',
+                                            'url' => 'enterprise/common/remove',
                                             'method' => 'post',
                                             'data' => [
                                                 'path' => '${event.data.value}'
@@ -402,7 +402,7 @@ class StudentController extends AdminController
         ])->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
             amis()->SelectControl('enterprise_id', '学校')
-                ->options($this->service->getSchoolAll())
+                ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
                 ->searchable()
                 ->clearable()
@@ -504,7 +504,7 @@ class StudentController extends AdminController
                     ->filter(
                         $this->baseFilter()->body([
                             amis()->SelectControl('enterprise_id', '学校')
-                                ->options($this->service->getSchoolAll())
+                                ->options($this->service->getEnterpriseAll())
                                 ->searchable()
                                 ->clearable()
                                 ->size('md'),
@@ -525,7 +525,7 @@ class StudentController extends AdminController
                         amis()->TableColumn('id','ID')->sortable(),
                         amis()->TableColumn('classes_name','班级'),
                         amis()->TableColumn('rel.grade.grade_name', '年级'),
-                        amis()->TableColumn('rel.school.enterprise_name', '学校'),
+                        amis()->TableColumn('rel.enterprise.enterprise_name', '学校'),
                         amis()->TableColumn('status','状态')
                             ->set('type','status')
                             ->set('options',['1' => '开启', '0' => '禁用']),

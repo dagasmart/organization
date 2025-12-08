@@ -20,13 +20,13 @@ class ClassesService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->with(['school','rel']);
+        $query->with(['enterprise','rel']);
     }
 
     public function searchable($query): void
     {
         parent::searchable($query);
-        $query->whereHas('school', function (Builder $builder) {
+        $query->whereHas('enterprise', function (Builder $builder) {
             $school_id = request('enterprise_id');
             $builder->when($school_id, function (Builder $builder) use (&$school_id) {
                 if (!is_array($school_id)) {
@@ -104,9 +104,9 @@ class ClassesService extends AdminService
     /**
      * 学校列表
      */
-    public function getSchoolAll(): array
+    public function getEnterpriseAll(): array
     {
-        return (new StudentService)->getSchoolAll();
+        return (new StudentService)->getEnterpriseAll();
     }
 
     /**

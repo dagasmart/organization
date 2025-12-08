@@ -22,13 +22,13 @@ class WorkerService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->with(['school','rel','combo']);
+        $query->with(['enterprise','rel','combo']);
     }
 
     public function searchable($query): void
     {
         parent::searchable($query);
-        $query->whereHas('school', function (Builder $builder) {
+        $query->whereHas('enterprise', function (Builder $builder) {
             $enterprise_id = request('enterprise_id');
             $builder->when($enterprise_id, function (Builder $builder) use (&$enterprise_id) {
                 if (!is_array($enterprise_id)) {

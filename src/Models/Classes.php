@@ -19,10 +19,10 @@ class Classes extends Model
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade','school']);
+        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade','enterprise']);
     }
 
-    public function school(): HasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(EnterpriseGradeClasses::class,
             'classes_id',

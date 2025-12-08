@@ -34,13 +34,13 @@ class ClassesController extends AdminController
 
     /**
      * 机构年级班级列表
-     * @param $school_id
+     * @param $enterprise_id
      * @param $grade_id
      * @return array
      */
-    public function enterpriseGradeClasses($school_id, $grade_id): array
+    public function enterpriseGradeClasses($enterprise_id, $grade_id): array
     {
-        return $this->service->enterpriseGradeClasses($school_id, $grade_id);
+        return $this->service->enterpriseGradeClasses($enterprise_id, $grade_id);
 
     }
 

@@ -77,9 +77,9 @@ class Worker extends Model
     }
 
 
-    public function schoolThrough(): HasManyThrough
+    public function enterpriseThrough(): HasManyThrough
     {
-        return $this->hasManyThrough(Enterprise::class, SchoolTeacher::class,
+        return $this->hasManyThrough(Enterprise::class, EnterpriseWorker::class,
             'worker_id',
             'id',
             'id',
@@ -92,7 +92,7 @@ class Worker extends Model
         return $this->hasOne(EnterpriseDepartmentJobWorker::class)->with(['job','department','enterprise']);
     }
 
-    public function school(): HasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(EnterpriseDepartmentJobWorker::class,
             'worker_id',
