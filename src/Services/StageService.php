@@ -17,7 +17,7 @@ class StageService extends AdminService
 	protected string $modelName = Stage::class;
 
     /**
-     * 学校学段列表
+     * 机构学段列表
      * @return array
      */
     public function getStageAll(): array

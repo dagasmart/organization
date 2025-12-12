@@ -34,12 +34,12 @@ class StudentController extends AdminController
                 $this->classesAction(),
 			])
             ->filter($this->baseFilter()->body([
-                amis()->SelectControl('enterprise_id', '学校')
+                amis()->SelectControl('enterprise_id', '机构')
                     ->multiple()
                     ->searchable()
                     ->options($this->service->getEnterpriseAll())
                     ->clearable()
-                    ->placeholder('请选择学校...')
+                    ->placeholder('请选择机构...')
                     ->size('lg'),
                 amis()->Divider(),
                 amis()->TextControl('name', '学生姓名')
@@ -56,7 +56,7 @@ class StudentController extends AdminController
                 amis()->TableColumn('id', 'ID')->sortable()->fixed('left'),
                 amis()->TableColumn('student_name', '姓名')->searchable()->fixed('left'),
                 amis()->TableColumn('student_code', '国网学籍号')->searchable(),
-                amis()->TableColumn('rel.enterprise.enterprise_name', '学校')
+                amis()->TableColumn('rel.enterprise.enterprise_name', '机构')
                     ->searchable([
                         'name' => 'enterprise_id',
                         'type' => 'select',
@@ -129,7 +129,7 @@ class StudentController extends AdminController
                         amis()->TextControl('id_card', '身份证号')->required(),
                         amis()->TextControl('student_name', '姓名')->required(),
                         amis()->HiddenControl('student_code', '国网学籍号')->value('G${id_number}'),
-                        amis()->SelectControl('enterprise_id', '学校')
+                        amis()->SelectControl('enterprise_id', '机构')
                             ->options($this->service->getEnterpriseAll())
                             ->value('${rel.enterprise.id}')
                             ->searchable()
@@ -275,7 +275,7 @@ class StudentController extends AdminController
                         amis()->TextControl('id_card', '身份证号')
                             ->required(),
                         amis()->HiddenControl('student_code', '国网学籍号')->value('G${id_number}'),
-                        amis()->SelectControl('rel.enterprise.id', '学校')
+                        amis()->SelectControl('rel.enterprise.id', '机构')
                             ->options($this->service->getEnterpriseAll())
                             ->searchable()
                             ->required(),
@@ -401,7 +401,7 @@ class StudentController extends AdminController
             'sort'    => 0,
         ])->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
-            amis()->SelectControl('enterprise_id', '学校')
+            amis()->SelectControl('enterprise_id', '机构')
                 ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
                 ->searchable()
@@ -503,7 +503,7 @@ class StudentController extends AdminController
                     ])
                     ->filter(
                         $this->baseFilter()->body([
-                            amis()->SelectControl('enterprise_id', '学校')
+                            amis()->SelectControl('enterprise_id', '机构')
                                 ->options($this->service->getEnterpriseAll())
                                 ->searchable()
                                 ->clearable()
@@ -525,7 +525,7 @@ class StudentController extends AdminController
                         amis()->TableColumn('id','ID')->sortable(),
                         amis()->TableColumn('classes_name','班级'),
                         amis()->TableColumn('rel.grade.grade_name', '年级'),
-                        amis()->TableColumn('rel.enterprise.enterprise_name', '学校'),
+                        amis()->TableColumn('rel.enterprise.enterprise_name', '机构'),
                         amis()->TableColumn('status','状态')
                             ->set('type','status')
                             ->set('options',['1' => '开启', '0' => '禁用']),

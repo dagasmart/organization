@@ -28,7 +28,7 @@ class EnterpriseDepartmentJobWorker extends Model
     }
 
     /**
-     * 学校
+     * 机构
      * @return HasOne
      */
     public function enterprise(): hasOne

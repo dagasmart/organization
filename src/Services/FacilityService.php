@@ -56,7 +56,7 @@ class FacilityService extends AdminService
     }
 
     /**
-     * 学校列表
+     * 机构列表
      */
     public function getEnterpriseAll(): array
     {

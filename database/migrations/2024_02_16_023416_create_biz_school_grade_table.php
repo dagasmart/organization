@@ -23,18 +23,18 @@ return new class extends Migration
                 $table->comment('数智校园-老师表');
                 $table->id();
 
-                $table->string('school_code',100)->comment('学校代码');
-                $table->string('school_name',100)->comment('学校名称');
-                $table->string('school_logo',255)->nullable()->comment('学校标志');
-                $table->tinyInteger('school_nature')->nullable()->comment('学校性质');
+                $table->string('school_code',100)->comment('机构代码');
+                $table->string('school_name',100)->comment('机构名称');
+                $table->string('school_logo',255)->nullable()->comment('机构标志');
+                $table->tinyInteger('school_nature')->nullable()->comment('机构性质');
                 $table->tinyInteger('school_mode')->nullable()->comment('办学模式');
                 $table->date('register_time')->nullable()->comment('注册日期');
                 $table->integer('region')->nullable()->comment('所属地区');
-                $table->string('school_address',100)->nullable()->comment('学校地址');
+                $table->string('school_address',100)->nullable()->comment('机构地址');
                 $table->string('school_address_info',150)->nullable()->comment('详细地址');
                 $table->string('location',100)->nullable()->comment('位置定位');
                 $table->string('credit_code',64)->nullable()->comment('信用代码');
-                $table->string('legal_person',64)->nullable()->comment('学校法人');
+                $table->string('legal_person',64)->nullable()->comment('机构法人');
                 $table->string('contacts_mobile',100)->nullable()->comment('联系电话');
                 $table->string('contacts_email',64)->nullable()->comment('联系邮件');
 

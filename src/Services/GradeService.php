@@ -17,7 +17,7 @@ class GradeService extends AdminService
 	protected string $modelName = Grade::class;
 
     /**
-     * 学校年级列表
+     * 机构年级列表
      * @param int $school_id
      * @return array
      */

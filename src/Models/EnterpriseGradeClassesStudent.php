@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 基础-学校-年级-班级-学生-关联模型类
+ * 基础-机构-年级-班级-学生-关联模型类
  */
 class EnterpriseGradeClassesStudent extends Model
 {
@@ -20,7 +20,7 @@ class EnterpriseGradeClassesStudent extends Model
     public $timestamps = false;
 
     /**
-     * 关联学校
+     * 关联机构
      * @return void
      */
     protected static function booted(): void

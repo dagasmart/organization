@@ -142,7 +142,6 @@ class WorkerController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->HiddenControl('id'),
                         amis()->TextControl('id_card', '身份证号')
                             ->required()
                             ->onEvent([

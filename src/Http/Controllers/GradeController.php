@@ -21,7 +21,7 @@ class GradeController extends AdminController
 	protected string $serviceName = GradeService::class;
 
     /**
-     * 学校年级列表
+     * 机构年级列表
      * @param $school_id
      * @return array
      */

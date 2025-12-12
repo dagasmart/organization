@@ -30,7 +30,7 @@ class Model extends BaseModel
         parent::booted();
     }
 
-    //关联学校
+    //关联机构
     public function base(): hasMany
     {
         return $this->hasMany(Enterprise::class, 'id', 'enterprise_id');

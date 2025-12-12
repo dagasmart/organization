@@ -51,7 +51,7 @@ class DepartmentService extends AdminService
     }
 
     /**
-     * 学校列表
+     * 机构列表
      */
     public function getEnterpriseAll(): array
     {
@@ -59,7 +59,7 @@ class DepartmentService extends AdminService
     }
 
     /**
-     * 学校年级列表
+     * 机构年级列表
      * @param int $school_id
      * @param $grade_id
      * @return array

@@ -16,7 +16,7 @@ Route::group([
 
     $router->get('enterprise/{enterprise_id}/grade', [Controllers\GradeController::class, 'EnterpriseGrade']);
     $router->get('enterprise/{enterprise_id}/grade/{grade_id}/classes', [Controllers\ClassesController::class, 'enterpriseGradeClasses']);
-    $router->get('enterprise/teacher/{id_card}/check', [Controllers\WorkerController::class, 'EnterpriseWorkerCheck']);
+    $router->get('enterprise/worker/{id_card}/check', [Controllers\WorkerController::class, 'EnterpriseWorkerCheck']);
     $router->get('enterprise/{enterprise_id}/facility/options', [Controllers\FacilityController::class, 'options']);
     $router->get('enterprise/{enterprise_id}/facility/{id}/options', [Controllers\FacilityController::class, 'options']);
 });
@@ -24,7 +24,7 @@ Route::group([
 //一键导入文件
 Route::post('enterprise/worker/import', [Controllers\WorkerController::class, 'import']);
 Route::post('enterprise/student/import', [Controllers\StudentController::class, 'import']);
-Route::post('enterprise/teacher/importChunk', [Controllers\WorkerController::class, 'importChunk']);
+Route::post('enterprise/worker/importChunk', [Controllers\WorkerController::class, 'importChunk']);
 
 //删除导入文件
 Route::post('enterprise/common/remove', [Controllers\CommonController::class, 'remove']);

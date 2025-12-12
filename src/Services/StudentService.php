@@ -20,7 +20,9 @@ class StudentService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->with(['rel']);
+        $query->whereHas('rel', function ($query) {
+            $query->where('module', admin_current_module())->where('mer_id', admin_mer_id());
+        })->with(['rel']);
     }
     public function searchable($query): void
     {
@@ -118,7 +120,7 @@ class StudentService extends AdminService
 //    }
 
     /**
-     * 学校列表
+     * 机构列表
      * @return array
      */
     public function getEnterpriseAll(): array

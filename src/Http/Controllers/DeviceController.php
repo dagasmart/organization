@@ -35,7 +35,7 @@ class DeviceController extends AdminController
                 amis()->TableColumn('id', 'ID')
                     ->sortable()
                     ->set('fixed','left'),
-                amis()->TableColumn('rel.enterprise.enterprise_name', '学校')
+                amis()->TableColumn('rel.enterprise.enterprise_name', '机构单位')
                     ->searchable([
                         'name' => 'enterprise_id',
                         'type' => 'select',
@@ -89,7 +89,7 @@ class DeviceController extends AdminController
 	public function form($isEdit = false): Form
     {
 		return $this->baseForm()->body([
-            amis()->SelectControl('enterprise_id', '学校')
+            amis()->SelectControl('enterprise_id', '机构单位')
                 ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
                 ->searchable()
@@ -129,7 +129,7 @@ class DeviceController extends AdminController
     {
 		return $this->baseDetail()->body([
             amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
-            amis()->SelectControl('enterprise_id', '学校')
+            amis()->SelectControl('enterprise_id', '机构单位')
                 ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
                 ->searchable()
