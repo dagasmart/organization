@@ -57,11 +57,52 @@ enum Enum
     ];
 
     /**
+     * 设备品牌-刷脸
+     */
+    public const array BrandFace = [
+        ['label' => '支付宝', 'value'=>'alipay', 'children' => [
+            ['label' => '蜻蜓2代', 'value' => '蜻蜓2代'],
+            ['label' => '蜻蜓F4', 'value' => '蜻蜓F4'],
+        ]],
+        ['label' => '微信支付', 'value'=>'wechat', 'children' => [
+            ['label' => '青蛙pro', 'value' => '青蛙pro'],
+        ]],
+    ];
+
+    /**
+     * 设备品牌-刷脸
+     */
+    public const array BrandAccess = [
+        ['label' => '品牌门禁', 'value'=>'access', 'children' => [
+            ['label' => '宇视智能', 'value' => '宇视智能'],
+            ['label' => 'TP-LINK', 'value' => 'TP-LINK'],
+            ['label' => '其它', 'value' => '其它'],
+        ]],
+    ];
+
+    public static function brand($name = null): array
+    {
+        $data = [
+            'face' => self::BrandFace,
+            'access' => self::BrandAccess,
+        ];
+        return $name ? $data[$name] : $data;
+    }
+
+    /**
      * 设备类型
      */
     public const array DeviceType = [
         ['label' => '刷脸设备', 'value' => 'face'],
         ['label' => '门禁设备', 'value' => 'access'],
+    ];
+
+    /**
+     * 安装位置
+     */
+    public const array DevicePos = [
+        ['label' => '进口入场', 'value' => 'in'],
+        ['label' => '出口离场', 'value' => 'out'],
     ];
 
     /**

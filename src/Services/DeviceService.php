@@ -21,7 +21,13 @@ class DeviceService extends AdminService
     public function loadRelations($query): void
     {
         $query->whereHas('rel', function ($query) {
-            $query->where('module', admin_current_module())->where('mer_id', admin_mer_id());
+            $admin_mer_id = admin_mer_id();
+            $admin_current_module = admin_current_module();
+            $query->when($admin_mer_id, function (Builder $query) use ($admin_mer_id) {
+                $query->where('mer_id', $admin_mer_id);
+            })->when($admin_current_module, function (Builder $query) use ($admin_current_module) {
+                $query->where('module', $admin_current_module);
+            });
         })->with(['rel']);
     }
 
@@ -108,7 +114,8 @@ class DeviceService extends AdminService
 
     /**
      * 分(种)类型
-     * @return mixed
+     * @param null $key
+     * @return array|string|null
      */
     public function typeOption($key = null): array|string|null
     {
@@ -126,7 +133,7 @@ class DeviceService extends AdminService
      * @param mixed|null $primaryKey 主键
      * @return bool
      */
-    protected function saveData($data, $primaryKey = null): bool
+    protected function saveData(array $data, mixed $primaryKey = null): bool
     {
         $model = $primaryKey ? $this->query()->find($primaryKey) : $this->getModel();
         $columns = $this->getTableColumns();//获取表列字段名

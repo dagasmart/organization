@@ -97,17 +97,26 @@ class DeviceController extends AdminController
                 ->required(),
             amis()->TreeSelectControl('facility_id', '设施主体')
                 ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/options'))
-                ->options($this->service->options())
                 ->value('${rel.facility.id}')
                 ->disabledOn('${!enterprise_id}')
                 ->onlyLeaf()
                 ->searchable()
                 ->clearable()
                 ->required(),
-            amis()->SelectControl('device_type','设备类型')->options(Enum::DeviceType),
+            amis()->SelectControl('device_type','设备类型')
+                ->options(Enum::DeviceType)
+                ->clearable()
+                ->required(),
+            amis()->TreeSelectControl('device_brand', '设备品牌')
+                ->source(admin_url('biz/enterprise/device/${device_type||0}/brand/options'))
+                ->placeholder('请选择品牌')
+                ->clearable(),
             amis()->TextControl('device_name', '设备名称')
                 ->clearable()
                 ->required(),
+            amis()->TextControl('device_model', '设备型号')
+                ->placeholder('设备型号，如ET293')
+                ->clearable(),
             amis()->TextControl('device_sn', '设备编号')
                 ->clearable()
                 ->required(),
@@ -163,9 +172,9 @@ class DeviceController extends AdminController
 		])->static();
 	}
 
-    public function options(): array
+    public function brandOptions($type = null): array
     {
-        return $this->service->options();
+        return $type ? Enum::brand($type) : [];
     }
 
 
