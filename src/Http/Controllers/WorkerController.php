@@ -75,7 +75,7 @@ class WorkerController extends AdminController
                     ->set('multiple', true)
                     ->set('width', 150)
                     ->set('static', true),
-                amis()->TableColumn('worker_no','编码')->searchable()->sortable(),
+                amis()->TableColumn('worker_no','系统编号')->searchable()->sortable(),
                 amis()->TableColumn('id_card','身份证号')->searchable()->sortable(),
                 amis()->TableColumn('avatar', '照片')
                     ->set('src','${avatar}')
@@ -192,7 +192,7 @@ class WorkerController extends AdminController
                                             'actionType'  => 'setValue',
                                             'componentName' => 'worker_no',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.worker_no||null}'
+                                                'value' => '${event.data.responseResult.responseData.worker_no||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}'
                                             ],
                                         ],
                                         [
@@ -311,7 +311,11 @@ class WorkerController extends AdminController
                                 ]
                             ]),
                         amis()->TextControl('worker_name', '真实姓名')->id('worker_name')->required(),
-                        amis()->TextControl('worker_no', '系统编号')->value('${PADSTART(INT(RAND()*1000000000), 9, "0")}')->readOnly(),
+                        amis()->HiddenControl('worker_no', '系统编号')
+                            ->value('${CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
+                            ->readOnly(),
+                        amis()->TreeSelectControl('party', '政治党派')
+                            ->options(Enum::Party)->value('无党派'),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号码')->required(),
                     ]),
@@ -444,12 +448,12 @@ class WorkerController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('worker_name', '姓名'),
-                        amis()->TextControl('worker_no', '微信号'),
+                        amis()->TextControl('worker_name', '真实姓名'),
+                        amis()->TextControl('worker_no', '系统编号'),
                         amis()->TextControl('id_card', '身份证号'),
-                        amis()->TextControl('work_no', '工号'),
-                        amis()->RadiosControl('sex', '性别')
-                            ->options(Enum::sex()),
+                        amis()->TagControl('party', '政治党派'),
+                        amis()->TextControl('email', '常用邮箱'),
+                        amis()->TextControl('mobile', '手机号码')->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->ImageControl('avatar')
@@ -471,16 +475,18 @@ class WorkerController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->mode('horizontal')->body([
+                    amis()->RadiosControl('sex', '性别')
+                        ->options(Enum::sex()),
                     amis()->SelectControl('nation_id', '民族')
                         ->options(Enum::nation()),
                     amis()->SelectControl('work_status', '工作状态')
                         ->options(Enum::WorkStatus),
                 ]),
-                amis()->Divider(),
-                amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->SelectControl('work_status', '工作状态')
-                        ->options(Enum::WorkStatus),
-                ]),
+//                amis()->Divider(),
+//                amis()->GroupControl()->mode('horizontal')->body([
+//                    amis()->SelectControl('work_status', '工作状态')
+//                        ->options(Enum::WorkStatus),
+//                ]),
             ]),
             // 职务信息
             amis()->Tab()->title('职务信息')->body([
@@ -534,7 +540,6 @@ class WorkerController extends AdminController
                     ]),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->TextControl('address', '家庭住址'),
-                    amis()->TextControl('email', '常用邮箱'),
                 ]),
                 amis()->HiddenControl('region_info', '地区信息')->id('form_region_info'),
                 amis()->TextControl('address_info', '详细地址')

@@ -57,6 +57,23 @@ enum Enum
     ];
 
     /**
+     * 政治信仰
+     */
+    public const array Party = [
+        ['label' => '无', 'value' => '无党派'],
+        ['label' => '中国共产党', 'value' => '中国共产党'],
+        ['label' => '民主政党', 'children' => [
+            ['label' => '中国民革会', 'value' => '中国国民党革命委员会'],
+            ['label' => '中国民建会', 'value' => '中国民主建国会'],
+            ['label' => '中国民进会', 'value' => '中国民主促进会'],
+            ['label' => '中国农工党', 'value' => '中国农工民主党'],
+            ['label' => '中国致公党', 'value' => '中国致公党'],
+            ['label' => '九三学社', 'value' => '九三学社'],
+            ['label' => '台盟', 'value' => '台湾民主自治同盟'],
+        ]],
+    ];
+
+    /**
      * 设备品牌-刷脸
      */
     public const array BrandFace = [
