@@ -38,7 +38,7 @@ class Worker extends Model
     public function setAvatarAttribute($value): void
     {
         $avatar = str_replace(env('APP_URL') . Storage::url(''), '', $value);
-        $this->attributes['avatar'] = Storage::url($avatar);
+        $this->attributes['avatar'] = $value ? Storage::url($avatar) : null;
     }
 
 
@@ -77,15 +77,15 @@ class Worker extends Model
     }
 
 
-    public function enterpriseThrough(): HasManyThrough
-    {
-        return $this->hasManyThrough(Enterprise::class, EnterpriseWorker::class,
-            'worker_id',
-            'id',
-            'id',
-            'enterprise_id'
-        )->select(admin_raw("id as value, enterprise_name as label"));
-    }
+//    public function enterpriseThrough(): HasManyThrough
+//    {
+//        return $this->hasManyThrough(Enterprise::class, EnterpriseWorker::class,
+//            'worker_id',
+//            'id',
+//            'id',
+//            'enterprise_id'
+//        )->select(admin_raw("id as value, enterprise_name as label"));
+//    }
 
     public function rel(): hasOne
     {

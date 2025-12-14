@@ -310,10 +310,10 @@ class WorkerController extends AdminController
                                     ]
                                 ]
                             ]),
-                        amis()->TextControl('worker_name', '姓名')->id('worker_name')->required(),
-                        amis()->TextControl('worker_no', '工号')->labelRemark('员工编号'),
+                        amis()->TextControl('worker_name', '真实姓名')->id('worker_name')->required(),
+                        amis()->TextControl('worker_no', '系统编号')->value('${PADSTART(INT(RAND()*1000000000), 9, "0")}')->readOnly(),
                         amis()->TextControl('email', '常用邮箱'),
-                        amis()->TextControl('mobile', '手机号')->required(),
+                        amis()->TextControl('mobile', '手机号码')->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->ImageControl('avatar')
@@ -445,9 +445,9 @@ class WorkerController extends AdminController
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->TextControl('worker_name', '姓名'),
-                        amis()->TextControl('worker_sn', '员工编码'),
+                        amis()->TextControl('worker_no', '微信号'),
                         amis()->TextControl('id_card', '身份证号'),
-                        amis()->TextControl('work_sn', '工号'),
+                        amis()->TextControl('work_no', '工号'),
                         amis()->RadiosControl('sex', '性别')
                             ->options(Enum::sex()),
                     ]),
@@ -503,6 +503,7 @@ class WorkerController extends AdminController
                         ->onlyChildren()
                         ->searchable()
                         ->required(),
+                    amis()->TagControl('worker_sn', '工号'),
                 ])
                     ->className('border-gray-100 border-dashed')
                     ->mode('horizontal')

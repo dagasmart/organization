@@ -21,9 +21,12 @@ class EnterpriseDepartmentJobWorker extends Model
     protected static function booted(): void
     {
         static::addGlobalScope(ActiveScope::class, function ($query) {
+            $mer_id = admin_mer_id();
             $query->whereHas('base')
                 ->where('module', admin_current_module())
-                ->where('mer_id', admin_mer_id());
+                ->when($mer_id, function ($query) use ($mer_id) {
+                    $query->where('mer_id', $mer_id);
+                });
         });
     }
 
