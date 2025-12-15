@@ -137,16 +137,47 @@ class WorkerController extends AdminController
 
     public function form($isEdit = false): Form
     {
-        return $this->baseForm()->mode('horizontal')->tabs([
+        return $this->baseForm()->id('worker_form_id')->mode('horizontal')->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->TextControl('id_card', '身份证号')
                             ->required()
+                            ->validateOnChange()
+                            ->validations([
+                                'matchRegexp' => '/^\\d{17}[\\dX]$/i',
+                            ])
+                            ->validationErrors([
+                                'matchRegexp' => '请输入有效的身份证号码',
+                            ])
+                            ->addOn($isEdit ?
+                                amis()->VanillaAction()->icon('fa fa-retweet')->onEvent([
+                                    'click' => [
+                                        'actions' => [
+                                            [
+                                                'actionType'  => 'reset',
+                                                'componentId' => 'worker_form_id',
+                                            ],
+                                            [
+                                                'actionType'  => 'setValue',
+                                                'componentName' => 'id_card',
+                                                'args' => [
+                                                    'value' => '${id_card_enc | base64Decode}'
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ]) : false
+                            )
                             ->onEvent([
                                 'blur' => [
                                     'actions' => [
+                                        [
+                                            'actionType' => 'stopPropagation',
+                                            'componentName' => 'id_card',
+                                            'expression' => '${true}'
+                                        ],
                                         [
                                             'actionType' => 'ajax',
                                             'api' => [
@@ -224,6 +255,23 @@ class WorkerController extends AdminController
                                         ],
                                         [
                                             'actionType'  => 'setValue',
+                                            'componentName' => 'party',
+                                            'args' => [
+                                                'value' => '${event.data.responseResult.responseData.party||null}'
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'party',
+                                            'expression' => '${!!event.data.responseResult.responseData.party}'
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'party',
+                                            'expression' => '${!event.data.responseResult.responseData.party}'
+                                        ],
+                                        [
+                                            'actionType'  => 'setValue',
                                             'componentName' => 'email',
                                             'args' => [
                                                 'value' => '${event.data.responseResult.responseData.email||null}'
@@ -292,6 +340,23 @@ class WorkerController extends AdminController
                                         ],
                                         [
                                             'actionType'  => 'setValue',
+                                            'componentName' => 'combo',
+                                            'args' => [
+                                                'value' => '${event.data.responseResult.responseData.combo||null}'
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'combo',
+                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'combo',
+                                            'expression' => '${!event.data.responseResult.responseData.combo}'
+                                        ],
+                                        [
+                                            'actionType'  => 'setValue',
                                             'componentName' => 'region_id',
                                             'args' => [
                                                 'value' => '${event.data.responseResult.responseData.region_id||null}'
@@ -306,7 +371,31 @@ class WorkerController extends AdminController
                                             'actionType' => 'enabled',
                                             'componentName' => 'region_id',
                                             'expression' => '${!event.data.responseResult.responseData.region_id}'
-                                        ]
+                                        ],
+                                        [
+                                            'actionType'  => 'setValue',
+                                            'componentName' => 'address_info',
+                                            'args' => [
+                                                'value' => '${event.data.responseResult.responseData.address_info||null}'
+                                            ],
+                                        ],
+                                        [
+                                            'actionType'  => 'setValue',
+                                            'componentName' => 'family',
+                                            'args' => [
+                                                'value' => '${event.data.responseResult.responseData.family||null}'
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'family',
+                                            'expression' => '${!!event.data.responseResult.responseData.family}'
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'family',
+                                            'expression' => '${!event.data.responseResult.responseData.family}'
+                                        ],
                                     ]
                                 ]
                             ]),
@@ -566,6 +655,10 @@ class WorkerController extends AdminController
         ])->static();
 	}
 
+    /**
+     * 检查身份证并获取员工信息
+     * @return JsonResponse|JsonResource
+     */
     public function EnterpriseWorkerCheck(): JsonResponse|JsonResource
     {
         $id_card = request()->id_card ?? null;

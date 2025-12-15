@@ -23,6 +23,8 @@ class Worker extends Model
         'family' => 'array',
     ];
 
+    protected $appends = ['id_card_enc', 'mobile_enc'];
+
     public $timestamps = true;
 
     /**
@@ -41,6 +43,23 @@ class Worker extends Model
         $this->attributes['avatar'] = $value ? Storage::url($avatar) : null;
     }
 
+    /**
+     * 身份证号加密
+     * @return false|string
+     */
+    public function getIdCardEncAttribute(): false|string
+    {
+        return base64_encode($this->attributes['id_card']);
+    }
+
+    /**
+     * 身份证号加密
+     * @return false|string
+     */
+    public function getMobileEncAttribute(): false|string
+    {
+        return base64_encode($this->mobile);
+    }
 
     /**
      * 手机号脱敏

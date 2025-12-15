@@ -144,6 +144,7 @@ class WorkerService extends AdminService
     public function EnterpriseWorkerCheck($id_card)
     {
         return $this->query()
+            ->with(['enterprise','rel','combo'])
             ->where(['id_card' => $id_card])
             ->first();
     }
