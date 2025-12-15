@@ -46,6 +46,8 @@ class FacilityService extends AdminService
         $data = [
             'enterprise_id' => $request['enterprise_id'],
             'facility_id' => $model->id,
+            'module' => admin_current_module(),
+            'mer_id' => admin_mer_id(),
         ];
         admin_transaction(function () use ($data) {
             if ($data['facility_id']) {
@@ -69,17 +71,29 @@ class FacilityService extends AdminService
      */
     public function options(): array
     {
-        $id = request()->id;
-        $school_id = request()->enterprise_id;
+        $id = request()->id ?? 0;
+        $enterprise_id = request()->enterprise_id ?? 0;
         $data = $this->query()->from('biz_facility as a')
             ->join('biz_enterprise_facility as b','a.id','=','b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
-            ->when($school_id, function($query) use ($school_id) {
-                $query->where('b.enterprise_id', $school_id);
-            })
-            ->when($id, function($query) use ($id) {
-                $query->where('b.facility_id', '<>', $id);
-            })
+            ->where('b.enterprise_id', $enterprise_id)
+            ->where('b.facility_id', '<>', $id)
+            ->get()
+            ->toArray();
+        return array2tree($data);
+    }
+
+    /**
+     * 递归选择项
+     * @return array
+     */
+    public function allOptions(): array
+    {
+        $data = $this->query()->from('biz_facility as a')
+            ->join('biz_enterprise_facility as b','a.id','=','b.facility_id')
+            ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
+            ->where('b.module', '=', admin_current_module())
+            ->where('b.mer_id', '=', admin_mer_id())
             ->get()
             ->toArray();
         return array2tree($data);

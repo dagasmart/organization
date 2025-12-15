@@ -137,16 +137,17 @@ class WorkerController extends AdminController
 
     public function form($isEdit = false): Form
     {
-        return $this->baseForm()->id('worker_form_id')->mode('horizontal')->tabs([
+        return $this->baseForm()->id('worker_form_id')->data(['isEdit' => $isEdit])->mode('horizontal')->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
+                        amis()->HiddenControl('id', 'ID')->disabled($isEdit),
                         amis()->TextControl('id_card', '身份证号')
                             ->required()
                             ->validateOnChange()
                             ->validations([
-                                'matchRegexp' => '/^\\d{17}[\\dX]$/i',
+                                'matchRegexp' => '/^[\\d|*]{17}[\\dX]$/i',
                             ])
                             ->validationErrors([
                                 'matchRegexp' => '请输入有效的身份证号码',
@@ -175,8 +176,7 @@ class WorkerController extends AdminController
                                     'actions' => [
                                         [
                                             'actionType' => 'stopPropagation',
-                                            'componentName' => 'id_card',
-                                            'expression' => '${true}'
+                                            'expression' => '${isEdit}'
                                         ],
                                         [
                                             'actionType' => 'ajax',
@@ -345,16 +345,16 @@ class WorkerController extends AdminController
                                                 'value' => '${event.data.responseResult.responseData.combo||null}'
                                             ],
                                         ],
-                                        [
-                                            'actionType' => 'disabled',
-                                            'componentName' => 'combo',
-                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
-                                        ],
-                                        [
-                                            'actionType' => 'enabled',
-                                            'componentName' => 'combo',
-                                            'expression' => '${!event.data.responseResult.responseData.combo}'
-                                        ],
+//                                        [
+//                                            'actionType' => 'disabled',
+//                                            'componentName' => 'combo',
+//                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
+//                                        ],
+//                                        [
+//                                            'actionType' => 'enabled',
+//                                            'componentName' => 'combo',
+//                                            'expression' => '${!event.data.responseResult.responseData.combo}'
+//                                        ],
                                         [
                                             'actionType'  => 'setValue',
                                             'componentName' => 'region_id',
@@ -403,8 +403,8 @@ class WorkerController extends AdminController
                         amis()->HiddenControl('worker_no', '系统编号')
                             ->value('${CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
                             ->readOnly(),
-                        amis()->TreeSelectControl('party', '政治党派')
-                            ->options(Enum::Party)->value('无党派'),
+                        amis()->TreeSelectControl('party', '政治信仰')
+                            ->options(Enum::Party)->value('无信仰'),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号码')->required(),
                     ]),
@@ -540,7 +540,7 @@ class WorkerController extends AdminController
                         amis()->TextControl('worker_name', '真实姓名'),
                         amis()->TextControl('worker_no', '系统编号'),
                         amis()->TextControl('id_card', '身份证号'),
-                        amis()->TagControl('party', '政治党派'),
+                        amis()->TagControl('party', '政治信仰'),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号码')->required(),
                     ]),
@@ -571,11 +571,6 @@ class WorkerController extends AdminController
                     amis()->SelectControl('work_status', '工作状态')
                         ->options(Enum::WorkStatus),
                 ]),
-//                amis()->Divider(),
-//                amis()->GroupControl()->mode('horizontal')->body([
-//                    amis()->SelectControl('work_status', '工作状态')
-//                        ->options(Enum::WorkStatus),
-//                ]),
             ]),
             // 职务信息
             amis()->Tab()->title('职务信息')->body([
@@ -600,13 +595,13 @@ class WorkerController extends AdminController
                         ->required(),
                     amis()->TagControl('worker_sn', '工号'),
                 ])
-                    ->className('border-gray-100 border-dashed')
-                    ->mode('horizontal')
-                    ->multiLine(false)
-                    ->multiple()
-                    ->strictMode(false)
-                    ->removable()
-                    ->required(),
+                ->className('border-gray-100 border-dashed')
+                ->mode('horizontal')
+                ->multiLine(false)
+                ->strictMode(false)
+                ->multiple()
+                ->removable()
+                ->required(),
             ]),
             // 家庭情况
             amis()->Tab()->title('家庭情况')->body([
@@ -645,12 +640,12 @@ class WorkerController extends AdminController
                         ->required(),
                     amis()->TextControl('family_mobile','电话')->clearable(),
                 ])
-                    ->className('border-gray-100 border-dashed')
-                    ->mode('horizontal')
-                    ->multiLine(false)
-                    ->multiple()
-                    ->strictMode(false)
-                    ->removable(),
+                ->className('border-gray-100 border-dashed')
+                ->mode('horizontal')
+                ->multiLine(false)
+                ->multiple()
+                ->strictMode(false)
+                ->removable(),
             ]),
         ])->static();
 	}

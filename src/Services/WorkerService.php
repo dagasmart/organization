@@ -66,6 +66,8 @@ class WorkerService extends AdminService
     {
         $id = $data['id'] ?? null;
         if ($id) {
+            $data = array_intersect_key($data, array_flip(['combo'])) ?? null;
+            admin_abort_if(!$data, '职务信息不能为空');
             return $this->update($id, $data);
         } else {
             return parent::store($data);
