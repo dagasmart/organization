@@ -51,7 +51,7 @@ class WorkerController extends AdminController
                 amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed','left'),
                 amis()->TableColumn('enterprise_id', '机构')
                     ->searchable([
-                        ['type'=>'tree-select', 'searchable'=>true, 'options'=>$this->service->getEnterpriseAll()],
+                        ['type' => 'tree-select', 'searchable' => true, 'options' => $this->service->getEnterpriseAll()],
                     ])
                     //->breakpoint('*')
                     ->set('type','input-tag')
@@ -60,7 +60,7 @@ class WorkerController extends AdminController
                     ->set('fixed','left')
                     ->set('static', true),
                 amis()->TableColumn('department_id', '部门')
-                    ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->getDepartmentAll()])
+                    ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->getDepartmentAll()])
                     ->set('type', 'input-tag')
                     ->set('options', $this->service->getDepartmentAll())
                     ->set('value','${enterprise.department_id}')
@@ -374,9 +374,33 @@ class WorkerController extends AdminController
                                         ],
                                         [
                                             'actionType'  => 'setValue',
+                                            'componentName' => 'address',
+                                            'args' => [
+                                                'value' => '${event.data.responseResult.responseData.address||null}'
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'address',
+                                            'expression' => '${!!event.data.responseResult.responseData.address}'
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'address',
+                                            'expression' => '${!event.data.responseResult.responseData.address}'
+                                        ],
+                                        [
+                                            'actionType'  => 'setValue',
+                                            'componentName' => 'region_info',
+                                            'args' => [
+                                                'value' => '${event.data.responseResult.responseData.region_info||null}'
+                                            ],
+                                        ],
+                                        [
+                                            'actionType'  => 'setValue',
                                             'componentName' => 'address_info',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.address_info||null}'
+                                                'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}'
                                             ],
                                         ],
                                         [
@@ -519,14 +543,14 @@ class WorkerController extends AdminController
                 ->removable(),
             ]),
         ])->onEvent([
-            'submitSucc' => [
-                'actions' => [
-                    [
-                        'actionType' => 'custom',
-                        'script' => 'window.$owl.refreshAmisPage();'
-                    ],
-                ]
-            ]
+//            'submitSucc' => [
+//                'actions' => [
+//                    [
+//                        'actionType' => 'custom',
+//                        'script' => 'window.$owl.refreshAmisPage();'
+//                    ],
+//                ]
+//            ]
         ]);
     }
 

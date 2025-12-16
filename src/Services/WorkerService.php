@@ -66,10 +66,11 @@ class WorkerService extends AdminService
     {
         $id = $data['id'] ?? null;
         if ($id) {
-            $data = array_intersect_key($data, array_flip(['combo'])) ?? null;
+            $data = array_intersect_key($data, array_flip(['id','id_card', 'combo'])) ?? null;
             admin_abort_if(!$data, '职务信息不能为空');
             return $this->update($id, $data);
         } else {
+            unset($data['id']);
             return parent::store($data);
         }
     }
@@ -91,11 +92,27 @@ class WorkerService extends AdminService
         if ($mobile && strpos($mobile, '*')) {
             unset($data['mobile']);
         }
+
+        admin_abort_if(empty($data['id_card']), '请输入有效身份证号');
         //身份证号
         $id_card = $data['id_card'] ?? null;
-        if ($id_card && strpos($id_card, '*')) {
-            unset($data['id_card']);
-        }
+        if ($id_card) {
+            if (strpos($id_card, '*')) {
+                unset($data['id_card']);
+            } else {
+                //身份证号校验
+                identifyByIdCard($id_card);
+                //是否已存在
+                $id = $data['id'] ?? null;
+                $exists = Worker::query()
+                    ->where(['id_card' => $id_card])
+                    ->when($id, function ($query) use ($id) {
+                        return $query->where('id', '<>', $id);
+                    })
+                    ->exists();
+                admin_abort_if($exists, '身份证号(${id_card})已存在，请检查');
+            }
+       }
         //模块
         if (admin_current_module()) {
             $data['module'] = admin_current_module();
@@ -158,7 +175,10 @@ class WorkerService extends AdminService
     public function getEnterpriseAll(): array
     {
         $model = new Enterprise;
-        return $model->query()->whereNull('deleted_at')->get(['id as value','enterprise_name as label'])->toArray();
+        return $model->query()
+            ->whereNull('deleted_at')
+            ->get(['id as value','enterprise_name as label'])
+            ->toArray();
     }
 
     /**

@@ -24,9 +24,10 @@ enum Enum
     public const array WorkStatus = [
         ['value' => 0, 'label' => '未知'],
         ['value' => 1, 'label' => '正常'],
-        ['value' => 2, 'label' => '事病假'],
-        ['value' => 3, 'label' => '停职'],
-        ['value' => 4, 'label' => '离职'],
+        ['value' => 2, 'label' => '病事假'],
+        ['value' => 3, 'label' => '挂职'],
+        ['value' => 4, 'label' => '停职'],
+        ['value' => 5, 'label' => '离职'],
     ];
 
     /**
