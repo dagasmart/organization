@@ -51,7 +51,11 @@ class WorkerController extends AdminController
                 amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed','left'),
                 amis()->TableColumn('enterprise_id', '机构')
                     ->searchable([
-                        ['type' => 'tree-select', 'searchable' => true, 'options' => $this->service->getEnterpriseAll()],
+                        'name' => 'enterprise_id',
+                        'type' => 'select',
+                        'multiple' => false,
+                        'searchable' => true,
+                        'options' => $this->service->getEnterpriseAll(),
                     ])
                     //->breakpoint('*')
                     ->set('type','input-tag')

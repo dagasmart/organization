@@ -19,8 +19,14 @@ class FacilityService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->whereHas('rel', function ($query) {
-            $query->where('module', admin_current_module())->where('mer_id', admin_mer_id());
+        $query->whereHas('enterprise', function ($query) {
+            $mer_id = admin_mer_id();
+            $module = admin_current_module();
+            $query->when($module, function ($query) use($module) {
+                    $query->where('module', $module);
+                })->when($mer_id, function ($query) use($mer_id) {
+                    $query->where('mer_id', $mer_id);
+                });
         })->with(['enterprise','rel']);
     }
 
@@ -31,6 +37,13 @@ class FacilityService extends AdminService
         } else {
             $query->orderBy($this->primaryKey(), 'asc');
         }
+    }
+
+    public function list(): array
+    {
+        $list = parent::list();
+        $list['items'] = array2tree($list['items'] ?? []);
+        return $list;
     }
 
     /**
@@ -89,11 +102,16 @@ class FacilityService extends AdminService
      */
     public function allOptions(): array
     {
+        $mer_id = admin_mer_id();
+        $module = admin_current_module();
         $data = $this->query()->from('biz_facility as a')
             ->join('biz_enterprise_facility as b','a.id','=','b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
-            ->where('b.module', '=', admin_current_module())
-            ->where('b.mer_id', '=', admin_mer_id())
+            ->when($module, function ($query) use($module) {
+                $query->where('b.module', $module);
+            })->when($mer_id, function ($query) use($mer_id) {
+                $query->where('b.mer_id', $mer_id);
+            })
             ->get()
             ->toArray();
         return array2tree($data);

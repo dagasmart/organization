@@ -21,12 +21,12 @@ class DeviceService extends AdminService
     public function loadRelations($query): void
     {
         $query->whereHas('rel', function ($query) {
-            $admin_mer_id = admin_mer_id();
-            $admin_current_module = admin_current_module();
-            $query->when($admin_mer_id, function (Builder $query) use ($admin_mer_id) {
-                $query->where('mer_id', $admin_mer_id);
-            })->when($admin_current_module, function (Builder $query) use ($admin_current_module) {
-                $query->where('module', $admin_current_module);
+            $mer_id = admin_mer_id();
+            $module = admin_current_module();
+            $query->when($mer_id, function (Builder $query) use ($mer_id) {
+                $query->where('mer_id', $mer_id);
+            })->when($module, function (Builder $query) use ($module) {
+                $query->where('module', $module);
             });
         })->with(['rel']);
     }

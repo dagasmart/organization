@@ -28,7 +28,7 @@ class FacilityController extends AdminController
             ->autoGenerateFilter()
             ->affixHeader()
             ->columnsTogglable()
-            ->footable(['expand' => 'first'])
+            ->footable(['expand' => 'all'])
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')
@@ -44,7 +44,7 @@ class FacilityController extends AdminController
                     ])
                     ->width(200),
                 amis()->TableColumn('facility_name', '设施名称')->width(200),
-                amis()->TableColumn('parent_id', '主体')
+                amis()->TableColumn('parent_level_name', '主体')
                     ->set('type', 'tree-select')
                     ->set('options', $this->service->allOptions())
                     ->set('static', true)

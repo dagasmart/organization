@@ -13,7 +13,7 @@ class Facility extends Model
 	protected $table = 'biz_facility';
     protected $primaryKey = 'id';
 
-    protected $appends = ['level_name'];
+    protected $appends = ['level_name', 'parent_level_name'];
 
     public $timestamps = true;
 
@@ -33,6 +33,12 @@ class Facility extends Model
     public function getLevelNameAttribute()
     {
         return FacilityLevel::query()->where(['id' => $this->id])->value('level_name');
+    }
+
+    public function getParentLevelNameAttribute(): string
+    {
+        $lastSlashPosition = strrpos($this->level_name, '/');
+        return $this->attributes['parent_level_name'] = substr($this->level_name, 0, $lastSlashPosition);
     }
 
 }
