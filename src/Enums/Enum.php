@@ -98,11 +98,24 @@ enum Enum
         ]],
     ];
 
+    /**
+     * 设备品牌-刷脸
+     */
+    public const array BrandlLive = [
+        ['label' => '品牌监控', 'value'=>'access', 'children' => [
+            ['label' => '大华', 'value' => '大华'],
+            ['label' => '海康', 'value' => '海康'],
+            ['label' => '萤石', 'value' => '萤石'],
+            ['label' => '其它', 'value' => '其它'],
+        ]],
+    ];
+
     public static function brand($name = null): array
     {
         $data = [
             'face' => self::BrandFace,
             'access' => self::BrandAccess,
+            'live' => self::BrandlLive,
         ];
         return $name ? $data[$name] : $data;
     }
@@ -113,6 +126,7 @@ enum Enum
     public const array DeviceType = [
         ['label' => '刷脸设备', 'value' => 'face'],
         ['label' => '门禁设备', 'value' => 'access'],
+        ['label' => '监控设备', 'value' => 'live'],
     ];
 
     /**
