@@ -1,7 +1,7 @@
 {
     "name": "dagasmart/organization",
     "alias": "基数安装包",
-    "description": "Description...",
+    "description": "基础数据安装包括机构单位、员工、设施、设备等",
     "type": "library",
     "keywords": [
         "bizadmin",
