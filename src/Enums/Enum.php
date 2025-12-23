@@ -88,7 +88,7 @@ enum Enum
     ];
 
     /**
-     * 设备品牌-刷脸
+     * 设备品牌-门禁
      */
     public const array BrandAccess = [
         ['label' => '品牌门禁', 'value'=>'access', 'children' => [
@@ -99,9 +99,21 @@ enum Enum
     ];
 
     /**
-     * 设备品牌-刷脸
+     * 设备品牌-监控
      */
-    public const array BrandlLive = [
+    public const array BrandSurveillance = [
+        ['label' => '品牌监控', 'value'=>'access', 'children' => [
+            ['label' => '大华', 'value' => '大华'],
+            ['label' => '海康', 'value' => '海康'],
+            ['label' => '萤石', 'value' => '萤石'],
+            ['label' => '其它', 'value' => '其它'],
+        ]],
+    ];
+
+    /**
+     * 设备品牌-直播
+     */
+    public const array BrandLive = [
         ['label' => '品牌监控', 'value'=>'access', 'children' => [
             ['label' => '大华', 'value' => '大华'],
             ['label' => '海康', 'value' => '海康'],
@@ -115,7 +127,8 @@ enum Enum
         $data = [
             'face' => self::BrandFace,
             'access' => self::BrandAccess,
-            'live' => self::BrandlLive,
+            'surveillance' => self::BrandSurveillance,
+            'live' => self::BrandLive,
         ];
         return $name ? $data[$name] : $data;
     }
@@ -124,9 +137,10 @@ enum Enum
      * 设备类型
      */
     public const array DeviceType = [
-        ['label' => '刷脸设备', 'value' => 'face'],
-        ['label' => '门禁设备', 'value' => 'access'],
-        ['label' => '监控设备', 'value' => 'live'],
+        ['label' => '刷脸设备', 'value' => 'face', 'tag' => '刷脸'],
+        ['label' => '门禁设备', 'value' => 'access', 'tag' => '门禁'],
+        ['label' => '监控设备', 'value' => 'surveillance', 'tag' => '监控'],
+        ['label' => '直播设备', 'value' => 'live', 'tag' => '直播'],
     ];
 
     /**

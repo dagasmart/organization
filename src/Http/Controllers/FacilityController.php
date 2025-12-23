@@ -2,6 +2,7 @@
 
 namespace DagaSmart\Organization\Http\Controllers;
 
+use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Services\FacilityService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
@@ -86,6 +87,9 @@ class FacilityController extends AdminController
             amis()->TextControl('facility_code', '设施编码')
                 ->clearable(),
             amis()->TextareaControl('facility_desc', '设施描述')
+                ->clearable(),
+            amis()->TagControl('facility_tag', '场景标签')
+                ->options(array_column(Enum::DeviceType, 'tag'))
                 ->clearable(),
             amis()->NumberControl('sort', '排序')
                 ->min(0)
