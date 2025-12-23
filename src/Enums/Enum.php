@@ -104,8 +104,7 @@ enum Enum
     public const array BrandSurveillance = [
         ['label' => '品牌监控', 'value'=>'access', 'children' => [
             ['label' => '大华', 'value' => '大华'],
-            ['label' => '海康', 'value' => '海康'],
-            ['label' => '萤石', 'value' => '萤石'],
+            ['label' => '威视', 'value' => '威视'],
             ['label' => '其它', 'value' => '其它'],
         ]],
     ];
