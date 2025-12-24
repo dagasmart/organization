@@ -144,11 +144,13 @@ class DeviceService extends AdminService
             $model->setAttribute($k, $v);
         }
         if ($model->save()) {
-            $extra = [
-                'enterprise_id' => $data['enterprise_id'],
-                'facility_id' => $data['facility_id'],
-            ];
-            $model->relation()->sync([$model->id => $extra]);
+            if (!empty($data['enterprise_id']) && !empty($data['facility_id'])) {
+                $extra = [
+                    'enterprise_id' => $data['enterprise_id'],
+                    'facility_id' => $data['facility_id'],
+                ];
+                $model->relation()->sync([$model->id => $extra]);
+            }
             return true;
         }
         return false;
