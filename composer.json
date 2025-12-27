@@ -1,6 +1,6 @@
 {
     "name": "dagasmart/organization",
-    "alias": "基数安装包",
+    "alias": "基础安装包",
     "description": "基础数据安装包括机构单位、员工、设施、设备等",
     "type": "library",
     "keywords": [
@@ -12,7 +12,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "北京永易",
+            "name": "大圭智科",
             "email": "dagasmart@163.com"
         }
     ],
