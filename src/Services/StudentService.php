@@ -21,7 +21,13 @@ class StudentService extends AdminService
     public function loadRelations($query): void
     {
         $query->whereHas('rel', function ($query) {
-            $query->where('module', admin_current_module())->where('mer_id', admin_mer_id());
+            $mer_id = admin_mer_id();
+            $module = admin_current_module();
+            $query->when($module, function ($query) use($module) {
+                $query->where('module', $module);
+            })->when($mer_id, function ($query) use($mer_id) {
+                $query->where('mer_id', $mer_id);
+            });
         })->with(['rel']);
     }
     public function searchable($query): void

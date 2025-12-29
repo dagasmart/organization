@@ -22,7 +22,15 @@ class WorkerService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->with(['enterprise','rel','combo']);
+        $query->whereHas('enterprise', function ($query) {
+            $mer_id = admin_mer_id();
+            $module = admin_current_module();
+            $query->when($module, function ($query) use($module) {
+                $query->where('module', $module);
+            })->when($mer_id, function ($query) use($mer_id) {
+                $query->where('mer_id', $mer_id);
+            });
+        })->with(['enterprise','rel','combo']);
     }
 
     public function searchable($query): void
