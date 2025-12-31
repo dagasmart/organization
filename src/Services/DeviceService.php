@@ -113,6 +113,32 @@ class DeviceService extends AdminService
     }
 
     /**
+     * 设备选择项
+     * @return array
+     */
+    public function deviceOptions(): array
+    {
+        $id = request()->id;
+        $enterprise_id = request()->enterprise_id; // 机构单位
+        $facility_id = request()->facility_id;  // 主体设施
+        $device_type = request()->device_type; //设备类型
+        return $this->query()->from('biz_device as a')
+            ->join('biz_enterprise_facility_device as b','a.id','=','b.device_id')
+            ->select(['a.id as value', 'a.device_name as label'])
+            ->when($enterprise_id, function($query) use ($enterprise_id) {
+                $query->where('b.enterprise_id', $enterprise_id);
+            })
+            ->when($facility_id, function($query) use ($facility_id) {
+                $query->where('b.facility_id', $facility_id);
+            })
+            ->when($device_type, function($query) use ($device_type) {
+                $query->where('a.device_type', $device_type);
+            })
+            ->get()
+            ->toArray();
+    }
+
+    /**
      * 分(种)类型
      * @param null $key
      * @return array|string|null

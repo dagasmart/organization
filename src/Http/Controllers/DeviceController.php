@@ -172,6 +172,11 @@ class DeviceController extends AdminController
 		])->static();
 	}
 
+    public function deviceOptions(): array
+    {
+        return $this->service->deviceOptions();
+    }
+
     public function brandOptions($type = null): array
     {
         return $type ? Enum::brand($type) : [];
