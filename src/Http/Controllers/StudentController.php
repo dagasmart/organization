@@ -87,7 +87,7 @@ class StudentController extends AdminController
                                         'body' => [
                                             amis()->Image()
                                                 ->src('${avatar}')
-                                                ->defaultImage('/admin-assets/no-error.svg')
+                                                ->defaultImage(url(admin_config('admin.default_image')))
                                                 ->width('100%')
                                                 ->height('100%'),
                                         ]
