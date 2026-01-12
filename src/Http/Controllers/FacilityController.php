@@ -4,7 +4,6 @@ namespace DagaSmart\Organization\Http\Controllers;
 
 use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Services\FacilityService;
-use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
 

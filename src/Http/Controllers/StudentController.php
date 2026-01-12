@@ -7,7 +7,6 @@ use DagaSmart\BizAdmin\Renderers\Page;
 use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
 use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Services\StudentService;
-use DagaSmart\BizAdmin\Controllers\AdminController;
 use DagaSmart\BizAdmin\Renderers\Form;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
