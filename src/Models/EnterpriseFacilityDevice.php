@@ -39,4 +39,13 @@ class EnterpriseFacilityDevice extends Model
         return $this->hasOne(Facility::class, 'id', 'facility_id')->select(['id', 'parent_id', 'facility_name']);
     }
 
+    /**
+     * 设备
+     * @return HasOne
+     */
+    public function device(): hasOne
+    {
+        return $this->hasOne(Device::class, 'id', 'device_id')->select(['id', 'device_name', 'device_sn']);
+    }
+
 }
