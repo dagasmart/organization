@@ -1,8 +1,6 @@
 <?php
-
 namespace DagaSmart\Organization\Models;
 
-use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -13,13 +11,6 @@ class EnterpriseFacilityDevice extends Model
 	protected $table = 'biz_enterprise_facility_device';
 
     public $timestamps = false;
-
-//    protected static function booted(): void
-//    {
-//        static::addGlobalScope(ActiveScope::class, function ($query) {
-//            $query->whereHas('base');
-//        });
-//    }
 
     /**
      * 机构
