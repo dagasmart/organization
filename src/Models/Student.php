@@ -23,7 +23,7 @@ class Student extends Model
         'family' => 'array',
     ];
 
-    protected $appends = ['student_code'];
+    protected $appends = ['student_code', 'id_card_enc', 'mobile_enc'];
 
     public function getIdCardAttribute($value): string
     {
@@ -52,6 +52,24 @@ class Student extends Model
     public function getStudentCodeAttribute(): string
     {
         return 'G' . $this->id_card;
+    }
+
+    /**
+     * 身份证号加密
+     * @return false|string
+     */
+    public function getIdCardEncAttribute(): false|string
+    {
+        return base64_encode($this->attributes['id_card']);
+    }
+
+    /**
+     * 手机号加密
+     * @return false|string
+     */
+    public function getMobileEncAttribute(): false|string
+    {
+        return base64_encode($this->mobile);
     }
 
     public function getAvatarAttribute($value): string

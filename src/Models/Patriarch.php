@@ -11,16 +11,16 @@ use Illuminate\Support\Facades\Storage;
 
 
 /**
- * 基础-老师模型类
+ * 基础-家长模型类
  */
-class Worker extends Model
+class Patriarch extends Model
 {
-	protected $table = 'biz_worker';
+	protected $table = 'biz_patriarch';
     protected $primaryKey = 'id';
 
     protected $casts = [
-        'region_info' => 'array',
-        'family' => 'array',
+//        'region_info' => 'array',
+//        'family' => 'array',
     ];
 
     protected $appends = ['id_card_enc', 'mobile_enc'];
@@ -34,13 +34,12 @@ class Worker extends Model
      */
     public function getAvatarAttribute($value): ?string
     {
-        return $value ? env('APP_URL') . $value : null;
+        return admin_image_url($value);
     }
 
     public function setAvatarAttribute($value): void
     {
-        $avatar = str_replace(env('APP_URL') . Storage::url(''), '', $value);
-        $this->attributes['avatar'] = $value ? Storage::url($avatar) : null;
+        $this->attributes['avatar'] = admin_image_path($value);
     }
 
     /**
@@ -106,62 +105,30 @@ class Worker extends Model
 //        )->select(admin_raw("id as value, enterprise_name as label"));
 //    }
 
-    public function rel(): hasOne
+    public function rel(): hasMany
     {
-        return $this->hasOne(EnterpriseDepartmentJobWorker::class)->with(['job','department','enterprise']);
+        return $this->hasMany(EnterprisePatriarchStudent::class, 'patriarch_id', 'id')->with('student');
     }
 
-    public function enterprise(): HasOne
-    {
-        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'id'
-            )->select(admin_raw("
-                worker_id
-                ,string_agg (DISTINCT enterprise_id::VARCHAR, ',' ) as enterprise_id
-                ,string_agg (DISTINCT department_id::VARCHAR, ',' ) as department_id
-                ,string_agg (DISTINCT job_id::VARCHAR, ',' ) as job_id
-            "))
-            ->groupBy('worker_id');
-    }
+//    public function enterprise(): HasOne
+//    {
+//        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
+//            'worker_id',
+//            'id'
+//            )->select(admin_raw("
+//                worker_id
+//                ,string_agg (DISTINCT enterprise_id::VARCHAR, ',' ) as enterprise_id
+//                ,string_agg (DISTINCT department_id::VARCHAR, ',' ) as department_id
+//                ,string_agg (DISTINCT job_id::VARCHAR, ',' ) as job_id
+//            "))
+//            ->groupBy('worker_id');
+//    }
 
-    public function combo(): HasMany
-    {
-        return $this->hasMany(EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'id'
-            )
-            ->withoutGlobalScope('ActiveScope')
-            ->select(admin_raw("enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id"));
-    }
-
-    public function job(): HasOne
-    {
-        return $this->HasOne(EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'id'
-            )
-            ->select(admin_raw("worker_id,string_agg(job_id::varchar, ',') job_id"))
-            ->orderBy('job_id')
-            ->groupBy(['worker_id']);
-    }
 
     public function enterpriseData(): Collection
     {
         return Enterprise::query()->whereNull('deleted_at')->pluck('enterprise_name','id');
     }
-
-    public function enterpriseJobs(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Job::class,
-            EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'job_id'
-            )
-            ->wherePivot('mer_id', admin_mer_id());
-    }
-
 
 
 }

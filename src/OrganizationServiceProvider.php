@@ -29,15 +29,18 @@ class OrganizationServiceProvider extends ServiceProvider
                 'url_type' => 1,
                 'icon' => 'teenyicons:school-outline',
             ],
-            [
-                'parent' => '基础维护',
-                'title' => is_school_module() ? '老师管理' : '员工管理',
-                'url' => '/biz/enterprise/worker',
-                'url_type' => 1,
-                'icon' => 'la:chalkboard-teacher',
-            ],
+
         ];
         if (is_school_module()) {
+            $menu[] = [
+                [
+                    'parent' => '基础维护',
+                    'title' => '老师管理',
+                    'url' => '/biz/enterprise/worker',
+                    'url_type' => 1,
+                    'icon' => 'la:chalkboard-teacher',
+                ],
+            ];
             $menu[] = [
                 [
                     'parent' => '基础维护',
@@ -45,6 +48,25 @@ class OrganizationServiceProvider extends ServiceProvider
                     'url' => '/biz/enterprise/student',
                     'url_type' => 1,
                     'icon' => 'ph:student-light',
+                ],
+            ];
+            $menu[] = [
+                [
+                    'parent' => '基础维护',
+                    'title' => '家长管理',
+                    'url' => '/biz/enterprise/patriarch',
+                    'url_type' => 1,
+                    'icon' => 'ri:parent-line',
+                ],
+            ];
+        } else {
+            $menu[] = [
+                [
+                    'parent' => '基础维护',
+                    'title' => '员工管理',
+                    'url' => '/biz/enterprise/worker',
+                    'url_type' => 1,
+                    'icon' => 'healthicons:city-worker-outline',
                 ],
             ];
         }
