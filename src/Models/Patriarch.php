@@ -105,9 +105,9 @@ class Patriarch extends Model
 //        )->select(admin_raw("id as value, enterprise_name as label"));
 //    }
 
-    public function rel(): hasMany
+    public function child(): hasMany
     {
-        return $this->hasMany(EnterprisePatriarchStudent::class, 'patriarch_id', 'id')->with('student');
+        return $this->hasMany(EnterprisePatriarchStudent::class, 'patriarch_id', 'id')->with('rel');
     }
 
 //    public function enterprise(): HasOne

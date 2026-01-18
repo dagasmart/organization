@@ -2,6 +2,7 @@
 
 namespace DagaSmart\Organization\Services;
 
+use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Models\Department;
 use DagaSmart\Organization\Models\Job;
 use DagaSmart\Organization\Models\Enterprise;
@@ -22,7 +23,7 @@ class PatriarchService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->whereHas('rel', function ($query) {
+        $query->whereHas('child', function ($query) {
             $mer_id = admin_mer_id();
             $module = admin_current_module();
             $query->when($module, function ($query) use($module) {
@@ -30,7 +31,7 @@ class PatriarchService extends AdminService
             })->when($mer_id, function ($query) use($mer_id) {
                 $query->where('mer_id', $mer_id);
             });
-        })->with(['rel']);
+        })->with(['child']);
     }
 
     public function searchable($query): void
@@ -70,6 +71,149 @@ class PatriarchService extends AdminService
         }
     }
 
+    public function list(): array
+    {
+        $list = parent::list();
+        if ($list['items']) {
+            foreach ($list['items'] as &$item) {
+                $property = [];
+                if ($item['child']) {
+                    foreach ($item['child'] as &$child) {
+
+                        $property[] = [
+                            'label' => [
+                                'type' => 'avatar',
+                                'src' => $child['rel']['student']['avatar'],
+                                'size' => 'small',
+                                'onEvent' => [
+                                    'click' => [
+                                        'actions' => [
+                                            [
+                                                'actionType' => 'dialog',
+                                                'dialog' => [
+                                                    'title' => '关联学生信息',
+                                                    'actions' => [],
+                                                    'closeOnEsc' => true, //esc键关闭
+                                                    'closeOnOutside' => true, //域外可关闭
+                                                    'showCloseButton' => true, //显示关闭
+                                                    'body' => [
+                                                        'type' => 'page',
+                                                        'body' => [
+                                                            [
+                                                                'type' => 'group',
+                                                                'title' => false,
+                                                                'mode' => 'horizontal',
+                                                                'actions' => [],
+                                                                'body' => [
+                                                                    [
+                                                                        'type' => 'group',
+                                                                        'title' => false,
+                                                                        'direction' => 'vertical',
+                                                                        'columnRatio' => 7,
+                                                                        'body' => [
+                                                                            [
+                                                                                'type' => 'input-text',
+                                                                                'label' => '学生姓名',
+                                                                                'static' => true,
+                                                                                'value' => $child['rel']['student']['student_name']
+                                                                            ],
+                                                                            [
+                                                                                'type' => 'input-text',
+                                                                                'label' => '身份证号',
+                                                                                'static' => true,
+                                                                                'value' => $child['rel']['student']['id_card']
+                                                                            ],
+                                                                            [
+                                                                                'type' => 'input-text',
+                                                                                'label' => '国网学籍号',
+                                                                                'static' => true,
+                                                                                'value' => 'G' . $child['rel']['student']['id_card']
+                                                                            ],
+                                                                        ]
+                                                                    ],
+                                                                    [
+                                                                        'type' => 'group',
+                                                                        'title' => false,
+                                                                        'direction' => 'horizontal',
+                                                                        'columnRatio' => 5,
+                                                                        'body' => [
+                                                                            [
+                                                                                'type' => 'static-image',
+                                                                                'value' => $child['rel']['student']['avatar'],
+                                                                                'thumbRatio' => '1:1',
+                                                                                'thumbMode' => 'cover h-full rounded-md overflow-hidden',
+                                                                                'className' => 'h-full overflow-hidden',
+                                                                                'imageClassName' => 'w-52 h-64 overflow-hidden',
+                                                                                'fixedSizeClassName' => 'w-52 h-64 overflow-hidden',
+                                                                                'fixedSize' => true,
+                                                                                'crop' => ['aspectRatio' => '0.81'],
+                                                                            ]
+                                                                        ]
+                                                                    ],
+                                                                ],
+
+                                                            ],
+                                                            ['type' => 'divider'],
+                                                            [
+                                                                'type' => 'group',
+                                                                'title' => false,
+                                                                'mode' => 'horizontal',
+                                                                'body' => [
+                                                                    [
+                                                                        'type' => 'input-text',
+                                                                        'label' => '就读学校',
+                                                                        'static' => true,
+                                                                        'value' => $child['rel']['enterprise']['enterprise_name'] . ' / ' . $child['rel']['grade']['grade_name'] . ' / ' . $child['rel']['classes']['classes_name']
+                                                                    ],
+                                                                ]
+                                                            ],
+                                                            ['type' => 'divider'],
+                                                            [
+                                                                'type' => 'group',
+                                                                'title' => false,
+                                                                'mode' => 'horizontal',
+                                                                'body' => [
+                                                                    [
+                                                                        'type' => 'select',
+                                                                        'label' => '性别',
+                                                                        'options' => Enum::sex(),
+                                                                        'value' => $child['rel']['student']['sex'],
+                                                                        'static' => true,
+                                                                    ],
+                                                                    [
+                                                                        'type' => 'select',
+                                                                        'label' => '民族',
+                                                                        'options' => Enum::nation(),
+                                                                        'value' => $child['rel']['student']['nation'],
+                                                                        'static' => true,
+                                                                    ],
+                                                                    [
+                                                                        'type' => 'select',
+                                                                        'label' => '状态',
+                                                                        'static' => true,
+                                                                        'options' => Enum::StudentState,
+                                                                        'value' => $child['rel']['student']['state']
+                                                                    ],
+                                                                ]
+                                                            ],
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ],
+                        ];
+                    }
+                }
+                $item['property'] = $property;
+            }
+        }
+        return $list;
+    }
+
+
     public function store($data): bool
     {
         $id = $data['id'] ?? null;
@@ -85,16 +229,6 @@ class PatriarchService extends AdminService
 
     public function saving(&$data, $primaryKey = ''): void
     {
-        if (is_repeat($data['combo'])) {
-            admin_abort('机构信息12：部门或职务选项有重叠，请修改或删除');
-        }
-        //地区代码
-        $region_id = $data['region_id'] ?? null;
-        if ($region_id) {
-            if (is_array($data['region_id'])) {
-                $data['region_id'] = $data['region_id']['code'];
-            }
-        }
         //手机号码
         $mobile = $data['mobile'] ?? null;
         if ($mobile && strpos($mobile, '*')) {

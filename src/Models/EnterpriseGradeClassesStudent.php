@@ -40,6 +40,16 @@ class EnterpriseGradeClassesStudent extends Model
      * 班级
      * @return HasOne
      */
+    public function student(): hasOne
+    {
+        return $this->hasOne(Student::class, 'id', 'student_id')
+            ->select(['id', 'student_name', 'id_card', 'mobile','avatar','sex','nation']);
+    }
+
+    /**
+     * 班级
+     * @return HasOne
+     */
     public function classes(): hasOne
     {
         return $this->hasOne(Classes::class, 'id', 'classes_id')->select(['id', 'classes_name']);

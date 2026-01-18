@@ -44,12 +44,14 @@ class EnterprisePatriarchStudent extends Model
     }
 
     /**
-     * 学生
+     * 孩子关联信息
      * @return HasOne
      */
-    public function student(): hasOne
+    public function rel(): hasOne
     {
-        return $this->hasOne(Student::class, 'id', 'student_id')->select(['id', 'student_name', 'id_card', 'mobile','avatar']);
+        return $this->hasOne(EnterpriseGradeClassesStudent::class, 'student_id', 'student_id')
+            ->select(['enterprise_id', 'grade_id', 'classes_id', 'student_id'])
+            ->with(['enterprise', 'grade', 'classes', 'student']);
     }
 
 
