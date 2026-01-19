@@ -34,7 +34,7 @@ class Worker extends Model
      */
     public function getAvatarAttribute($value): ?string
     {
-        return $value ? env('APP_URL') . $value : null;
+        return admin_image_url($value);
     }
 
     public function setAvatarAttribute($value): void

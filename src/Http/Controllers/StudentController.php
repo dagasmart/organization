@@ -70,7 +70,7 @@ class StudentController extends AdminController
                     ->set('src','${avatar}')
                     ->set('type','avatar')
                     ->set('fit','cover')
-                    ->set('size',60)
+                    ->set('size','small')
                     ->set('onError','return true;')
                     ->set('onEvent', [
                         'click' => [

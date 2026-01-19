@@ -72,9 +72,9 @@ class Student extends Model
         return base64_encode($this->mobile);
     }
 
-    public function getAvatarAttribute($value): string
+    public function getAvatarAttribute($value): ?string
     {
-        return env('APP_URL') . $value;
+        return admin_image_url($value);
     }
 
     public function setAvatarAttribute($value): void
