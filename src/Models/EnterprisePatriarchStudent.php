@@ -50,7 +50,7 @@ class EnterprisePatriarchStudent extends Model
     public function rel(): hasOne
     {
         return $this->hasOne(EnterpriseGradeClassesStudent::class, 'student_id', 'student_id')
-            ->select(['enterprise_id', 'grade_id', 'classes_id', 'student_id'])
+            ->select(['enterprise_id', 'grade_id', 'classes_id', 'student_id', 'state', 'reason'])
             ->with(['enterprise', 'grade', 'classes', 'student']);
     }
 

@@ -125,7 +125,7 @@ class PatriarchService extends AdminService
                                                                                 ],
                                                                                 [
                                                                                     'type' => 'input-text',
-                                                                                    'label' => '国网学籍号',
+                                                                                    'label' => '国网学籍',
                                                                                     'static' => true,
                                                                                     'value' => 'G' . $child['rel']['student']['id_card']
                                                                                 ],
@@ -186,11 +186,10 @@ class PatriarchService extends AdminService
                                                                             'static' => true,
                                                                         ],
                                                                         [
-                                                                            'type' => 'select',
+                                                                            'type' => 'input-text',
                                                                             'label' => '状态',
                                                                             'static' => true,
-                                                                            'options' => Enum::StudentState,
-                                                                            'value' => $child['rel']['student']['state']
+                                                                            'value' => $child['rel']['state_as']
                                                                         ],
                                                                     ]
                                                                 ],

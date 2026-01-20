@@ -3,6 +3,7 @@
 namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Scopes\ActiveScope;
+use DagaSmart\Organization\Enums\Enum;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -15,7 +16,9 @@ class EnterpriseGradeClassesStudent extends Model
 	protected $table = 'biz_enterprise_grade_classes_student';
 
     // 允许批量赋值的字段
-    protected $fillable = ['enterprise_id','grade_id','classes_id','student_id'];
+    protected $fillable = ['enterprise_id','grade_id','classes_id','student_id','state'];
+
+    public $appends = ['state_as'];
 
     public $timestamps = false;
 
@@ -34,6 +37,12 @@ class EnterpriseGradeClassesStudent extends Model
                     $query->where('mer_id', admin_mer_id());
                 });
         });
+    }
+
+    public function getStateAsAttribute(): ?string
+    {
+        $state = array_column(Enum::StudentState, 'label', 'value');
+        return $state[$this->state ?? null] ?? null;
     }
 
     /**
