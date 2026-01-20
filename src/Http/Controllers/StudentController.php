@@ -41,7 +41,7 @@ class StudentController extends AdminController
                     ->placeholder('请选择机构...')
                     ->size('lg'),
                 amis()->Divider(),
-                amis()->TextControl('name', '学生姓名')
+                amis()->TextControl('student_name', '学生姓名')
                     ->clearable()
                     ->placeholder('请输入学生姓名')
                     ->size('sm'),

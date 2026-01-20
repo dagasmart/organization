@@ -79,132 +79,131 @@ class PatriarchService extends AdminService
                 $property = [];
                 if ($item['child']) {
                     foreach ($item['child'] as &$child) {
-
-                        $property[] = [
-                            'label' => [
-                                'type' => 'avatar',
-                                'src' => $child['rel']['student']['avatar'],
-                                'size' => 'small',
-                                'onEvent' => [
-                                    'click' => [
-                                        'actions' => [
-                                            [
-                                                'actionType' => 'dialog',
-                                                'dialog' => [
-                                                    'title' => '关联学生信息',
-                                                    'actions' => [],
-                                                    'closeOnEsc' => true, //esc键关闭
-                                                    'closeOnOutside' => true, //域外可关闭
-                                                    'showCloseButton' => true, //显示关闭
-                                                    'body' => [
-                                                        'type' => 'page',
+                        if ($child['rel']) {
+                            $property[] = [
+                                'label' => [
+                                    'type' => 'avatar',
+                                    'src' => $child['rel']['student']['avatar'],
+                                    'size' => 'small',
+                                    'onEvent' => [
+                                        'click' => [
+                                            'actions' => [
+                                                [
+                                                    'actionType' => 'dialog',
+                                                    'dialog' => [
+                                                        'title' => '关联学生信息',
+                                                        'actions' => [],
+                                                        'closeOnEsc' => true, //esc键关闭
+                                                        'closeOnOutside' => true, //域外可关闭
+                                                        'showCloseButton' => true, //显示关闭
                                                         'body' => [
-                                                            [
-                                                                'type' => 'group',
-                                                                'title' => false,
-                                                                'mode' => 'horizontal',
-                                                                'actions' => [],
-                                                                'body' => [
-                                                                    [
-                                                                        'type' => 'group',
-                                                                        'title' => false,
-                                                                        'direction' => 'vertical',
-                                                                        'columnRatio' => 7,
-                                                                        'body' => [
-                                                                            [
-                                                                                'type' => 'input-text',
-                                                                                'label' => '学生姓名',
-                                                                                'static' => true,
-                                                                                'value' => $child['rel']['student']['student_name']
-                                                                            ],
-                                                                            [
-                                                                                'type' => 'input-text',
-                                                                                'label' => '身份证号',
-                                                                                'static' => true,
-                                                                                'value' => $child['rel']['student']['id_card']
-                                                                            ],
-                                                                            [
-                                                                                'type' => 'input-text',
-                                                                                'label' => '国网学籍号',
-                                                                                'static' => true,
-                                                                                'value' => 'G' . $child['rel']['student']['id_card']
-                                                                            ],
-                                                                        ]
-                                                                    ],
-                                                                    [
-                                                                        'type' => 'group',
-                                                                        'title' => false,
-                                                                        'direction' => 'horizontal',
-                                                                        'columnRatio' => 5,
-                                                                        'body' => [
-                                                                            [
-                                                                                'type' => 'static-image',
-                                                                                'value' => $child['rel']['student']['avatar'],
-                                                                                'thumbRatio' => '1:1',
-                                                                                'thumbMode' => 'cover h-full rounded-md overflow-hidden',
-                                                                                'className' => 'h-full overflow-hidden',
-                                                                                'imageClassName' => 'w-52 h-64 overflow-hidden',
-                                                                                'fixedSizeClassName' => 'w-52 h-64 overflow-hidden',
-                                                                                'fixedSize' => true,
-                                                                                'crop' => ['aspectRatio' => '0.81'],
+                                                            'type' => 'page',
+                                                            'body' => [
+                                                                [
+                                                                    'type' => 'group',
+                                                                    'title' => false,
+                                                                    'mode' => 'horizontal',
+                                                                    'actions' => [],
+                                                                    'body' => [
+                                                                        [
+                                                                            'type' => 'group',
+                                                                            'title' => false,
+                                                                            'direction' => 'vertical',
+                                                                            'columnRatio' => 7,
+                                                                            'body' => [
+                                                                                [
+                                                                                    'type' => 'input-text',
+                                                                                    'label' => '学生姓名',
+                                                                                    'static' => true,
+                                                                                    'value' => $child['rel']['student']['student_name']
+                                                                                ],
+                                                                                [
+                                                                                    'type' => 'input-text',
+                                                                                    'label' => '身份证号',
+                                                                                    'static' => true,
+                                                                                    'value' => $child['rel']['student']['id_card']
+                                                                                ],
+                                                                                [
+                                                                                    'type' => 'input-text',
+                                                                                    'label' => '国网学籍号',
+                                                                                    'static' => true,
+                                                                                    'value' => 'G' . $child['rel']['student']['id_card']
+                                                                                ],
                                                                             ]
-                                                                        ]
+                                                                        ],
+                                                                        [
+                                                                            'type' => 'group',
+                                                                            'title' => false,
+                                                                            'direction' => 'horizontal',
+                                                                            'columnRatio' => 5,
+                                                                            'body' => [
+                                                                                [
+                                                                                    'type' => 'static-image',
+                                                                                    'value' => $child['rel']['student']['avatar'],
+                                                                                    'thumbRatio' => '1:1',
+                                                                                    'thumbMode' => 'cover h-full rounded-md overflow-hidden',
+                                                                                    'className' => 'h-full overflow-hidden',
+                                                                                    'imageClassName' => 'w-52 h-64 overflow-hidden',
+                                                                                    'fixedSizeClassName' => 'w-52 h-64 overflow-hidden',
+                                                                                    'fixedSize' => true,
+                                                                                    'crop' => ['aspectRatio' => '0.81'],
+                                                                                ]
+                                                                            ]
+                                                                        ],
                                                                     ],
-                                                                ],
 
-                                                            ],
-                                                            ['type' => 'divider'],
-                                                            [
-                                                                'type' => 'group',
-                                                                'title' => false,
-                                                                'mode' => 'horizontal',
-                                                                'body' => [
-                                                                    [
-                                                                        'type' => 'input-text',
-                                                                        'label' => '就读学校',
-                                                                        'static' => true,
-                                                                        'value' => $child['rel']['enterprise']['enterprise_name'] . ' / ' . $child['rel']['grade']['grade_name'] . ' / ' . $child['rel']['classes']['classes_name']
-                                                                    ],
-                                                                ]
-                                                            ],
-                                                            ['type' => 'divider'],
-                                                            [
-                                                                'type' => 'group',
-                                                                'title' => false,
-                                                                'mode' => 'horizontal',
-                                                                'body' => [
-                                                                    [
-                                                                        'type' => 'select',
-                                                                        'label' => '性别',
-                                                                        'options' => Enum::sex(),
-                                                                        'value' => $child['rel']['student']['sex'],
-                                                                        'static' => true,
-                                                                    ],
-                                                                    [
-                                                                        'type' => 'select',
-                                                                        'label' => '民族',
-                                                                        'options' => Enum::nation(),
-                                                                        'value' => $child['rel']['student']['nation'],
-                                                                        'static' => true,
-                                                                    ],
-                                                                    [
-                                                                        'type' => 'select',
-                                                                        'label' => '状态',
-                                                                        'static' => true,
-                                                                        'options' => Enum::StudentState,
-                                                                        'value' => $child['rel']['student']['state']
-                                                                    ],
-                                                                ]
-                                                            ],
+                                                                ],
+                                                                ['type' => 'divider'],
+                                                                [
+                                                                    'type' => 'group',
+                                                                    'title' => false,
+                                                                    'mode' => 'horizontal',
+                                                                    'body' => [
+                                                                        [
+                                                                            'type' => 'input-text',
+                                                                            'label' => '就读学校',
+                                                                            'static' => true,
+                                                                            'value' => $child['rel']['enterprise']['enterprise_name'] . ' / ' . $child['rel']['grade']['grade_name'] . ' / ' . $child['rel']['classes']['classes_name']
+                                                                        ],
+                                                                    ]
+                                                                ],
+                                                                ['type' => 'divider'],
+                                                                [
+                                                                    'type' => 'group',
+                                                                    'title' => false,
+                                                                    'mode' => 'horizontal',
+                                                                    'body' => [
+                                                                        [
+                                                                            'type' => 'input-text',
+                                                                            'label' => '性别',
+                                                                            'value' => $child['rel']['student']['sex_as'],
+                                                                            'static' => true,
+                                                                        ],
+                                                                        [
+                                                                            'type' => 'input-text',
+                                                                            'label' => '民族',
+                                                                            'value' => $child['rel']['student']['nation_as'],
+                                                                            'static' => true,
+                                                                        ],
+                                                                        [
+                                                                            'type' => 'select',
+                                                                            'label' => '状态',
+                                                                            'static' => true,
+                                                                            'options' => Enum::StudentState,
+                                                                            'value' => $child['rel']['student']['state']
+                                                                        ],
+                                                                    ]
+                                                                ],
+                                                            ]
                                                         ]
                                                     ]
                                                 ]
                                             ]
                                         ]
                                     ]
-                                ]
-                            ],
-                        ];
+                                ],
+                            ];
+                        }
                     }
                 }
                 $item['property'] = $property;
@@ -302,10 +301,10 @@ class PatriarchService extends AdminService
         return $this->getModel()->enterpriseData();
     }
 
-    public function EnterpriseWorkerCheck($id_card)
+    public function EnterprisePatriarchCheck($id_card)
     {
         return $this->query()
-            ->with(['enterprise','rel','combo'])
+            ->with(['child'])
             ->where(['id_card' => $id_card])
             ->first();
     }

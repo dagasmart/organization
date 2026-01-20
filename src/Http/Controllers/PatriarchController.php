@@ -171,7 +171,7 @@ class PatriarchController extends AdminController
                                             'actionType' => 'ajax',
                                             'api' => [
                                                 'method' => 'GET',
-                                                'url' => admin_url('biz/enterprise/worker/${id_card||0}/check'),
+                                                'url' => admin_url('biz/enterprise/patriarch/${id_card||0}/check'),
                                             ],
                                         ],
                                         [
@@ -396,8 +396,8 @@ class PatriarchController extends AdminController
                                 ]
                             ]),
                         amis()->TextControl('patriarch_name', '真实姓名')->id('patriarch_name')->required(),
-                        amis()->HiddenControl('patriarch_sn', '系统编号')
-                            ->value('${CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
+                        amis()->TextControl('patriarch_sn', '系统编号')
+                            ->value('${CONCATENATE("E", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
                             ->readOnly(),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号码')->required(),
@@ -426,10 +426,9 @@ class PatriarchController extends AdminController
                         ->options(Enum::sex())->value(3),
                     amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation()),
-                    amis()->SelectControl('work_status', '状态')
-                        ->options(Enum::WorkStatus)
-                        ->value(1)
-                        ->required(),
+                    amis()->SwitchControl('is_primary', '主关系')
+                        ->onText('是')
+                        ->offText('否'),
                 ]),
             ]),
         ])->onEvent([
@@ -479,23 +478,29 @@ class PatriarchController extends AdminController
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->RadiosControl('sex', '性别')
                         ->options(Enum::sex()),
-                    amis()->SelectControl('nation_id', '民族')
+                    amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation()),
-                    amis()->SelectControl('work_status', '工作状态')
-                        ->options(Enum::WorkStatus),
+                    amis()->SwitchControl('is_primary', '主关系')
+                        ->onText('是')
+                        ->offText('否')
+                        ->static(false)
+                        ->disabled(),
+
                 ]),
+                amis()->Divider(),
+                amis()->DateTimeControl('updated_at', '更新时间'),
             ]),
         ])->static();
 	}
 
     /**
-     * 检查身份证并获取员工信息
+     * 检查身份证并获取家长信息
      * @return JsonResponse|JsonResource
      */
-    public function EnterpriseWorkerCheck(): JsonResponse|JsonResource
+    public function EnterprisePatriarchCheck(): JsonResponse|JsonResource
     {
         $id_card = request()->id_card ?? null;
-        $res = $this->service->EnterpriseWorkerCheck($id_card);
+        $res = $this->service->EnterprisePatriarchCheck($id_card);
         return $this->response()->success($res);
     }
 

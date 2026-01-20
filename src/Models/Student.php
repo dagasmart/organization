@@ -3,6 +3,7 @@
 namespace DagaSmart\Organization\Models;
 
 
+use DagaSmart\Organization\Enums\Enum;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\hasOne;
@@ -23,7 +24,7 @@ class Student extends Model
         'family' => 'array',
     ];
 
-    protected $appends = ['student_code', 'id_card_enc', 'mobile_enc'];
+    protected $appends = ['student_code', 'id_card_enc', 'mobile_enc', 'sex_as', 'nation_as'];
 
     public function getIdCardAttribute($value): string
     {
@@ -81,6 +82,18 @@ class Student extends Model
     {
         $avatar = str_replace(env('APP_URL') . Storage::url(''), '', $value);
         $this->attributes['avatar'] = Storage::url($avatar);
+    }
+
+    public function getSexAsAttribute(): ?string
+    {
+        $sex = array_column(Enum::sex(), 'label', 'value');
+        return $sex[$this->sex ?? null] ?? null;
+    }
+
+    public function getNationAsAttribute(): ?string
+    {
+        $nation = array_column(Enum::nation(), 'label', 'value');
+        return $nation[$this->nation ?? null] ?? null;
     }
 
     public function sexOption(): array

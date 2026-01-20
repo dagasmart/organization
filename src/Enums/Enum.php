@@ -255,6 +255,15 @@ enum Enum
     }
 
     /**
+     * 主要关系
+     * @return array
+     */
+    public static function is_primary(): array
+    {
+        return Enums::is_primary();
+    }
+
+    /**
      * 机构性质
      * @return array
      */
