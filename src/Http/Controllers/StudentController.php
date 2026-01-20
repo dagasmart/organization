@@ -104,7 +104,10 @@ class StudentController extends AdminController
                     ->set('type', 'checkboxes')
                     ->set('options', $this->service->getModel()->sexOption())
                     ->set('static', true),
-                amis()->TableColumn('status', '状态'),
+                amis()->TableColumn('rel.state', '状态')
+                    ->set('type', 'mapping')
+                    ->set('map', Enum::student_state())
+                    ->set('static', true),
                 amis()->TableColumn('id_card', '身份证号')->searchable(),
 				amis()->TableColumn('mobile', '电话')->searchable(),
 				amis()->TableColumn('updated_at', admin_trans('admin.updated_at'))->type('datetime')->sortable(),
@@ -184,15 +187,19 @@ class StudentController extends AdminController
                         ->options(Enum::nation())
                         ->value(1)
                         ->required(),
-                    amis()->SelectControl('status', '状态')
+                    amis()->SelectControl('state', '状态')
                         ->options(Enum::StudentState)
-                        ->value(1)
+                        ->value('${rel.state}')
                         ->required(),
                 ]),
             ]),
 
             // 家庭情况
             amis()->Tab()->title('家庭情况')->body([
+                amis()->GroupControl()->mode('horizontal')->body([
+                    amis()->TextControl('email', '常用邮箱'),
+                    amis()->TextControl('mobile', '常用手机'),
+                ]),
                 amis()->InputCityControl('region_id', '所在地区')
                     ->searchable()
                     ->extractValue(false)
@@ -209,12 +216,10 @@ class StudentController extends AdminController
                             ],
                         ],
                     ]),
-                amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->TextControl('address', '家庭住址'),
-                    amis()->TextControl('email', '常用邮箱'),
-                ]),
                 amis()->HiddenControl('region_info', '地区信息')->id('form_region_info'),
-                amis()->TextControl('address_info', '详细地址')
+                amis()->TextControl('address', '家庭住址')->visibleOn('${region_info.code}')
+                    ->desc('${region_info.province} ${region_info.city} ${region_info.district} ${address}'),
+                amis()->HiddenControl('address_info', '详细地址')
                     ->value('${region_info.province} ${region_info.city} ${region_info.district} ${address}')
                     ->static(),
                 amis()->Divider()->title('家庭成员')->titlePosition('left'),
@@ -324,13 +329,54 @@ class StudentController extends AdminController
                         ->options(Enum::nation())
                         ->value(1)
                         ->required(),
-                    amis()->SelectControl('status', '状态')
+                    amis()->SelectControl('state', '状态')
                         ->options(Enum::StudentState)
-                        ->value(1)
+                        ->value('${rel.state}')
                         ->required(),
                 ]),
             ]),
-            //其他
+            // 家庭情况
+            amis()->Tab()->title('家庭情况')->body([
+                amis()->GroupControl()->mode('horizontal')->body([
+                    amis()->TextControl('email', '常用邮箱'),
+                    amis()->TextControl('mobile', '常用手机'),
+                ]),
+                amis()->InputCityControl('region_id', '所在地区')
+                    ->searchable()
+                    ->extractValue(false)
+                    ->onEvent([
+                        'change' => [
+                            'actions' => [
+                                [
+                                    'actionType'  => 'setValue',
+                                    'componentId' => 'form_region_info',
+                                    'args'        => [
+                                        'value' => '${value}'
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]),
+                amis()->TextControl('address_info', '详细地址')
+                    ->value('${region_info.province} ${region_info.city} ${region_info.district} ${address}'),
+                amis()->Divider()->title('家庭成员')->titlePosition('left'),
+                amis()->ComboControl('family', false)->items([
+                    amis()->TextControl('family_name', '${index+1}.姓名')
+                        ->clearable()
+                        ->required(),
+                    amis()->SelectControl('family_ties', '关系')
+                        ->options(Enum::family())
+                        ->clearable()
+                        ->required(),
+                    amis()->TextControl('family_mobile','电话')->clearable(),
+                ])
+                    ->className('border-gray-100 border-dashed')
+                    ->mode('horizontal')
+                    ->multiLine(false)
+                    ->multiple()
+                    ->strictMode(false)
+                    ->removable(),
+            ]),
 		])->static();
 	}
 

@@ -69,12 +69,17 @@ class StudentService extends AdminService
 
     public function saving(&$data, $primaryKey = ''): void
     {
-        //地区代码
+        //提取地区代码
         $region_id = $data['region_id'] ?? null;
         if ($region_id) {
             if (is_array($data['region_id'])) {
                 $data['region_id'] = $data['region_id']['code'];
             }
+        }
+        //为0为空不存在时
+        if (empty($data['region_id'])) {
+            $data['region_id'] = null;
+            $data['region_info'] = null;
         }
         //手机号码
         $mobile = $data['mobile'] ?? null;
@@ -110,7 +115,8 @@ class StudentService extends AdminService
             'enterprise_id' => $request['enterprise_id'],
             'grade_id' => $request['grade_id'],
             'classes_id' => $request['classes_id'],
-            'student_id' => $model->id
+            'student_id' => $model->id,
+            'state' => $request['state'] ?? 1,
         ];
         admin_transaction(function () use ($data) {
             if ($data['classes_id']) {

@@ -11,11 +11,11 @@ enum Enum
      * 学生状态
      */
     public const array StudentState = [
-        ['value' => 1, 'label' => '正常'],
-        ['value' => 2, 'label' => '毕业'],
-        ['value' => 3, 'label' => '转学'],
-        ['value' => 4, 'label' => '休学'],
-        ['value' => 5, 'label' => '退学'],
+        ['value' => 1, 'label' => '正常', 'color' => 'success'],
+        ['value' => 2, 'label' => '毕业', 'color' => 'info'],
+        ['value' => 3, 'label' => '转学', 'color' => 'default'],
+        ['value' => 4, 'label' => '休学', 'color' => 'success'],
+        ['value' => 5, 'label' => '退学', 'color' => 'danger'],
     ];
 
     /**
@@ -243,6 +243,25 @@ enum Enum
     public static function nation(): array
     {
         return Enums::nation();
+    }
+
+
+    /**
+     * 民族
+     * @return array
+     */
+    public static function student_state(): array
+    {
+        $data = [];
+        $list = Enum::StudentState;
+        if ($list) {
+            foreach ($list as $item) {
+                $label = $item['label'];
+                $color = $item['color'];
+                $data[$item['value']] = "<span class='label label-{$color} rounded-full font-thin'>{$label}</span>";
+            }
+        }
+        return $data;
     }
 
     /**
