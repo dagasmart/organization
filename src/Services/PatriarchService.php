@@ -2,7 +2,6 @@
 
 namespace DagaSmart\Organization\Services;
 
-use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Models\Department;
 use DagaSmart\Organization\Models\Job;
 use DagaSmart\Organization\Models\Enterprise;

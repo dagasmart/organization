@@ -13,8 +13,8 @@ enum Enum
     public const array StudentState = [
         ['value' => 1, 'label' => '正常', 'color' => 'success'],
         ['value' => 2, 'label' => '毕业', 'color' => 'info'],
-        ['value' => 3, 'label' => '转学', 'color' => 'default'],
-        ['value' => 4, 'label' => '休学', 'color' => 'success'],
+        ['value' => 3, 'label' => '转学', 'color' => 'warning'],
+        ['value' => 4, 'label' => '休学', 'color' => 'default'],
         ['value' => 5, 'label' => '退学', 'color' => 'danger'],
     ];
 
