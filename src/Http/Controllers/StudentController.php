@@ -192,6 +192,7 @@ class StudentController extends AdminController
                         ->value('${rel.state}')
                         ->required(),
                 ]),
+                amis()->TextareaControl('')
             ]),
 
             // 家庭情况
