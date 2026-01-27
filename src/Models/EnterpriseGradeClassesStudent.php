@@ -82,4 +82,14 @@ class EnterpriseGradeClassesStudent extends Model
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
+
+    /**
+     * 设备
+     * @return HasOne
+     */
+    public function device(): hasOne
+    {
+        return $this->hasOne(Device::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
+    }
+
 }
