@@ -44,9 +44,11 @@ class FacilityController extends AdminController
                     ])
                     ->width(200),
                 amis()->TableColumn('facility_name', '设施名称')->width(200),
-                amis()->TableColumn('parent_level_name', '主体')
+                amis()->TableColumn('parent_id', '主体')
                     ->set('type', 'tree-select')
                     ->set('options', $this->service->allOptions())
+                    ->set('labelField', 'level_name')
+                    ->set('textOverflow', 'noWrap')
                     ->set('static', true)
                     ->width(150),
                 amis()->TableColumn('facility_code','设施编码')->width(150),
