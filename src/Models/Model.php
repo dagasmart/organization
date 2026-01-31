@@ -12,14 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Model extends BaseModel
 {
 
-    const string schema = 'school'; //连接的数据库名
-
-    protected $connection = self::schema; // 使用school数据库连接
+    const ?string schema = 'school'; //空值默认数据库
 
     public function __construct()
     {
-        if(!isset($this->connection)){
-            $this->setConnection($this->connection);
+        if (!empty(self::schema)) {
+            $this->setConnection(self::schema);
         }
         parent::__construct();
     }
