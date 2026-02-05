@@ -112,7 +112,7 @@ class WorkerService extends AdminService
                 identifyByIdCard($id_card);
                 //是否已存在
                 $id = $data['id'] ?? null;
-                $exists = Worker::query()
+                $exists = $this->getModel()::query()
                     ->where(['id_card' => $id_card])
                     ->when($id, function ($query) use ($id) {
                         return $query->where('id', '<>', $id);

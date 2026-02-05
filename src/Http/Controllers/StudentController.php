@@ -45,7 +45,7 @@ class StudentController extends AdminController
                     ->clearable()
                     ->placeholder('请输入学生姓名')
                     ->size('sm'),
-                amis()->TextControl('id_number', '身份证号')
+                amis()->TextControl('id_card', '身份证号')
                     ->clearable()
                     ->placeholder('请输入学生身份证号')
                     ->size('md'),
@@ -128,7 +128,15 @@ class StudentController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('id_card', '身份证号')->required(),
+                        amis()->TextControl('id_card', '身份证号')
+                            ->validateOnChange()
+                            ->validations([
+                                'matchRegexp' => '/^[\\d|*]{17}[\\dXx]$/i',
+                            ])
+                            ->validationErrors([
+                                'matchRegexp' => '请输入有效的身份证号码',
+                            ])
+                            ->required(),
                         amis()->TextControl('student_name', '姓名')->required(),
                         amis()->HiddenControl('student_code', '国网学籍')->value('G${id_number}'),
                         amis()->SelectControl('enterprise_id', '机构')

@@ -87,9 +87,24 @@ class StudentService extends AdminService
             unset($data['mobile']);
         }
         //身份证号
+        admin_abort_if(empty($data['id_card']), '请输入有效身份证号');
         $id_card = $data['id_card'] ?? null;
-        if ($id_card && strpos($id_card, '*')) {
-            unset($data['id_card']);
+        if ($id_card) {
+            if (strpos($id_card, '*')) {
+                unset($data['id_card']);
+            } else {
+                //身份证号校验
+                identifyByIdCard($id_card);
+                //是否已存在
+                $id = $data['id'] ?? null;
+                $exists = $this->getModel()::query()
+                    ->where(['id_card' => $id_card])
+                    ->when($id, function ($query) use ($id) {
+                        return $query->where('id', '<>', $id);
+                    })
+                    ->exists();
+                admin_abort_if($exists, '身份证号(${id_card})已存在，请检查');
+            }
         }
         //模块
         if (admin_current_module()) {

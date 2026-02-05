@@ -144,7 +144,7 @@ class WorkerController extends AdminController
                             ->required()
                             ->validateOnChange()
                             ->validations([
-                                'matchRegexp' => '/^[\\d|*]{17}[\\dX]$/i',
+                                'matchRegexp' => '/^[\\d|*]{17}[\\dXx]$/i',
                             ])
                             ->validationErrors([
                                 'matchRegexp' => '请输入有效的身份证号码',
