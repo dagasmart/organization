@@ -36,4 +36,12 @@ if (!function_exists('is_school_module')) {
     {
         return admin_current_module() == 'school';
     }
+    /**
+     * 模块下机构别名
+     */
+    function module_enterprise_alias(): string
+    {
+        return is_school_module() ? '机构学校' : '机构单位';
+    }
 }
+

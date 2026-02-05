@@ -80,7 +80,7 @@ class Student extends Model
 
     public function setAvatarAttribute($value): void
     {
-        $avatar = str_replace(env('APP_URL') . Storage::url(''), '', $value);
+        $avatar = str_replace(Storage::url(''), '', $value);
         $this->attributes['avatar'] = Storage::url($avatar);
     }
 
