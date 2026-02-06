@@ -7,6 +7,11 @@ use DagaSmart\BizAdmin\Enums\Enum as Enums;
 enum Enum
 {
 
+    const string STUDENT = 'student'; //学生
+    const string PATRIARCH = 'patriarch'; //家长
+    const string WORKER = 'worker'; //老师或员工
+    const string VISITOR = 'visitor'; //访客
+
     /**
      * 学生状态
      */
