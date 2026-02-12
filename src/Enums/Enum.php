@@ -83,13 +83,15 @@ enum Enum
      * 设备品牌-刷脸
      */
     public const array BrandFace = [
-        ['label' => '支付宝', 'value'=>'alipay', 'children' => [
-            ['label' => '蜻蜓2代', 'value' => '蜻蜓2代'],
-            ['label' => '蜻蜓F4', 'value' => '蜻蜓F4'],
-        ]],
-        ['label' => '微信支付', 'value'=>'wechat', 'children' => [
-            ['label' => '青蛙pro', 'value' => '青蛙pro'],
-        ]],
+        ['label' => '品牌刷脸', 'value'=>'face', 'children' => [
+            ['label' => '支付宝', 'value'=>'alipay', 'children' => [
+                ['label' => '蜻蜓2代', 'value' => '蜻蜓2代'],
+                ['label' => '蜻蜓F4', 'value' => '蜻蜓F4'],
+            ]],
+            ['label' => '微信支付', 'value'=>'wechat', 'children' => [
+                ['label' => '青蛙pro', 'value' => '青蛙pro'],
+            ]],
+        ]]
     ];
 
     /**
@@ -107,7 +109,7 @@ enum Enum
      * 设备品牌-监控
      */
     public const array BrandSurveillance = [
-        ['label' => '品牌监控', 'value'=>'access', 'children' => [
+        ['label' => '品牌监控', 'value'=>'surveillance', 'children' => [
             ['label' => '大华', 'value' => '大华'],
             ['label' => '威视', 'value' => '威视'],
             ['label' => '其它', 'value' => '其它'],
@@ -118,7 +120,7 @@ enum Enum
      * 设备品牌-直播
      */
     public const array BrandLive = [
-        ['label' => '品牌监控', 'value'=>'access', 'children' => [
+        ['label' => '品牌监控', 'value'=>'live', 'children' => [
             ['label' => '大华', 'value' => '大华'],
             ['label' => '海康', 'value' => '海康'],
             ['label' => '萤石', 'value' => '萤石'],

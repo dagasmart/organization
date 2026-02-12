@@ -121,7 +121,8 @@ class DeviceService extends AdminService
         $id = request()->id;
         $enterprise_id = request()->enterprise_id; // 机构单位
         $facility_id = request()->facility_id;  // 主体设施
-        $device_type = request()->device_type; //设备类型
+        $device_type = request()->device_type; // 设备类型
+        $device_brand = request()->device_brand; //设备品牌
         return $this->query()->from('biz_device as a')
             ->join('biz_enterprise_facility_device as b','a.id','=','b.device_id')
             ->select(['a.id as value', 'a.device_name as label'])
@@ -133,6 +134,9 @@ class DeviceService extends AdminService
             })
             ->when($device_type, function($query) use ($device_type) {
                 $query->where('a.device_type', $device_type);
+            })
+            ->when($device_brand, function($query) use ($device_brand) {
+                $query->where('a.device_brand', $device_brand);
             })
             ->get()
             ->toArray();

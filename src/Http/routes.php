@@ -15,6 +15,7 @@ Route::group([
     $router->get('enterprise/{enterprise_id}/facility/options', [Controllers\FacilityController::class, 'options']);
     $router->get('enterprise/{enterprise_id}/facility/{id}/options', [Controllers\FacilityController::class, 'options']);
     $router->get('enterprise/{enterprise_id}/facility/{facility_id}/device/{device_type}/options', [Controllers\DeviceController::class, 'deviceOptions']);
+    $router->get('enterprise/{enterprise_id}/facility/{facility_id}/device/{device_type}/brand/{device_brand}/options', [Controllers\DeviceController::class, 'deviceOptions']);
     $router->get('enterprise/device/{type}/brand/options', [Controllers\DeviceController::class, 'brandOptions']);
 
     $router->resource('enterprise/index', Controllers\EnterpriseController::class);

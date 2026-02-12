@@ -109,6 +109,7 @@ class DeviceController extends AdminController
             amis()->TreeSelectControl('device_brand', '设备品牌')
                 ->source(admin_url('biz/enterprise/device/${device_type||0}/brand/options'))
                 ->placeholder('请选择品牌')
+                ->onlyLeaf()
                 ->clearable(),
             amis()->TextControl('device_name', '设备名称')
                 ->clearable()
