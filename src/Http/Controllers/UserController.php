@@ -13,13 +13,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * 基础-学生表
+ * 基础-用户表
  *
  * @property StudentService $service
  */
-class StudentController extends AdminController
+class UserController extends AdminController
 {
-	protected string $serviceName = StudentService::class;
+	protected string $serviceName = UserService::class;
 
 	public function list(): Page
 	{
@@ -162,7 +162,6 @@ class StudentController extends AdminController
                             ->searchable()
                             ->clearable()
                             ->disabledOn('${!grade_id}')
-                            ->showInvalidMatch()
                             ->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
@@ -580,7 +579,7 @@ class StudentController extends AdminController
                         amis()->TableColumn('id','ID')->sortable(),
                         amis()->TableColumn('classes_name','班级'),
                         amis()->TableColumn('rel.grade.grade_name', '年级'),
-                        amis()->TableColumn('rel.enterprise.enterprise_name', module_enterprise_alias()),
+                        amis()->TableColumn('rel.enterprise.enterprise_name', '机构'),
                         amis()->TableColumn('status','状态')
                             ->set('type','status')
                             ->set('options',['1' => '开启', '0' => '禁用']),

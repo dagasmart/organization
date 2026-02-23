@@ -111,14 +111,14 @@ class ClassesService extends AdminService
 
     /**
      * 机构年级列表
-     * @param int $school_id
+     * @param int $enterprise_id
      * @param $grade_id
      * @return array
      */
-    public function enterpriseGradeClasses(int $school_id, $grade_id): array
+    public function enterpriseGradeClasses(int $enterprise_id, $grade_id): array
     {
         $classes_id = EnterpriseGradeClasses::query()
-            ->where('enterprise_id', $school_id)
+            ->where('enterprise_id', $enterprise_id)
             ->where('grade_id', $grade_id)
             ->pluck('classes_id')
             ->unique()

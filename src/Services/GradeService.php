@@ -21,7 +21,7 @@ class GradeService extends AdminService
      * @param int $school_id
      * @return array
      */
-    public function EnterpriseGrade(int $school_id): array
+    public function EnterpriseGrade(int $school_id = 0): array
     {
         $schoolGrade = [];
         if ($school_id) {
