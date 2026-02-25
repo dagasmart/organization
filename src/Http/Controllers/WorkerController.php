@@ -150,7 +150,7 @@ class WorkerController extends AdminController
                                 'matchRegexp' => '请输入有效的身份证号码',
                             ])
                             ->addOn($isEdit ?
-                                amis()->VanillaAction()->icon('fa fa-retweet')->onEvent([
+                                amis()->VanillaAction()->icon('iconfont icon-cdnrefresh')->onEvent([
                                     'click' => [
                                         'actions' => [
                                             [
@@ -684,12 +684,12 @@ class WorkerController extends AdminController
 
     public function importAction($api = null): DialogAction
     {
-        return amis()->DialogAction()->label('一键导入')->icon('fa fa-upload')->dialog(
+        return amis()->DialogAction()->label('一键导入')->icon('upload')->dialog(
             amis()->Dialog()->title('一键导入-老师')->body([
                 amis()->Action()
                     ->label('演示模板')
                     ->level('light')
-                    ->icon('fa fa-wpforms')
+                    ->icon('iconfont icon-doc')
                     ->className('float-right')
                     ->actionType('saveAs')
                     ->api(Storage::url('template/worker.csv')),

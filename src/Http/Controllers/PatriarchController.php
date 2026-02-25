@@ -130,7 +130,7 @@ class PatriarchController extends AdminController
                                 'matchRegexp' => '请输入有效的身份证号码',
                             ])
                             ->addOn($isEdit ?
-                                amis()->VanillaAction()->icon('fa fa-retweet')->onEvent([
+                                amis()->VanillaAction()->icon('iconfont icon-cdnrefresh')->onEvent([
                                     'click' => [
                                         'actions' => [
                                             [

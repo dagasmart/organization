@@ -392,12 +392,12 @@ class StudentController extends AdminController
 
     public function importAction($api=null): DialogAction
     {
-        return amis()->DialogAction()->label('一键导入')->icon('fa fa-upload')->dialog(
+        return amis()->DialogAction()->label('一键导入')->icon('upload')->dialog(
             amis()->Dialog()->title('一键导入-学生')->body([
                 amis()->Action()
                     ->label('演示模板')
                     ->level('light')
-                    ->icon('fa fa-wpforms')
+                    ->icon('iconfont icon-doc')
                     ->className('float-right')
                     ->actionType('saveAs')
                     ->api(Storage::url('template/student.csv')),
@@ -485,7 +485,7 @@ class StudentController extends AdminController
         $createButton = amis()->DialogAction()
             ->dialog(amis()->Dialog()->title(__('admin.create'))->body($form))
             ->label(__('admin.create'))
-            ->icon('fa fa-add')
+            ->icon('iconfont icon-edap-tool-btn-add')
             ->level('primary');
 
         $editForm = (clone $form)
@@ -495,13 +495,13 @@ class StudentController extends AdminController
         $editButton = amis()->DialogAction()
             ->dialog(amis()->Dialog()->title(__('admin.edit'))->body($editForm))
             ->label(__('admin.edit'))
-            ->icon('fa-regular fa-pen-to-square')
+            ->icon('pencil')
             ->level('link');
 
         $deleteButton = amis()->DialogAction()
             ->label(__('admin.delete'))
             ->className('text-danger')
-            ->icon('fa-solid fa-close')
+            ->icon('close')
             ->level('link')
             ->dialog(
                 amis()
@@ -522,7 +522,7 @@ class StudentController extends AdminController
         $bulkDeleteButton = amis()->DialogAction()
             ->label(__('admin.delete'))
             ->className('text-danger border border-dashed border-danger')
-            ->icon('fa fa-trash-can')
+            ->icon('iconfont icon-trash-alt')
             ->dialog(
                 amis()
                     ->Dialog()
@@ -539,7 +539,7 @@ class StudentController extends AdminController
                     ])
             );
 
-        return amis()->DialogAction()->label('班级管理')->icon('fa fa-slideshare')->dialog(
+        return amis()->DialogAction()->label('班级管理')->icon('iconfont icon-standard_bts')->dialog(
             amis()->Dialog()->title('班级管理')->size('md')->actions([])->body(
                 amis()->CRUDTable()
                     ->perPage(10)
@@ -553,7 +553,7 @@ class StudentController extends AdminController
                     ->headerToolbar([
                         $createButton,
                         'bulkActions',
-                        amis('reload')->set('align','right'),
+                        amis('reload')->icon('iconfont icon-bcmrefresh')->set('align','right'),
                         amis('filter-toggler')->set('align','right'),
                     ])
                     ->filter(
