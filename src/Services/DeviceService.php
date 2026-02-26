@@ -125,7 +125,7 @@ class DeviceService extends AdminService
         $device_brand = request()->device_brand; //设备品牌
         return $this->query()->from('biz_device as a')
             ->join('biz_enterprise_facility_device as b','a.id','=','b.device_id')
-            ->select(['a.id as value', 'a.device_name as label'])
+            ->select(['a.id as value', admin_raw("concat(device_name, ' ', device_sn) as label"), 'a.device_name as name'])
             ->when($enterprise_id, function($query) use ($enterprise_id) {
                 $query->where('b.enterprise_id', $enterprise_id);
             })
