@@ -2,8 +2,8 @@
 
 namespace DagaSmart\Organization\Services;
 
-use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Enterprise;
+use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Stage;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -15,12 +15,11 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class EnterpriseService extends AdminService
 {
-	protected string $modelName = Enterprise::class;
-
+    protected string $modelName = Enterprise::class;
 
     public function addRelations($query, string $scene = 'list'): void
     {
-        //$query->with('authorize');
+        // $query->with('authorize');
     }
 
     public function sortable($query): void
@@ -35,10 +34,10 @@ class EnterpriseService extends AdminService
     public function saving(&$data, $primaryKey = ''): void
     {
         $data = clear_array_trim($data);
-        if (!empty($data['enterprise_grade'])) {
-            //学段年级
+        if (! empty($data['enterprise_grade'])) {
+            // 学段年级
             $enterprise_grade = explode(',', $data['enterprise_grade']);
-            //获取年级学段
+            // 获取年级学段
             $parent = Grade::query()
                 ->whereIn('id', $enterprise_grade)
                 ->distinct()
@@ -73,13 +72,13 @@ class EnterpriseService extends AdminService
                 admin_abort('当前机构信用代码已被占用，请检查重试');
             }
         }
-        //地区代码
+        // 地区代码
         $data['region'] = is_array($data['region']) ? $data['region']['code'] : $data['region'];
-        //模块
+        // 模块
         if (admin_current_module()) {
             $data['module'] = admin_current_module();
         }
-        //商户
+        // 商户
         if (admin_mer_id()) {
             $data['mer_id'] = admin_mer_id();
         }
@@ -87,12 +86,12 @@ class EnterpriseService extends AdminService
 
     /**
      * 学段列表
-     * @return array
      */
     public function getStageAll(): array
     {
         $type = is_school_module() ? 'school' : 'default';
         $model = new Stage;
+
         return $model->query()
             ->where('type', $type)
             ->orderBy('sort')
@@ -102,13 +101,12 @@ class EnterpriseService extends AdminService
 
     /**
      * 年级列表
-     * @return array
      */
     public function getGradeAll(): array
     {
         $model = new Grade;
-        $data = $model->query()->get(['id as value','grade_name as label', 'id', 'parent_id'])->toArray();
+        $data = $model->query()->get(['id as value', 'grade_name as label', 'id', 'parent_id'])->toArray();
+
         return array2tree($data);
     }
-
 }

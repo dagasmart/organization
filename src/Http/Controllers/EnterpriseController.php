@@ -2,11 +2,11 @@
 
 namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\Organization\Enums\Enum;
-use DagaSmart\Organization\Services\EnterpriseService;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
 use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\EnterpriseService;
 
 /**
  * 基础-机构类
@@ -15,16 +15,16 @@ use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
  */
 class EnterpriseController extends AdminController
 {
-	protected string $serviceName = EnterpriseService::class;
+    protected string $serviceName = EnterpriseService::class;
 
-	public function list(): Page
+    public function list(): Page
     {
-		$crud = $this->baseCRUD()
-			->filterTogglable()
-			->headerToolbar([
-				$this->createButton(true)->permission('biz.enterprise.create'),
-				...$this->baseHeaderToolBar()
-			])
+        $crud = $this->baseCRUD()
+            ->filterTogglable()
+            ->headerToolbar([
+                $this->createButton(true)->permission('biz.enterprise.create'),
+                ...$this->baseHeaderToolBar(),
+            ])
             ->filter($this->baseFilter()->body([
                 amis()->TextControl('enterprise_code', '机构代码')
                     ->size('md')
@@ -43,15 +43,15 @@ class EnterpriseController extends AdminController
                 amis()->Divider(),
                 amis()->DateRangeControl('register_time', '注册登记')
                     ->format('YYYY-MM-DD')
-                    ->clearValueOnHidden()
+                    ->clearValueOnHidden(),
             ]))
             ->autoFillHeight(true)
             ->columns([
-                amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
+                amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
                 amis()->TableColumn('enterprise_name', '机构名称')
                     ->searchable()
                     ->width(200)
-                    ->set('fixed','left'),
+                    ->set('fixed', 'left'),
                 amis()->TableColumn('enterprise_code', '机构代码'),
                 amis()->TableColumn('enterprise_mode', '开办模式')
                     ->set('type', 'select')
@@ -60,7 +60,7 @@ class EnterpriseController extends AdminController
                     ->searchable([
                         'name' => 'enterprise_mode',
                         'type' => 'select',
-                        'options' => $this->service->getStageAll()
+                        'options' => $this->service->getStageAll(),
                     ])
                     ->set('static', true),
                 amis()->TableColumn('enterprise_nature', '机构性质')
@@ -70,9 +70,9 @@ class EnterpriseController extends AdminController
                     ->searchable(['name' => 'enterprise_nature', 'type' => 'select', 'options' => Enum::nature()])
                     ->set('static', true),
                 amis()->TableColumn('region', '所属地区')
-                    ->searchable(['name'=>'region','type'=>'input-city'])
-                    ->set('type','input-city')
-                    ->set('static',true)
+                    ->searchable(['name' => 'region', 'type' => 'input-city'])
+                    ->set('type', 'input-city')
+                    ->set('static', true)
                     ->set('width', 200)
                     ->sortable(),
                 amis()->TableColumn('enterprise_address', '机构地址')
@@ -80,8 +80,8 @@ class EnterpriseController extends AdminController
                     ->set('width', 200),
                 amis()->TableColumn('location', '位置定位'),
                 amis()->TableColumn('register_time', '注册日期')
-                    ->quickEdit(['type'=>'input-date','value'=>'${register_time}'])
-                    ->set('type','date')
+                    ->quickEdit(['type' => 'input-date', 'value' => '${register_time}'])
+                    ->set('type', 'date')
                     ->width(120)
                     ->sortable(),
                 amis()->TableColumn('credit_code', '信用代码')->copyable(),
@@ -93,21 +93,21 @@ class EnterpriseController extends AdminController
                     ->type('datetime')
                     ->sortable(),
                 $this->rowActions([
-                        //$this->rowAuthButton('drawer', 'md', '授权'),
-                        $this->rowShowButton(true),
-                        $this->rowEditButton(true),
-                        $this->rowDeleteButton(),
-                    ])
+                    // $this->rowAuthButton('drawer', 'md', '授权'),
+                    $this->rowShowButton(true),
+                    $this->rowEditButton(true),
+                    $this->rowDeleteButton(),
+                ])
                     ->set('width', 200)
                     ->set('align', 'center')
-                    ->set('fixed', 'right')
+                    ->set('fixed', 'right'),
             ]);
 
-		return $this->baseList($crud);
-	}
+        return $this->baseList($crud);
+    }
 
-	public function form($isEdit = false): Form
-	{
+    public function form($isEdit = false): Form
+    {
         return $this->baseForm()->mode('horizontal')->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
@@ -125,20 +125,20 @@ class EnterpriseController extends AdminController
                             ->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->ImageControl('enterprise_logo',false)
+                        amis()->ImageControl('enterprise_logo', false)
                             ->thumbRatio('4:3')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
-                            ->className(['overflow-hidden'=>true, 'h-full'=>true])
+                            ->className(['overflow-hidden' => true, 'h-full' => true])
                             ->imageClassName([
-                                'w-80'=>true,
-                                'h-60'=>true,
-                                'overflow-hidden'=>true
+                                'w-80' => true,
+                                'h-60' => true,
+                                'overflow-hidden' => true,
                             ])
                             ->fixedSize()
                             ->fixedSizeClassName([
-                                'w-80'=>true,
-                                'h-60'=>true,
-                                'overflow-hidden'=>true
+                                'w-80' => true,
+                                'h-60' => true,
+                                'overflow-hidden' => true,
                             ])
                             ->crop([
                                 'aspectRatio' => '1.3',
@@ -166,10 +166,10 @@ class EnterpriseController extends AdminController
                         'change' => [
                             'actions' => [
                                 [
-                                    'actionType'  => 'setValue',
+                                    'actionType' => 'setValue',
                                     'componentId' => 'form_region_info',
-                                    'args'        => [
-                                        'value' => '${value}'
+                                    'args' => [
+                                        'value' => '${value}',
                                     ],
                                 ],
                             ],
@@ -184,12 +184,12 @@ class EnterpriseController extends AdminController
             // 学段管理
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->CheckboxesControl('enterprise_grade',null)
+                    amis()->CheckboxesControl('enterprise_grade', null)
                         ->checkAll()
                         ->columnsCount(1)
                         ->options($this->service->getGradeAll())
-                        ->required()
-                ])
+                        ->required(),
+                ]),
             ])->visible(is_school_module()),
             // 商户信息
             amis()->Tab()->title('商户信息')->body([
@@ -202,14 +202,14 @@ class EnterpriseController extends AdminController
                     ->options($this->service->getMerchantAll())
                     ->clearable()
                     ->size('md'),
-            ])->visible(!admin_mer_id()),
+            ])->visible(! admin_mer_id()),
 
         ]);
-	}
+    }
 
-	public function detail(): Form
+    public function detail(): Form
     {
-		return $this->baseDetail()->mode('horizontal')->tabs([
+        return $this->baseDetail()->mode('horizontal')->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
@@ -224,7 +224,7 @@ class EnterpriseController extends AdminController
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->Image()
-                            ->thumbClassName(['overflow-hidden'=>true, 'w-80'=>true, 'h-60'=>true])
+                            ->thumbClassName(['overflow-hidden' => true, 'w-80' => true, 'h-60' => true])
                             ->src('${enterprise_logo}')
                             ->thumbMode('contain')
                             ->enlargeAble(),
@@ -249,10 +249,10 @@ class EnterpriseController extends AdminController
                         'change' => [
                             'actions' => [
                                 [
-                                    'actionType'  => 'setValue',
+                                    'actionType' => 'setValue',
                                     'componentId' => 'form_region_info',
-                                    'args'        => [
-                                        'value' => '${value}'
+                                    'args' => [
+                                        'value' => '${value}',
                                     ],
                                 ],
                             ],
@@ -267,28 +267,23 @@ class EnterpriseController extends AdminController
             // 学段管理
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->CheckboxesControl('enterprise_grade',null)
+                    amis()->CheckboxesControl('enterprise_grade', null)
                         ->checkAll()
                         ->columnsCount(1)
-                        ->options($this->service->getGradeAll())
+                        ->options($this->service->getGradeAll()),
                 ])
-                ->disabled()
-                ->static(false)
+                    ->disabled()
+                    ->static(false),
             ])->visible(is_school_module()),
         ])->static();
-	}
-
+    }
 
     /**
      * 授权按钮
-     * @param bool|string $dialog
-     * @param string $dialogSize
-     * @param string $title
-     * @return mixed
      */
     protected function rowAuthButton(bool|string $dialog = false, string $dialogSize = 'md', string $title = ''): mixed
     {
-        $title  = $title ?: admin_trans('admin.edit');
+        $title = $title ?: admin_trans('admin.edit');
         $action = amis()->LinkAction()->link($this->getEditPath());
 
         if ($dialog) {
@@ -315,8 +310,6 @@ class EnterpriseController extends AdminController
 
     /**
      * 授权表单
-     * @param bool $isEdit
-     * @return Form
      */
     private function authForm(bool $isEdit = false): Form
     {
@@ -334,21 +327,21 @@ class EnterpriseController extends AdminController
             amis()->TextControl('enterprise_name', '机构名称')->static(),
             amis()->TreeSelectControl('authorize.roles', '授权角色')
                 ->multiple()
-                //->autoCheckChildren(false)
-                //->cascade(false)
-                //->withChildren()
+                // ->autoCheckChildren(false)
+                // ->cascade(false)
+                // ->withChildren()
                 ->onlyChildren()
                 ->selectFirst()
                 ->options($this->service->roleOption())
                 ->onEvent([
                     'change' => [
-                        'actions'=> [
+                        'actions' => [
                             [
                                 'actionType' => 'reset',
                                 'componentId' => 'authorize_users',
-                            ]
-                        ]
-                    ]
+                            ],
+                        ],
+                    ],
                 ])
                 ->required(),
             amis()->SelectControl('authorize.users', '管理员')
@@ -363,6 +356,4 @@ class EnterpriseController extends AdminController
                 ->value(),
         ]);
     }
-
-
 }

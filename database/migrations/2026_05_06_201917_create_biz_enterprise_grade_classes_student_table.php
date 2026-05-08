@@ -22,6 +22,9 @@ return new class extends Migration
             $table->string('module', 32)->nullable();
             $table->integer('mer_id')->nullable();
         });
+
+        // 创建触发器
+        DB::connection('school')->statement("CREATE TRIGGER biz_enterprise_grade_classes_student_trigger AFTER INSERT ON biz_enterprise_grade_classes_student FOR EACH ROW BEGIN ; END;");
     }
 
     /**

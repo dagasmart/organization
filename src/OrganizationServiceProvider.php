@@ -2,21 +2,21 @@
 
 namespace DagaSmart\Organization;
 
+use DagaSmart\BizAdmin\Extend\ServiceProvider;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\TextControl;
-use DagaSmart\BizAdmin\Extend\ServiceProvider;
 use Exception;
 
 class OrganizationServiceProvider extends ServiceProvider
 {
-
     protected $menu;
+
     protected function menu(): array
     {
         $menu = [];
         $menu[] = [
             [
-                'parent' => NULL,
+                'parent' => null,
                 'title' => '基础维护',
                 'url' => '/biz/enterprise',
                 'url_type' => 1,
@@ -87,12 +87,11 @@ class OrganizationServiceProvider extends ServiceProvider
             ],
 
         ];
+
         return $this->menu = $menu;
     }
 
-
     /**
-     * @return void
      * @throws Exception
      */
     public function register(): void
@@ -107,11 +106,10 @@ class OrganizationServiceProvider extends ServiceProvider
         }
     }
 
-
-	public function settingForm(): Form
+    public function settingForm(): Form
     {
-	    return $this->baseSettingForm()->body([
+        return $this->baseSettingForm()->body([
             TextControl::make()->name('value')->label('Value')->required(),
-	    ]);
-	}
+        ]);
+    }
 }
