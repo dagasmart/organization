@@ -194,7 +194,7 @@ class EnterpriseController extends AdminController
             // 商户信息
             amis()->Tab()->title('商户信息')->body([
                 amis()->SelectControl('module', '模块')
-                    ->options(app_module_all())
+                    ->options($this->service->moduleOption())
                     ->value(admin_current_module())
                     ->clearable()
                     ->size('md'),
