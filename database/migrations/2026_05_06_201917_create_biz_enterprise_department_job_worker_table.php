@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('mer_id')->nullable();
 
             $table->unique(['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id']);
-            $table-index(['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id']);
+            $table->index(['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id']);
         });
     }
 
