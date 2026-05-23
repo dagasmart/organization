@@ -22,8 +22,20 @@ return new class extends Migration
             $table->string('module', 32)->nullable();
             $table->integer('mer_id')->nullable();
 
-            $table->unique(['enterprise_id', 'facility_id', 'module', 'mer_id']);
-            $table->index(['enterprise_id', 'facility_id', 'module', 'mer_id']);
+            $unique = ['enterprise_id', 'facility_id', 'module', 'mer_id'];
+            $uni = $this->name . '_';
+            $uni .= implode('_', $unique);
+            $uni .= '_unique';
+            $unique_name = mb_strlen($uni) > 64 ? md5($uni) : $uni;
+            $table->unique($unique, $unique_name);
+
+            $index = ['enterprise_id', 'facility_id', 'module', 'mer_id'];
+            $idx = $this->name . '_';
+            $idx .= implode('_', $index);
+            $idx .= '_idx';
+            $index_name = mb_strlen($idx) > 64 ? md5($idx) : $idx;
+            $table->index($index, $index_name);
+
         });
     }
 
