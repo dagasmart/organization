@@ -3,15 +3,20 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    protected $connection = 'school';
+    private string $name = 'biz_worker';
+
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::connection('school')->create('biz_worker', function (Blueprint $table) {
+        !Schema::hasTable($this->name)
+        && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-基础-员工表');
             $table->bigIncrements('id');
             $table->string('worker_no', 32)->nullable()->comment('员工编码');
@@ -39,6 +44,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('school')->dropIfExists('biz_worker');
+        if (Schema::hasTable($this->name)) {
+            //检查是否存在数据
+            $exists = DB::table($this->name)->exists();
+            //不存在数据时，删除表
+            if (!$exists) {
+                //删除 reverse
+                Schema::dropIfExists($this->name);
+            }
+        }
     }
 };

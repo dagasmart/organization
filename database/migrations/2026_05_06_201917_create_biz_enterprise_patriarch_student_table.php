@@ -3,23 +3,30 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    protected $connection = 'school';
+    private string $name = 'biz_enterprise_patriarch_student';
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::connection('school')->create('biz_enterprise_patriarch_student', function (Blueprint $table) {
+        !Schema::hasTable($this->name)
+        && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-机构-家长-学生关联表');
             $table->integer('enterprise_id')->nullable()->comment('机构id');
             $table->integer('patriarch_id')->nullable()->comment('家长id');
             $table->integer('student_id')->nullable()->comment('学生id');
-            $table->smallInteger('relationship_id')->nullable()->comment('关系id');
+            $table->tinyInteger('relationship_id')->nullable()->comment('关系id');
             $table->string('patriarch_sn', 32)->nullable()->comment('家长编号');
             $table->string('module', 32)->nullable()->comment('模块');
             $table->integer('mer_id')->nullable()->comment('商户');
+
+            $table->unique(['enterprise_id', 'patriarch_id', 'student_id', 'module', 'mer_id']);
+            $table->index(['enterprise_id', 'patriarch_id', 'student_id', 'module', 'mer_id']);
         });
     }
 
@@ -28,6 +35,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('school')->dropIfExists('biz_enterprise_patriarch_student');
+        if (Schema::hasTable($this->name)) {
+            //检查是否存在数据
+            $exists = DB::table($this->name)->exists();
+            //不存在数据时，删除表
+            if (!$exists) {
+                //删除 reverse
+                Schema::dropIfExists($this->name);
+            }
+        }
     }
 };

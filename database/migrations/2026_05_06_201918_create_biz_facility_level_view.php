@@ -5,12 +5,13 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    protected $connection = 'school';
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        DB::connection('school')->statement("CREATE VIEW \"biz_facility_level\" AS WITH RECURSIVE cte AS (
+        DB::statement("CREATE VIEW \"biz_facility_level\" AS WITH RECURSIVE cte AS (
          SELECT biz_facility.id,
             biz_facility.facility_name,
             biz_facility.parent_id,
@@ -41,6 +42,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::connection('school')->statement("DROP VIEW IF EXISTS \"biz_facility_level\"");
+        DB::statement("DROP VIEW IF EXISTS \"biz_facility_level\"");
     }
 };

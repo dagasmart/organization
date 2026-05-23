@@ -3,22 +3,26 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    protected $connection = 'school';
+    private string $name = 'biz_enterprise';
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::connection('school')->create('biz_enterprise', function (Blueprint $table) {
+        !Schema::hasTable($this->name)
+        && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-基础-机构表');
-            $table->increments('id');
+            $table->id();
             $table->string('enterprise_code')->comment('单位代码');
             $table->string('enterprise_name')->comment('单位名称');
             $table->string('enterprise_logo')->nullable()->comment('单位标志');
-            $table->smallInteger('enterprise_nature')->nullable()->comment('单位性质');
-            $table->smallInteger('enterprise_mode')->nullable()->comment('单位模式');
+            $table->tinyInteger('enterprise_nature')->nullable()->comment('单位性质');
+            $table->tinyInteger('enterprise_mode')->nullable()->comment('单位模式');
             $table->string('enterprise_grade')->nullable()->comment('学段年级');
             $table->date('register_time')->nullable()->comment('注册日期');
             $table->integer('region')->nullable()->comment('所属地区');
@@ -30,7 +34,7 @@ return new class extends Migration
             $table->string('legal_person', 64)->nullable()->comment('单位法人');
             $table->string('contacts_mobile', 100)->nullable()->comment('联系电话');
             $table->string('contacts_email', 64)->nullable()->comment('联系邮件');
-            $table->smallInteger('state')->nullable()->default(1)->comment('状态,1开启，0禁用');
+            $table->tinyInteger('state')->nullable()->default(1)->comment('状态,1开启，0禁用');
             $table->string('module', 50)->nullable()->comment('模块');
             $table->integer('mer_id')->nullable()->comment('商户id');
             $table->timestamp('created_at')->nullable()->useCurrent();
@@ -44,6 +48,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('school')->dropIfExists('biz_enterprise');
+        if (Schema::hasTable($this->name)) {
+            //检查是否存在数据
+            $exists = DB::table($this->name)->exists();
+            //不存在数据时，删除表
+            if (!$exists) {
+                //删除 reverse
+                Schema::dropIfExists($this->name);
+            }
+        }
     }
 };
