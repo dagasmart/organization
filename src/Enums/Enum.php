@@ -296,23 +296,23 @@ enum Enum
     public static function nature(): array
     {
         $school = [
-            ['label' => '公办学校‌', 'value' => 1],
-            ['label' => '民办学校‌', 'value' => 2],
-            ['label' => '独立学院‌', 'value' => 3],
-            ['label' => '‌中外办学', 'value' => 4],
-            ['label' => '私立学校‌', 'value' => 5],
+            ['label' => '公办学校‌', 'value' => 1, 'model' => 'school'],
+            ['label' => '民办学校‌', 'value' => 2, 'model' => 'school'],
+            ['label' => '独立学院‌', 'value' => 3, 'model' => 'school'],
+            ['label' => '‌中外办学', 'value' => 4, 'model' => 'school'],
+            ['label' => '私立学校‌', 'value' => 5, 'model' => 'school'],
         ];
         $company = [
-            ['label' => '政府机关', 'value' => 11],
-            ['label' => '事业单位', 'value' => 12],
-            ['label' => '国有企业', 'value' => 13],
-            ['label' => '集体企业', 'value' => 14],
-            ['label' => '民营企业', 'value' => 15],
-            ['label' => '外资企业', 'value' => 16],
-            ['label' => '‌合资企业', 'value' => 17],
-            ['label' => '股份公司', 'value' => 18],
-            ['label' => '责任公司', 'value' => 19],
-            ['label' => '个体工商户', 'value' => 20],
+            ['label' => '政府机关', 'value' => 11, 'model' => 'agency'],
+            ['label' => '公益事业', 'value' => 12, 'model' => 'common'],
+            ['label' => '国有企业', 'value' => 13, 'model' => 'factory'],
+            ['label' => '集体企业', 'value' => 14, 'model' => 'factory'],
+            ['label' => '民营企业', 'value' => 15, 'model' => 'factory'],
+            ['label' => '外资企业', 'value' => 16, 'model' => 'factory'],
+            ['label' => '‌合资企业', 'value' => 17, 'model' => 'factory'],
+            ['label' => '股份公司', 'value' => 18, 'model' => 'company'],
+            ['label' => '责任公司', 'value' => 19, 'model' => 'company'],
+            ['label' => '个体工商户', 'value' => 20, 'model' => 'company'],
         ];
         return is_school_module() ? $school : $company;
     }

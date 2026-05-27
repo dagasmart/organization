@@ -85,7 +85,7 @@ class EnterpriseService extends AdminService
     }
 
     /**
-     * 学段列表
+     * 开办模式(学段)列表
      */
     public function getStageAll(): array
     {
