@@ -119,12 +119,12 @@ class EnterpriseService extends AdminService
         $model = new Nature;
 
         return $model->query()
-            ->select('nature_value as value', 'nature_label as label')
+            ->select('value', 'label')
             ->where(function (Builder $builder) {
                 if (is_school_module()) {
-                    $builder->whereIn('nature_type', ['school']);
+                    $builder->whereIn('type', ['school']);
                 } else {
-                    $builder->whereNotIn('nature_type', ['school']);
+                    $builder->whereNotIn('type', ['school']);
                 }
             })
             ->get()
@@ -138,7 +138,7 @@ class EnterpriseService extends AdminService
     {
         $id = request()->nature_id ?? 0;
         $model = new Nature;
-        $type = $model->query()->where(['id' => $id])->value('nature_type');
+        $type = $model->query()->where(['id' => $id])->value('type');
         $model = new Stage;
 
         return $model->query()
