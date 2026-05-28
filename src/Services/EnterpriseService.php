@@ -4,6 +4,7 @@ namespace DagaSmart\Organization\Services;
 
 use DagaSmart\Organization\Models\Enterprise;
 use DagaSmart\Organization\Models\Grade;
+use DagaSmart\Organization\Models\Nature;
 use DagaSmart\Organization\Models\Stage;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -89,7 +90,7 @@ class EnterpriseService extends AdminService
      */
     public function getStageAll(): array
     {
-        $type = is_school_module() ? 'school' : 'default';
+        $type = is_school_module() ? 'school' : 'company';
         $model = new Stage;
 
         return $model->query()
@@ -108,5 +109,44 @@ class EnterpriseService extends AdminService
         $data = $model->query()->get(['id as value', 'grade_name as label', 'id', 'parent_id'])->toArray();
 
         return array2tree($data);
+    }
+
+    /**
+     * 机构列表
+     */
+    public function natureOption(): array
+    {
+        $model = new Nature;
+
+        return $model->query()
+            ->select('nature_value as value', 'nature_label as label')
+            ->where(function (Builder $builder) {
+                if (is_school_module()) {
+                    $builder->whereIn('nature_type', ['school']);
+                } else {
+                    $builder->whereNotIn('nature_type', ['school']);
+                }
+            })
+            ->get()
+            ?->toArray();
+    }
+
+    /**
+     * 开办模式列表
+     */
+    public function stageOption(): array
+    {
+        $id = request()->nature_id ?? 0;
+        $model = new Nature;
+        $type = $model->query()->where(['id' => $id])->value('nature_type');
+        $model = new Stage;
+
+        return $model->query()
+            ->select('id as value', 'stage_name as label')
+            ->when($type, function ($builder) use ($type) {
+                $builder->where(['type' => $type]);
+            })
+            ->get()
+            ?->toArray();
     }
 }

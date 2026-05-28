@@ -35,7 +35,7 @@ class EnterpriseController extends AdminController
                     ->clearable()
                     ->placeholder('机构名称'),
                 amis()->SelectControl('enterprise_nature', '机构性质')
-                    ->options(Enum::nature())
+                    ->options($this->service->natureOption())
                     ->clearable(),
                 amis()->SelectControl('enterprise_mode', '开办模式')
                     ->options($this->service->getStageAll())
@@ -65,9 +65,9 @@ class EnterpriseController extends AdminController
                     ->set('static', true),
                 amis()->TableColumn('enterprise_nature', '机构性质')
                     ->set('type', 'select')
-                    ->set('options', Enum::nature())
-                    ->filterable(['options' => Enum::nature()])
-                    ->searchable(['name' => 'enterprise_nature', 'type' => 'select', 'options' => Enum::nature()])
+                    ->set('options', $this->service->natureOption())
+                    ->filterable(['options' => $this->service->natureOption()])
+                    ->searchable(['name' => 'enterprise_nature', 'type' => 'select', 'options' => $this->service->natureOption()])
                     ->set('static', true),
                 amis()->TableColumn('region', '所属地区')
                     ->searchable(['name' => 'region', 'type' => 'input-city'])
@@ -116,10 +116,14 @@ class EnterpriseController extends AdminController
                         amis()->TextControl('enterprise_name', '机构名称')->required(),
                         amis()->TextControl('enterprise_code', '机构代码'),
                         amis()->SelectControl('enterprise_nature', '机构性质')
-                            ->options(Enum::nature())
+                            ->options($this->service->natureOption())
+                            ->clearable()
                             ->required(),
                         amis()->SelectControl('enterprise_mode', '开办模式')
-                            ->options($this->service->getStageAll())
+                            ->options($this->service->stageOption())
+                            ->source(admin_url('biz/enterprise/stage/${enterprise_nature||0}/option'))
+                            ->disabledOn('${!enterprise_nature||null}')
+                            ->clearable()
                             ->required(),
                         amis()->DateControl('register_time', '注册日期')
                             ->required(),
@@ -217,7 +221,7 @@ class EnterpriseController extends AdminController
                         amis()->TextControl('enterprise_name', '机构名称'),
                         amis()->TextControl('enterprise_code', '机构代码'),
                         amis()->SelectControl('enterprise_nature', '机构性质')
-                            ->options(Enum::nature()),
+                            ->options($this->service->natureOption()),
                         amis()->SelectControl('enterprise_mode', '开办模式')
                             ->options($this->service->getStageAll()),
                         amis()->DateControl('register_time', '注册日期'),
@@ -356,4 +360,11 @@ class EnterpriseController extends AdminController
                 ->value(),
         ]);
     }
+
+    public function stageOption(): array
+    {
+        return $this->service->stageOption();
+    }
+
+
 }
