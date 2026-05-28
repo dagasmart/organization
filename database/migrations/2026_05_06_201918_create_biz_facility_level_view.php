@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("CREATE VIEW \"biz_facility_level\" AS WITH RECURSIVE cte AS (
+        DB::statement("CREATE OR REPLACE VIEW \"biz_facility_level\" AS WITH RECURSIVE cte AS (
          SELECT biz_facility.id,
             biz_facility.facility_name,
             biz_facility.parent_id,

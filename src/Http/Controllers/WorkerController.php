@@ -425,7 +425,7 @@ class WorkerController extends AdminController
                             ->value('${CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
                             ->readOnly(),
                         amis()->TreeSelectControl('party', '政治信仰')
-                            ->options(Enum::Party)->value('无信仰'),
+                            ->options(Enum::Party)->value('无党派'),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号码')->required(),
                     ]),
@@ -468,6 +468,7 @@ class WorkerController extends AdminController
                         ->required(),
                     amis()->TreeSelectControl('department_id', '部门')
                         ->options($this->service->getDepartmentAll())
+                        ->disabledOn('${!enterprise_id}')
                         ->onlyChildren()
                         ->onlyLeaf()
                         ->hideNodePathLabel()
@@ -475,6 +476,7 @@ class WorkerController extends AdminController
                         ->required(),
                     amis()->TreeSelectControl('job_id', '职务')
                         ->options($this->service->getJobAll())
+                        ->disabledOn('${!department_id}')
                         ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
                         ->multiple(false)
                         ->maxTagCount(5)
