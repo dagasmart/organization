@@ -149,4 +149,16 @@ class EnterpriseService extends AdminService
             ->get()
             ?->toArray();
     }
+
+    public function departmentSave()
+    {
+        return $this->departmentSave();
+    }
+
+    public function jobSave()
+    {
+        return $this->jobSave();
+    }
+
+
 }

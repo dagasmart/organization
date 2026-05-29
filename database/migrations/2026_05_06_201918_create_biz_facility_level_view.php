@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     protected $connection = 'school';
+
     /**
      * Run the migrations.
      */
@@ -42,6 +43,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("DROP VIEW IF EXISTS \"biz_facility_level\"");
+        DB::statement('DROP VIEW IF EXISTS "biz_facility_level"');
     }
 };

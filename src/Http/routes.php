@@ -10,6 +10,8 @@ Route::group([
 
     $router->get('enterprise/{enterprise_id}/grade', [Controllers\GradeController::class, 'EnterpriseGrade']);
     $router->get('enterprise/{enterprise_id}/grade/{grade_id}/classes', [Controllers\ClassesController::class, 'enterpriseGradeClasses']);
+    $router->put('enterprise/{enterprise_id}/department/save', [Controllers\EnterpriseController::class, 'departmentSave']);
+    $router->put('enterprise/{enterprise_id}/job/save', [Controllers\EnterpriseController::class, 'jobSave']);
     $router->get('enterprise/stage/{nature_id}/option', [Controllers\EnterpriseController::class, 'stageOption']);
     $router->get('enterprise/worker/{id_card}/check', [Controllers\WorkerController::class, 'EnterpriseWorkerCheck']);
     $router->get('enterprise/patriarch/{id_card}/check', [Controllers\PatriarchController::class, 'EnterprisePatriarchCheck']);

@@ -5,7 +5,6 @@ namespace DagaSmart\Organization\Http\Controllers;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
 use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
-use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Services\EnterpriseService;
 
 /**
@@ -16,6 +15,33 @@ use DagaSmart\Organization\Services\EnterpriseService;
 class EnterpriseController extends AdminController
 {
     protected string $serviceName = EnterpriseService::class;
+
+    public function index()
+    {
+        if ($this->actionOfGetData()) {
+            return $this->response()->success($this->service->list());
+        }
+
+        return $this->response()->success($this->page());
+    }
+
+    /**
+     * 左侧分类树，右侧分发列表
+     */
+    public function page(): Page
+    {
+        return amis()->Page()->body(
+            amis()->Grid()->columns([
+                // $this->tree()->set('md', 2),
+                $this->list()->set('md', 8),
+                $this->relevance()->set('md', 4),
+                //                amis()->Flex()->className('h-full')->items([
+                //                    $this->relevance(),
+                //                    $this->relevance(),
+                //                ])->direction('column'),
+            ])
+        );
+    }
 
     public function list(): Page
     {
@@ -104,6 +130,56 @@ class EnterpriseController extends AdminController
             ]);
 
         return $this->baseList($crud);
+    }
+
+    /**
+     * 左侧分类导航，用于筛选右侧列表
+     */
+    public function relevance()
+    {
+        return amis()->Card()->className('w-full h-full')->body([
+            amis()->Tabs()->tabs([
+                amis()->Tab()->title('部门管理')->body([
+                    amis()->TreeControl()
+                        ->creatable()
+                        ->removable()
+                        ->editable()
+                        ->createBtnLabel('新建权限项')
+                        ->addControls([
+                            amis()->TextControl(),
+                        ])
+                        ->searchable()
+                        ->clearable(),
+                ]),
+                amis()->Tab()->title('职务管理')->body([
+                    amis()->TableControl()
+                        ->columns([
+                            ['name' => 'job_name', 'label' => '职务名称'],
+                            ['name' => 'parent_id', 'label' => '上级职务'],
+                        ])
+                        ->childrenAddable()
+                        ->needConfirm()
+                        ->draggable()
+                        ->addable()
+                        ->addApi(admin_url('enterprise/${enterprise_id||0}/department/save'))
+                        ->editable()
+                        ->removable()
+                        ->onEvent([
+                            'addSuccess' => [
+                                'actions' => [
+                                    [
+                                        'actionType' => 'toast',
+                                        'args' => [
+                                            'msgType' => 'info',
+                                            'msg' => '${event.data | json:0}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                ]),
+            ]),
+        ]);
     }
 
     public function form($isEdit = false): Form
@@ -366,5 +442,13 @@ class EnterpriseController extends AdminController
         return $this->service->stageOption();
     }
 
+    public function departmentSave()
+    {
+        return $this->service->departmentSave();
+    }
 
+    public function jobSave()
+    {
+        return $this->service->jobSave();
+    }
 }

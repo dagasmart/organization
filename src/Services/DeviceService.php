@@ -2,11 +2,8 @@
 
 namespace DagaSmart\Organization\Services;
 
-use DagaSmart\BizAdmin\Renderers\Json;
 use DagaSmart\Organization\Models\Device;
-use DagaSmart\Organization\Models\EnterpriseFacilityDevice;
 use Illuminate\Database\Eloquent\Builder;
-
 
 /**
  * 基础-设备服务类
@@ -16,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class DeviceService extends AdminService
 {
-	protected string $modelName = Device::class;
+    protected string $modelName = Device::class;
 
     public function loadRelations($query): void
     {
@@ -42,7 +39,7 @@ class DeviceService extends AdminService
 
     /**
      * 新增
-     * @param $data
+     *
      * @return bool
      */
     public function store($data)
@@ -52,32 +49,31 @@ class DeviceService extends AdminService
 
     /**
      * 更新
-     * @param $primaryKey
-     * @param $data
+     *
      * @return bool
      */
     public function update($primaryKey, $data)
     {
         return $this->saveData($data, $primaryKey);
     }
-//
-//
-//    /**
-//     * 新增或修改后更新关联数据
-//     * @param $model
-//     * @param bool $isEdit
-//     * @return void
-//     */
-//    public function save(): void
-//    {
-//        $model->save();
-//        $request = request()->all();
-//        $data = [
-//            'enterprise_id' => $request['enterprise_id'],
-//            'facility_id' => $request['facility_id'],
-//        ];
-//        $model->relation()->syncWithPivotValues($model->id, $data);
-//    }
+    //
+    //
+    //    /**
+    //     * 新增或修改后更新关联数据
+    //     * @param $model
+    //     * @param bool $isEdit
+    //     * @return void
+    //     */
+    //    public function save(): void
+    //    {
+    //        $model->save();
+    //        $request = request()->all();
+    //        $data = [
+    //            'enterprise_id' => $request['enterprise_id'],
+    //            'facility_id' => $request['facility_id'],
+    //        ];
+    //        $model->relation()->syncWithPivotValues($model->id, $data);
+    //    }
 
     /**
      * 机构列表
@@ -92,29 +88,28 @@ class DeviceService extends AdminService
 
     /**
      * 递归选择项
-     * @return array
      */
     public function options(): array
     {
         $id = request()->id;
         $school_id = request()->enterprise_id;
         $data = $this->query()->from('biz_facility as a')
-            ->join('biz_enterprise_facility as b','a.id','=','b.facility_id')
+            ->join('biz_enterprise_facility as b', 'a.id', '=', 'b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
-            ->when($school_id, function($query) use ($school_id) {
+            ->when($school_id, function ($query) use ($school_id) {
                 $query->where('b.enterprise_id', $school_id);
             })
-            ->when($id, function($query) use ($id) {
+            ->when($id, function ($query) use ($id) {
                 $query->where('b.facility_id', '<>', $id);
             })
             ->get()
             ->toArray();
+
         return array2tree($data);
     }
 
     /**
      * 设备选择项
-     * @return array
      */
     public function deviceOptions(): array
     {
@@ -122,20 +117,21 @@ class DeviceService extends AdminService
         $enterprise_id = request()->enterprise_id; // 机构单位
         $facility_id = request()->facility_id;  // 主体设施
         $device_type = request()->device_type; // 设备类型
-        $device_brand = request()->device_brand; //设备品牌
+        $device_brand = request()->device_brand; // 设备品牌
+
         return $this->query()->from('biz_device as a')
-            ->join('biz_enterprise_facility_device as b','a.id','=','b.device_id')
+            ->join('biz_enterprise_facility_device as b', 'a.id', '=', 'b.device_id')
             ->select(['a.id as value', admin_raw("concat(device_name, ' ', device_sn) as label"), 'a.device_name as name'])
-            ->when($enterprise_id, function($query) use ($enterprise_id) {
+            ->when($enterprise_id, function ($query) use ($enterprise_id) {
                 $query->where('b.enterprise_id', $enterprise_id);
             })
-            ->when($facility_id, function($query) use ($facility_id) {
+            ->when($facility_id, function ($query) use ($facility_id) {
                 $query->where('b.facility_id', $facility_id);
             })
-            ->when($device_type, function($query) use ($device_type) {
+            ->when($device_type, function ($query) use ($device_type) {
                 $query->where('a.device_type', $device_type);
             })
-            ->when($device_brand, function($query) use ($device_brand) {
+            ->when($device_brand, function ($query) use ($device_brand) {
                 $query->where('a.device_brand', $device_brand);
             })
             ->get()
@@ -144,47 +140,45 @@ class DeviceService extends AdminService
 
     /**
      * 分(种)类型
-     * @param null $key
-     * @return array|string|null
+     *
+     * @param  null  $key
      */
     public function typeOption($key = null): array|string|null
     {
         $data = [['value' => 'face', 'label' => '刷脸设备'], ['value' => 'access', 'label' => '门禁设备']];
+
         return $key ? $data[$key] ?? $data : null;
     }
-
-
 
     /**
      * 保存数据
      * 处理模型属性和角色关联的保存
      *
-     * @param array $data 保存的数据
-     * @param mixed|null $primaryKey 主键
-     * @return bool
+     * @param  array  $data  保存的数据
+     * @param  mixed|null  $primaryKey  主键
      */
     protected function saveData(array $data, mixed $primaryKey = null): bool
     {
         $model = $primaryKey ? $this->query()->find($primaryKey) : $this->getModel();
-        $columns = $this->getTableColumns();//获取表列字段名
+        $columns = $this->getTableColumns(); // 获取表列字段名
         foreach ($data as $k => $v) {
-            if (!in_array($k, $columns)) {
+            if (! in_array($k, $columns)) {
                 continue;
             }
             $model->setAttribute($k, $v);
         }
         if ($model->save()) {
-            if (!empty($data['enterprise_id']) && !empty($data['facility_id'])) {
+            if (! empty($data['enterprise_id']) && ! empty($data['facility_id'])) {
                 $extra = [
                     'enterprise_id' => $data['enterprise_id'],
                     'facility_id' => $data['facility_id'],
                 ];
                 $model->relation()->sync([$model->id => $extra]);
             }
+
             return true;
         }
+
         return false;
     }
-
-
 }
