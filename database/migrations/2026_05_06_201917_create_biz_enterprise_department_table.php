@@ -25,6 +25,7 @@ return new class extends Migration
             $table->integer('enterprise_id')->index()->comment('机构id');
             $table->tinyInteger('state')->index()->comment('状态，1开启，0关闭');
             $table->tinyInteger('sort')->nullable()->comment('排序');
+            $table->string('remark')->nullable()->comment('备注');
             $table->string('module', 32)->nullable();
             $table->integer('mer_id')->nullable();
         });

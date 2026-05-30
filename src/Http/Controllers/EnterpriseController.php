@@ -6,6 +6,8 @@ use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
 use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
 use DagaSmart\Organization\Services\EnterpriseService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * 基础-机构类
@@ -32,9 +34,9 @@ class EnterpriseController extends AdminController
     {
         return amis()->Page()->body(
             amis()->Grid()->columns([
-                // $this->tree()->set('md', 2),
-                $this->list()->set('md', 8),
-                $this->relevance()->set('md', 4),
+                $this->region()->set('md', 3),
+                $this->list()->set('md', 9),
+                //$this->relevance()->set('md', 2),
                 //                amis()->Flex()->className('h-full')->items([
                 //                    $this->relevance(),
                 //                    $this->relevance(),
@@ -71,6 +73,31 @@ class EnterpriseController extends AdminController
                     ->format('YYYY-MM-DD')
                     ->clearValueOnHidden(),
             ]))
+            ->onEvent([
+                'rowClick' => [
+                    'actions' => [
+                        [
+                            'actionType' => 'toast',
+                            'args' => [
+                                'msg' => '当前行的数据：${event.data.rowItem.id|json}'
+                            ]
+                        ],
+                        [
+                            'actionType' => 'reload',
+                            'target' => 'jobCRUD?id=${id}'
+                        ]
+                    ]
+                ]
+            ])
+            ->selectable()
+            ->multiple(false)
+            ->syncLocation(false)
+            ->itemAction([
+                'actionType' => [
+                    'actionType' => 'reload',
+                    'target' => 'jobCRUD?id=${id}'
+                ]
+            ])
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
@@ -119,17 +146,47 @@ class EnterpriseController extends AdminController
                     ->type('datetime')
                     ->sortable(),
                 $this->rowActions([
-                    // $this->rowAuthButton('drawer', 'md', '授权'),
+                    $this->rowDepartmentButton('drawer', 'md', '部门'),
+                    $this->rowJobButton('drawer', 'md', '职务'),
+                    $this->rowAuthButton('drawer', 'md', '授权'),
                     $this->rowShowButton(true),
                     $this->rowEditButton(true),
                     $this->rowDeleteButton(),
                 ])
-                    ->set('width', 200)
+                    ->set('width', 150)
                     ->set('align', 'center')
                     ->set('fixed', 'right'),
             ]);
 
         return $this->baseList($crud);
+    }
+
+    /**
+     * 左侧地区导航，用于筛选右侧列表
+     */
+    public function region()
+    {
+        return amis()->Card()->className('w-full h-full')->body([
+            amis()->TableControl('region')
+                ->source('basic/region/0/children')
+                ->autoFillHeight(true)
+                ->columns([
+                    amis()->TableColumn('name', false)
+                ]),
+//            amis()->TreeControl('region_id', false)
+//                ->source('basic/region/${region_id||0}/children')
+//                ->options([
+//                    [
+//                        'label' => '请选择省份',
+//                        'value' => 'root',
+//                        'defer' => true
+//                    ]
+//                ])
+//                ->labelField('name')
+//                ->valueField('id')
+//                ->staticInputClassName('h-full')
+//                ->inputClassName('h-full'),
+        ]);
     }
 
     /**
@@ -152,16 +209,16 @@ class EnterpriseController extends AdminController
                         ->clearable(),
                 ]),
                 amis()->Tab()->title('职务管理')->body([
-                    amis()->TableControl()
+                    amis()->TableControl('jobCRUD')
                         ->columns([
-                            ['name' => 'job_name', 'label' => '职务名称'],
-                            ['name' => 'parent_id', 'label' => '上级职务'],
+                            amis()->TableColumn('job_name', '职务名称'),
+                            amis()->TableColumn('parent_id', '上级职务'),
                         ])
                         ->childrenAddable()
                         ->needConfirm()
                         ->draggable()
                         ->addable()
-                        ->addApi(admin_url('enterprise/${enterprise_id||0}/department/save'))
+                        ->addApi('put:' . admin_url('biz/enterprise/${id:1}/department/save'))
                         ->editable()
                         ->removable()
                         ->onEvent([
@@ -437,18 +494,274 @@ class EnterpriseController extends AdminController
         ]);
     }
 
+    /**
+     * 授权按钮
+     */
+    protected function rowDepartmentButton(bool|string $dialog = false, string $dialogSize = 'md', string $title = ''): mixed
+    {
+        $title = $title ?: admin_trans('admin.edit');
+        $action = amis()->LinkAction()->link($this->getEditPath());
+
+        if ($dialog) {
+            $form = $this
+                ->departmentForm(true)
+                ->redirect('');
+
+            if ($dialog === 'drawer') {
+                $action = amis()->DrawerAction()->drawer(
+                    amis()->Drawer()->closeOnEsc()->closeOnOutside()->title($title)->body($form)->size($dialogSize)->actions()
+                );
+            } else {
+                $action = amis()->DialogAction()->dialog(
+                    amis()->Dialog()->title($title)->body($form)->size($dialogSize)
+                );
+            }
+        }
+
+        $action->label($title)->level('link')->visible(admin_user()->administrator());
+
+        return AdminPipeline::handle(AdminPipeline::PIPE_EDIT_ACTION, $action);
+    }
+
+    /**
+     * 部门表单
+     */
+    private function departmentForm(bool $isEdit = false): Form
+    {
+        return $this->baseForm()->body([
+            amis()->Alert()
+                ->showIcon()
+                ->showCloseButton()
+                ->body('提示：部门必填'),
+            amis()->TreeControl('department_id', false)
+                ->source(admin_url('biz/enterprise/${id||0}/department/data'))
+                ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
+                ->heightAuto()
+                ->creatable()
+                ->addControls([
+                    amis()->HiddenControl('enterprise_id')->value('${id}'),
+                    amis()->TextControl('department_name', '部门名称')->required(),
+                    amis()->TreeSelectControl('parent_id', '上级部门')
+                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->options($this->service->departmentData())
+                        ->disabledOn('${!!parent}')
+                        ->value('${parent.id}'),
+                    amis()->TextareaControl('remark','部门描述'),
+                    amis()->SwitchControl('department_state', '状态')
+                        ->onText('显示')
+                        ->offText('隐藏')
+                        ->value(1),
+                    amis()->NumberControl('department_sort', '排序')
+                        ->size('xs')
+                        ->min(1)
+                        ->max(255)
+                        ->value(10)
+                        ->required(),
+                ])
+                ->addApi(admin_url('biz/enterprise/department/save'))
+                ->editable()
+                ->editControls([
+                    amis()->HiddenControl('id'),
+                    amis()->HiddenControl('enterprise_id')->value('${id}'),
+                    amis()->TextControl('department_name', '部门名称'),
+                    amis()->TreeSelectControl('parent_id', '上级部门')
+                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->options($this->service->departmentData()),
+                    amis()->TextareaControl('remark','部门描述'),
+                    amis()->SwitchControl('department_state', '状态')
+                        ->onText('显示')
+                        ->offText('隐藏')
+                        ->value('${state}'),
+                    amis()->NumberControl('department_sort', '排序')
+                        ->size('xs')
+                        ->min(1)
+                        ->max(255)
+                        ->value(10)
+                        ->required(),
+                ])
+                ->editApi(admin_url('biz/enterprise/department/save'))
+                ->removable()
+                ->deleteApi(admin_url('biz/enterprise/department/${id}/delete'))
+                ->showOutline()
+                ->searchable()
+                ->required(),
+
+        ]);
+    }
+
+    /**
+     * 职务按钮
+     */
+    protected function rowJobButton(bool|string $dialog = false, string $dialogSize = 'md', string $title = ''): mixed
+    {
+        $title = $title ?: admin_trans('admin.edit');
+        $action = amis()->LinkAction()->link($this->getEditPath());
+
+        if ($dialog) {
+            $form = $this
+                ->jobForm(true)
+                ->redirect('');
+
+            if ($dialog === 'drawer') {
+                $action = amis()->DrawerAction()->drawer(
+                    amis()->Drawer()->closeOnEsc()->closeOnOutside()->title($title)->body($form)->size($dialogSize)->actions()
+                );
+            } else {
+                $action = amis()->DialogAction()->dialog(
+                    amis()->Dialog()->title($title)->body($form)->size($dialogSize)
+                );
+            }
+        }
+
+        $action->label($title)->level('link')->visible(admin_user()->administrator());
+
+        return AdminPipeline::handle(AdminPipeline::PIPE_EDIT_ACTION, $action);
+    }
+
+    /**
+     * 职务表单
+     */
+    private function jobForm(bool $isEdit = false): Form
+    {
+        return $this->baseForm()->body([
+            amis()->Alert()
+                ->showIcon()
+                ->showCloseButton()
+                ->body('提示：职务必填'),
+            amis()->TreeControl('job_id', false)
+                ->source(admin_url('biz/enterprise/${id||0}/job/data'))
+                ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
+                ->heightAuto()
+                ->creatable()
+                ->addControls([
+                    amis()->HiddenControl('enterprise_id')->value('${id}'),
+                    amis()->TreeSelectControl('department_id', '部门')
+                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->options($this->service->departmentData()),
+                    amis()->TextControl('job_name', '职务')->required(),
+                    amis()->TreeSelectControl('parent_id', '上级')
+                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/job/data'))
+                        ->options($this->service->jobData())
+                        ->disabledOn('${!!parent}')
+                        ->value('${parent.id}'),
+                    amis()->TextareaControl('remark','备注'),
+                    amis()->SwitchControl('job_state', '状态')
+                        ->onText('显示')
+                        ->offText('隐藏')
+                        ->value(1),
+                    amis()->NumberControl('job_sort', '排序')
+                        ->size('xs')
+                        ->min(1)
+                        ->max(255)
+                        ->value(10)
+                        ->required(),
+                ])
+                ->addApi(admin_url('biz/enterprise/job/save'))
+                ->editable()
+                ->editControls([
+                    amis()->HiddenControl('id'),
+                    amis()->HiddenControl('enterprise_id')->value('${id}'),
+                    amis()->TreeSelectControl('department_id', '部门')
+                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->options($this->service->departmentData()),
+                    amis()->TextControl('job_name', '职务'),
+                    amis()->TreeSelectControl('parent_id', '上级')
+                        ->source(admin_url('biz/enterprise/${enterprise_id}/job/data'))
+                        ->options($this->service->jobData()),
+                    amis()->TextareaControl('remark','描述'),
+                    amis()->SwitchControl('job_state', '状态')
+                        ->onText('显示')
+                        ->offText('隐藏')
+                        ->value('${state}'),
+                    amis()->NumberControl('job_sort', '排序')
+                        ->size('xs')
+                        ->min(1)
+                        ->max(255)
+                        ->value(10)
+                        ->required(),
+                ])
+                ->editApi(admin_url('biz/enterprise/job/save'))
+                ->removable()
+                ->deleteApi(admin_url('biz/enterprise/job/${id}/delete'))
+                ->showOutline()
+                ->searchable()
+                ->required(),
+
+        ]);
+    }
+
     public function stageOption(): array
     {
         return $this->service->stageOption();
     }
 
-    public function departmentSave()
+    /**
+     * 部门数据
+     * @return array
+     */
+    public function departmentData()
     {
-        return $this->service->departmentSave();
+        return $this->service->departmentData();
     }
 
+    /**
+     * 职务数据
+     * @return array
+     */
+    public function jobData()
+    {
+        return $this->service->jobData();
+    }
+
+    /**
+     * 部门职务数据
+     * @return array
+     */
+    public function departmentJobData()
+    {
+        return $this->service->departmentJobData();
+    }
+
+    /**
+     * 部门保存
+     * @return JsonResponse|JsonResource
+     */
+    public function departmentSave()
+    {
+        $res = $this->service->departmentSave();
+        return $this->response()->success($res);
+    }
+
+    /**
+     * 职务保存
+     * @return JsonResponse|JsonResource
+     */
     public function jobSave()
     {
-        return $this->service->jobSave();
+        $res = $this->service->jobSave();
+        return $this->response()->success($res);
     }
+
+    /**
+     * 删除部门
+     * @return JsonResponse|JsonResource
+     */
+    public function departmentDelete()
+    {
+        $res = $this->service->departmentDelete();
+        return $this->response()->success($res);
+    }
+
+    /**
+     * 删除职务
+     * @return JsonResponse|JsonResource
+     */
+    public function jobDelete()
+    {
+        $res = $this->service->jobDelete();
+        return $this->response()->success($res);
+    }
+
+
+
 }

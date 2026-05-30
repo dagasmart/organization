@@ -8,11 +8,23 @@ Route::group([
     'prefix' => 'biz',
 ], function (Router $router) {
 
+    $router->delete('enterprise/job/{id}/delete', [Controllers\EnterpriseController::class, 'jobDelete']);
+    $router->delete('enterprise/department/{id}/delete', [Controllers\EnterpriseController::class, 'departmentDelete']);
+    $router->post('enterprise/department/save', [Controllers\EnterpriseController::class, 'departmentSave']);
+    $router->post('enterprise/job/save', [Controllers\EnterpriseController::class, 'jobSave']);
+
+    $router->get('enterprise/{enterprise_id}/department/data', [Controllers\EnterpriseController::class, 'departmentData']);
+    $router->get('enterprise/{enterprise_id}/job/data', [Controllers\EnterpriseController::class, 'jobData']);
+    $router->get('enterprise/{enterprise_id}/department/{department_id}/job/data', [Controllers\EnterpriseController::class, 'departmentJobData']);
+
+    $router->get('enterprise/stage/{nature_id}/option', [Controllers\EnterpriseController::class, 'stageOption']);
     $router->get('enterprise/{enterprise_id}/grade', [Controllers\GradeController::class, 'EnterpriseGrade']);
     $router->get('enterprise/{enterprise_id}/grade/{grade_id}/classes', [Controllers\ClassesController::class, 'enterpriseGradeClasses']);
-    $router->put('enterprise/{enterprise_id}/department/save', [Controllers\EnterpriseController::class, 'departmentSave']);
-    $router->put('enterprise/{enterprise_id}/job/save', [Controllers\EnterpriseController::class, 'jobSave']);
-    $router->get('enterprise/stage/{nature_id}/option', [Controllers\EnterpriseController::class, 'stageOption']);
+
+    $router->get('worker/{enterprise_id}/department/data', [Controllers\WorkerController::class, 'departmentData']);
+    $router->get('worker/{enterprise_id}/job/data', [Controllers\WorkerController::class, 'jobData']);
+    $router->get('worker/{enterprise_id}/department/{department_id}/job/data', [Controllers\WorkerController::class, 'departmentJobData']);
+
     $router->get('enterprise/worker/{id_card}/check', [Controllers\WorkerController::class, 'EnterpriseWorkerCheck']);
     $router->get('enterprise/patriarch/{id_card}/check', [Controllers\PatriarchController::class, 'EnterprisePatriarchCheck']);
     $router->get('enterprise/{enterprise_id}/facility/options', [Controllers\FacilityController::class, 'options']);

@@ -3,6 +3,8 @@
 namespace DagaSmart\Organization\Services;
 
 use DagaSmart\Organization\Models\Department;
+use DagaSmart\Organization\Models\EnterpriseDepartment;
+use DagaSmart\Organization\Models\EnterpriseDepartmentJob;
 use DagaSmart\Organization\Models\Job;
 use DagaSmart\Organization\Models\Enterprise;
 use DagaSmart\Organization\Models\EnterpriseDepartmentJobWorker;
@@ -189,33 +191,42 @@ class WorkerService extends AdminService
             ->toArray();
     }
 
-    /**
-     * 部门列表
-     * @return array
-     */
-    public function getDepartmentAll(): array
+    public function departmentData(): array
     {
-        $model = new Department;
-        $res = $model->query()
-            ->select(admin_raw('*, department_name as label, id as value'))
-            ->orderBy('sort')
+        $enterprise_id = request()->enterprise_id ?? 0;
+        $model = new EnterpriseDepartment;
+        $data = $model->query()
+            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
+                $builder->where('enterprise_id', $enterprise_id);
+            })
             ->get()
-            ->toArray();
-        return array2tree($res, 0);
+            ?->toArray();
+        return array2tree($data);
     }
 
-    /**
-     * 职务列表
-     */
-    public function getJobAll(): array
+    public function jobData(): array
     {
-        //Job::initialize();
-        $list = Job::query()
-            ->select(admin_raw('*, job_name as label, id as value'))
-            ->orderBy('sort')
+        $enterprise_id = request()->enterprise_id ?? 0;
+        $model = new EnterpriseDepartmentJob;
+        $data = $model->query()
+            ->where('enterprise_id', $enterprise_id)
             ->get()
-            ->toArray();
-        return array2tree($list, 0);
+            ?->toArray();
+        return array2tree($data);
+    }
+
+    public function departmentJobData(): array
+    {
+        $enterprise_id = request()->enterprise_id ?? 0;
+        $department_id = request()->department_id ?? 0;
+        $model = new EnterpriseDepartmentJob;
+        return $model->query()
+            ->where('enterprise_id', $enterprise_id)
+            ->when($department_id, function ($builder) use ($department_id) {
+                $builder->where('department_id', $department_id);
+            })
+            ->get()
+            ?->toArray();
     }
 
 }

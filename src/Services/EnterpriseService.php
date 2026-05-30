@@ -3,6 +3,8 @@
 namespace DagaSmart\Organization\Services;
 
 use DagaSmart\Organization\Models\Enterprise;
+use DagaSmart\Organization\Models\EnterpriseDepartment;
+use DagaSmart\Organization\Models\EnterpriseDepartmentJob;
 use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Nature;
 use DagaSmart\Organization\Models\Stage;
@@ -150,15 +152,147 @@ class EnterpriseService extends AdminService
             ?->toArray();
     }
 
-    public function departmentSave()
+    public function departmentData(): array
     {
-        return $this->departmentSave();
+        $enterprise_id = request()->enterprise_id ?? 0;
+        $model = new EnterpriseDepartment;
+        $data = $model->query()
+            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
+                $builder->where('enterprise_id', $enterprise_id);
+            })
+            ->get()
+            ?->toArray();
+        return array2tree($data);
     }
 
-    public function jobSave()
+    public function jobData(): array
     {
-        return $this->jobSave();
+        $enterprise_id = request()->enterprise_id ?? 0;
+        $model = new EnterpriseDepartmentJob;
+        $data = $model->query()
+            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
+                $builder->where('enterprise_id', $enterprise_id);
+            })
+            ->get()
+            ?->toArray();
+        return array2tree($data);
     }
+
+    public function departmentJobData(): array
+    {
+        $enterprise_id = request()->enterprise_id ?? 0;
+        $department_id = request()->department_id ?? 0;
+        $model = new EnterpriseDepartmentJob;
+        $data = $model->query()
+            //->where('enterprise_id', $enterprise_id)
+            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
+                $builder->where('enterprise_id', $enterprise_id);
+            })
+            ->when($department_id, function ($builder) use ($department_id) {
+                $builder->where('department_id', $department_id);
+            })
+            ->get()
+            ?->toArray();
+        return $data;
+    }
+
+    public function departmentSave(): bool|int
+    {
+        $input = request()->input();
+        if (empty($input['enterprise_id'])) {
+            admin_abort('enterprise_id参数必填');
+        }
+
+        $id = $input['id'] ?? null; //通过id判断编辑操作
+
+        $data = [
+            'enterprise_id' => $input['enterprise_id'],
+            'department_name' => $input['department_name'],
+            'parent_id' => $input['parent_id'] ?? null,
+        ];
+
+        $model = new EnterpriseDepartment;
+
+        $exists = $model->query()
+            ->where($data)
+            ->when($id, function ($builder) use ($id) {
+                $builder->where('id', '!=', $id);
+            })
+            ->exists();
+        admin_abort_if($exists, '部门已存在');
+
+        $data['state'] = $input['department_state'] ?? 0;
+        $data['sort'] = $input['department_sort'] ?? 10;
+        $data['module'] = admin_current_module();
+        $data['mer_id'] = admin_mer_id();
+
+        if ($id) {
+            $record = $model->query()->where(['id' => $id])->first();
+            $record->department_name = $data['department_name'];
+            $record->parent_id = $data['parent_id'];
+            $record->state = $data['state'];
+            $record->sort = $data['sort'];
+            return $record->save();
+        } else {
+            return $model->query()->insertOrIgnore($data);
+        }
+    }
+
+    public function jobSave(): bool|int
+    {
+        $input = request()->input();
+        if (empty($input['enterprise_id'])) {
+            admin_abort('enterprise_id参数必填');
+        }
+
+        $data = [
+            'enterprise_id' => $input['enterprise_id'],
+            'department_id' => $input['department_id'],
+            'job_name' => $input['job_name'],
+            'parent_id' => $input['parent_id'] ?? null,
+        ];
+
+        $model = new EnterpriseDepartmentJob;
+
+        $exists = $model->query()->where($data)->exists();
+        admin_abort_if($exists, '部门职务已存在');
+
+        $data['state'] = $input['job_state'] ?? 0;
+        $data['sort'] = $input['job_sort'] ?? 10;
+        $data['module'] = admin_current_module();
+        $data['mer_id'] = admin_mer_id();
+
+        $id = $input['id'] ?? null; //通过id判断编辑操作
+
+        if ($id) {
+            $record = $model->query()->where(['id' => $id])->first();
+            $record->department_id = $data['department_id'];
+            $record->job_name = $data['job_name'];
+            $record->parent_id = $data['parent_id'];
+            $record->state = $data['state'];
+            $record->sort = $data['sort'];
+            return $record->save();
+        } else {
+            return $model->query()->insertOrIgnore($data);
+        }
+    }
+
+    public function departmentDelete()
+    {
+        $id = request()->id ?? null;
+        admin_abort_if(!$id, 'id参数必填');
+        $model = new EnterpriseDepartment;
+        return $model->query()->where(['id' => $id])->delete();
+    }
+
+    public function jobDelete()
+    {
+        $id = request()->id ?? null;
+        admin_abort_if(!$id, 'id参数必填');
+        $model = new EnterpriseDepartmentJob;
+        return $model->query()->where(['id' => $id])->delete();
+    }
+
 
 
 }

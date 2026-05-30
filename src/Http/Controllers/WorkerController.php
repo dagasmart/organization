@@ -57,17 +57,17 @@ class WorkerController extends AdminController
                     ->set('fixed','left')
                     ->set('static', true),
                 amis()->TableColumn('department_id', '部门')
-                    ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->getDepartmentAll()])
+                    ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->departmentData()])
                     ->set('type', 'input-tag')
-                    ->set('options', $this->service->getDepartmentAll())
+                    ->set('options', $this->service->departmentData())
                     ->set('value','${enterprise.department_id}')
                     ->set('multiple', true)
                     ->set('width', 150)
                     ->set('static', true),
                 amis()->TableColumn('job_id', '职务')
-                    ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->getJobAll()])
+                    ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->departmentJobData()])
                     ->set('type', 'input-tag')
-                    ->set('options', $this->service->getJobAll())
+                    ->set('options', $this->service->departmentJobData())
                     ->set('value','${enterprise.job_id}')
                     ->set('multiple', true)
                     ->set('width', 150)
@@ -467,21 +467,24 @@ class WorkerController extends AdminController
                         ->searchable()
                         ->required(),
                     amis()->TreeSelectControl('department_id', '部门')
-                        ->options($this->service->getDepartmentAll())
+                        ->options($this->service->departmentData())
+                        ->source(admin_url('biz/worker/${enterprise_id||0}/department/data'))
+                        //->options($this->service->departmentData())
                         ->disabledOn('${!enterprise_id}')
-                        ->onlyChildren()
-                        ->onlyLeaf()
+                        ->onlyChildren(false)
+                        ->onlyLeaf(false)
                         ->hideNodePathLabel()
                         ->searchable()
                         ->required(),
                     amis()->TreeSelectControl('job_id', '职务')
-                        ->options($this->service->getJobAll())
+                        ->source(admin_url('biz/worker/${enterprise_id||0}/department/${department_id||0}/job/data'))
+                        ->options($this->service->departmentJobData())
                         ->disabledOn('${!department_id}')
                         ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
                         ->multiple(false)
                         ->maxTagCount(5)
-                        ->onlyChildren()
-                        ->onlyLeaf()
+                        ->onlyChildren(false)
+                        ->onlyLeaf(false)
                         ->hideNodePathLabel()
                         ->searchable()
                         ->required(),
@@ -602,14 +605,14 @@ class WorkerController extends AdminController
                         ->options($this->service->getEnterpriseAll())->required(),
                     amis()->HiddenControl('worker_id')->value('${id}'),
                     amis()->TreeSelectControl('department_id', '部门')
-                        ->options($this->service->getDepartmentAll())
+                        ->options($this->service->departmentData())
                         ->onlyChildren()
                         ->onlyLeaf()
                         ->hideNodePathLabel()
                         ->searchable()
                         ->required(),
                     amis()->TreeSelectControl('job_id', '职务')
-                        ->options($this->service->getJobAll())
+                        ->options($this->service->departmentJobData())
                         ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
                         ->multiple()
                         ->maxTagCount(5)
@@ -672,6 +675,35 @@ class WorkerController extends AdminController
             ]),
         ])->static();
 	}
+
+
+    /**
+     * 部门数据
+     * @return array
+     */
+    public function departmentData()
+    {
+        return $this->service->departmentData();
+    }
+
+    /**
+     * 职务数据
+     * @return array
+     */
+    public function jobData()
+    {
+        return $this->service->jobData();
+    }
+
+    /**
+     * 部门职务数据
+     * @return array
+     */
+    public function departmentJobData()
+    {
+        return $this->service->departmentJobData();
+    }
+
 
     /**
      * 检查身份证并获取员工信息

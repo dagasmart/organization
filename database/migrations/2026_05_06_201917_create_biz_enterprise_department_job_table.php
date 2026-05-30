@@ -20,12 +20,13 @@ return new class extends Migration
         && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-机构-部门-职务关联表');
             $table->id();
-            $table->integer('job_name')->index()->comment('职务名称');
+            $table->string('job_name', 32)->index()->comment('职务名称');
             $table->integer('parent_id')->nullable()->index()->comment('上级职务');
             $table->integer('department_id')->comment('部门id');
             $table->integer('enterprise_id')->comment('机构id');
             $table->tinyInteger('state')->comment('状态，1开启，0关闭');
             $table->tinyInteger('sort')->nullable()->comment('排序');
+            $table->string('remark')->nullable()->comment('备注');
             $table->string('module', 32)->nullable();
             $table->integer('mer_id')->nullable();
         });
