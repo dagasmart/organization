@@ -86,7 +86,6 @@ class WorkerService extends AdminService
                         $tmp[] = $rel['enterprise']['enterprise_name'] ?? null;
                         $tmp[] = $rel['department']['department_name'] ?? null;
                         $tmp[] = $rel['job']['job_name'] ?? null;
-                        $tmp[] = $rel['worker_sn'] ?? null;
                         $implode = implode('/', array_filter($tmp));
                         $enterprise_department_job_array[$k]['value'] = $key;
                         $enterprise_department_job_array[$k]['label'] = $implode;

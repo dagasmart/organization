@@ -56,7 +56,7 @@ class WorkerController extends AdminController
 //                    ->set('value','${enterprise.enterprise_id}')
 //                    ->set('fixed','left')
 //                    ->set('static', true),
-                amis()->TableColumn('enterprise_department_job', '机构/部门/职务/工号')
+                amis()->TableColumn('enterprise_department_job', '机构/部门/职务')
                     ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->departmentData()])
                     ->set('type', 'input-tag')
                     ->set('options', '${enterprise_department_job|json}')
