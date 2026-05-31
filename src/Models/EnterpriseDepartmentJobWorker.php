@@ -49,7 +49,7 @@ class EnterpriseDepartmentJobWorker extends Model
      */
     public function department(): hasOne
     {
-        return $this->hasOne(Department::class, 'id', 'department_id')->select(['id', 'department_name']);
+        return $this->hasOne(EnterpriseDepartment::class, 'id', 'department_id')->select(['id', 'department_name']);
     }
 
 
@@ -59,7 +59,7 @@ class EnterpriseDepartmentJobWorker extends Model
      */
     public function job(): hasOne
     {
-        return $this->hasOne(Job::class, 'id', 'job_id')->select(['id', 'job_name']);
+        return $this->hasOne(EnterpriseDepartmentJob::class, 'id', 'job_id')->select(['id', 'job_name']);
     }
 
 

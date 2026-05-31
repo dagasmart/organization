@@ -40,9 +40,10 @@ class DeviceService extends AdminService
     /**
      * 新增
      *
+     * @param $data
      * @return bool
      */
-    public function store($data)
+    public function store($data): bool
     {
         return $this->saveData($data);
     }
@@ -50,9 +51,11 @@ class DeviceService extends AdminService
     /**
      * 更新
      *
+     * @param $primaryKey
+     * @param $data
      * @return bool
      */
-    public function update($primaryKey, $data)
+    public function update($primaryKey, $data): bool
     {
         return $this->saveData($data, $primaryKey);
     }

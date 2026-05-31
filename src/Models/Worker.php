@@ -106,9 +106,10 @@ class Worker extends Model
 //        )->select(admin_raw("id as value, enterprise_name as label"));
 //    }
 
-    public function rel(): hasOne
+    public function rel(): hasMany
     {
-        return $this->hasOne(EnterpriseDepartmentJobWorker::class)->with(['job','department','enterprise']);
+        return $this->hasMany(EnterpriseDepartmentJobWorker::class, 'worker_id', 'id')
+            ->with(['job','department','enterprise']);
     }
 
     public function enterprise(): HasOne

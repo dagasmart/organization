@@ -72,6 +72,32 @@ class WorkerService extends AdminService
         }
     }
 
+    public function list(): array
+    {
+        $list = parent::list();
+        if ($list['items']) {
+            foreach ($list['items'] as &$item) {
+                $enterprise_department_job_array = [];
+                if (!empty($item['rel'])) {
+                    foreach ($item['rel'] as $k => &$rel) {
+                        $key = $rel['enterprise_id'] . '_' . $rel['department_id'] . '_' . $rel['job_id'];
+
+                        $tmp = [];
+                        $tmp[] = $rel['enterprise']['enterprise_name'] ?? null;
+                        $tmp[] = $rel['department']['department_name'] ?? null;
+                        $tmp[] = $rel['job']['job_name'] ?? null;
+                        $tmp[] = $rel['worker_sn'] ?? null;
+                        $implode = implode('/', array_filter($tmp));
+                        $enterprise_department_job_array[$k]['value'] = $key;
+                        $enterprise_department_job_array[$k]['label'] = $implode;
+                    }
+                }
+                $item['enterprise_department_job'] = $enterprise_department_job_array;
+            }
+        }
+        return $list;
+    }
+
     public function store($data): bool
     {
         $id = $data['id'] ?? null;
@@ -196,9 +222,10 @@ class WorkerService extends AdminService
         $enterprise_id = request()->enterprise_id ?? 0;
         $model = new EnterpriseDepartment;
         $data = $model->query()
-            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
-                $builder->where('enterprise_id', $enterprise_id);
-            })
+            ->where('enterprise_id', $enterprise_id)
+//            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
+//                $builder->where('enterprise_id', $enterprise_id);
+//            })
             ->get()
             ?->toArray();
         return array2tree($data);
@@ -215,16 +242,17 @@ class WorkerService extends AdminService
         return array2tree($data);
     }
 
-    public function departmentJobData(): array
+    public function departmentJobData($id = null): array
     {
-        $enterprise_id = request()->enterprise_id ?? 0;
+        $enterprise_id = request()->enterprise_id ?? $id ?? 0;
         $department_id = request()->department_id ?? 0;
         $model = new EnterpriseDepartmentJob;
         return $model->query()
             ->where('enterprise_id', $enterprise_id)
-            ->when($department_id, function ($builder) use ($department_id) {
-                $builder->where('department_id', $department_id);
-            })
+            ->where('department_id', $department_id)
+//            ->when($department_id, function ($builder) use ($department_id) {
+//                $builder->where('department_id', $department_id);
+//            })
             ->get()
             ?->toArray();
     }

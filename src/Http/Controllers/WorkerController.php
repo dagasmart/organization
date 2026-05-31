@@ -42,36 +42,41 @@ class WorkerController extends AdminController
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
                 amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed','left'),
-                amis()->TableColumn('enterprise_id', '机构')
-                    ->searchable([
-                        'name' => 'enterprise_id',
-                        'type' => 'select',
-                        'multiple' => false,
-                        'searchable' => true,
-                        'options' => $this->service->getEnterpriseAll(),
-                    ])
-                    //->breakpoint('*')
-                    ->set('type','input-tag')
-                    ->set('options',$this->service->getEnterpriseAll())
-                    ->set('value','${enterprise.enterprise_id}')
-                    ->set('fixed','left')
-                    ->set('static', true),
-                amis()->TableColumn('department_id', '部门')
+//                amis()->TableColumn('enterprise_id', '机构')
+//                    ->searchable([
+//                        'name' => 'enterprise_id',
+//                        'type' => 'select',
+//                        'multiple' => false,
+//                        'searchable' => true,
+//                        'options' => $this->service->getEnterpriseAll(),
+//                    ])
+//                    //->breakpoint('*')
+//                    ->set('type','input-tag')
+//                    ->set('options',$this->service->getEnterpriseAll())
+//                    ->set('value','${enterprise.enterprise_id}')
+//                    ->set('fixed','left')
+//                    ->set('static', true),
+                amis()->TableColumn('enterprise_department_job', '机构/部门/职务/工号')
                     ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->departmentData()])
                     ->set('type', 'input-tag')
-                    ->set('options', $this->service->departmentData())
-                    ->set('value','${enterprise.department_id}')
-                    ->set('multiple', true)
-                    ->set('width', 150)
+                    ->set('options', '${enterprise_department_job|json}')
                     ->set('static', true),
-                amis()->TableColumn('job_id', '职务')
-                    ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->departmentJobData()])
-                    ->set('type', 'input-tag')
-                    ->set('options', $this->service->departmentJobData())
-                    ->set('value','${enterprise.job_id}')
-                    ->set('multiple', true)
-                    ->set('width', 150)
-                    ->set('static', true),
+//                amis()->TableColumn('department_job', '机构/部门/职务')
+//                    ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->departmentData()])
+//                    ->set('type', 'input-tag')
+//                    ->set('options', $this->service->departmentData())
+//                    ->set('value','${enterprise.department_id}')
+//                    ->set('multiple', true)
+//                    ->set('width', 150)
+//                    ->set('static', true),
+//                amis()->TableColumn('job_id', '职务')
+//                    ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->departmentJobData()])
+//                    ->set('type', 'input-tag')
+//                    ->set('options', $this->service->departmentJobData())
+//                    ->set('value','${enterprise.job_id}')
+//                    ->set('multiple', true)
+//                    ->set('width', 150)
+//                    ->set('static', true),
                 amis()->TableColumn('worker_no','系统编号')->searchable()->sortable(),
                 amis()->TableColumn('id_card','身份证号')->searchable()->sortable(),
                 amis()->TableColumn('avatar', '照片')
@@ -466,20 +471,19 @@ class WorkerController extends AdminController
                         ->options($this->service->getEnterpriseAll())
                         ->searchable()
                         ->required(),
-                    amis()->TreeSelectControl('department_id', '部门')
-                        ->options($this->service->departmentData())
-                        ->source(admin_url('biz/worker/${enterprise_id||0}/department/data'))
+                    amis()->TreeSelectControl('department_id', '部门${combo[index].enterprise_id}')
+                        ->source(admin_url('biz/worker/${combo[index].enterprise_id||0}/department/data'))
                         //->options($this->service->departmentData())
-                        ->disabledOn('${!enterprise_id}')
+                        ->disabledOn('${!combo[index].enterprise_id}')
                         ->onlyChildren(false)
                         ->onlyLeaf(false)
                         ->hideNodePathLabel()
                         ->searchable()
                         ->required(),
-                    amis()->TreeSelectControl('job_id', '职务')
-                        ->source(admin_url('biz/worker/${enterprise_id||0}/department/${department_id||0}/job/data'))
-                        ->options($this->service->departmentJobData())
-                        ->disabledOn('${!department_id}')
+                    amis()->TreeSelectControl('job_id', '职务${combo[index].department_id}')
+                        ->source(admin_url('biz/worker/${combo[index].enterprise_id||0}/department/${combo[index].department_id||0}/job/data'))
+                        //->options($this->service->departmentJobData())
+                        ->disabledOn('${!combo[index].department_id}')
                         ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
                         ->multiple(false)
                         ->maxTagCount(5)
@@ -545,14 +549,14 @@ class WorkerController extends AdminController
                 ->removable(),
             ]),
         ])->onEvent([
-//            'submitSucc' => [
-//                'actions' => [
-//                    [
-//                        'actionType' => 'custom',
-//                        'script' => 'window.$owl.refreshAmisPage();'
-//                    ],
-//                ]
-//            ]
+            'submitSucc' => [
+                'actions' => [
+                    [
+                        'actionType' => 'custom',
+                        'script' => 'window.$owl.refreshAmisPage();'
+                    ],
+                ]
+            ]
         ]);
     }
 
