@@ -42,7 +42,7 @@ class WorkerController extends AdminController
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
                 amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed', 'left'),
-                amis()->TableColumn('enterprise_department_job', '机构/部门/职务')
+                amis()->TableColumn('rel', '机构/部门/职务')
                     ->searchable(
                         amis()->FormControl()->body([
                             amis()->SelectControl('enterprise_id', false)
@@ -79,7 +79,7 @@ class WorkerController extends AdminController
                         ])
                     )
                     ->set('type', 'input-tag')
-                    ->set('options', '${enterprise_department_job|json}')
+                    ->set('options', '${rel|json}')
                     ->set('static', true),
                 amis()->TableColumn('worker_no', '系统编号')->searchable()->sortable(),
                 amis()->TableColumn('id_card', '身份证号')->searchable()->sortable(),

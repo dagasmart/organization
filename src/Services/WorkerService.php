@@ -22,7 +22,7 @@ class WorkerService extends AdminService
 
     public function loadRelations($query): void
     {
-        $query->whereHas('enterprise', function ($query) {
+        $query->whereHas('rel', function ($query) {
             $mer_id = admin_mer_id();
             $module = admin_current_module();
             $query->when($module, function ($query) use ($module) {
@@ -30,7 +30,7 @@ class WorkerService extends AdminService
             })->when($mer_id, function ($query) use ($mer_id) {
                 $query->where('mer_id', $mer_id);
             });
-        })->with(['enterprise', 'rel', 'combo']);
+        })->with(['rel', 'combo']);
     }
 
     public function searchable($query): void
@@ -75,7 +75,7 @@ class WorkerService extends AdminService
         $list = parent::list();
         if ($list['items']) {
             foreach ($list['items'] as &$item) {
-                $enterprise_department_job_array = [];
+                // $enterprise_department_job_array = [];
                 if (! empty($item['rel'])) {
                     foreach ($item['rel'] as $k => &$rel) {
                         $key = $rel['enterprise_id'].'_'.$rel['department_id'].'_'.$rel['job_id'];
@@ -85,11 +85,15 @@ class WorkerService extends AdminService
                         $tmp[] = $rel['department']['department_name'] ?? null;
                         $tmp[] = $rel['job']['job_name'] ?? null;
                         $implode = implode(' / ', array_filter($tmp));
-                        $enterprise_department_job_array[$k]['value'] = $key;
-                        $enterprise_department_job_array[$k]['label'] = $implode;
+
+                        $rel['value'] = $key;
+                        $rel['label'] = $implode;
+
+                        // $enterprise_department_job_array[$k]['value'] = $key;
+                        // $enterprise_department_job_array[$k]['label'] = $implode;
                     }
                 }
-                $item['enterprise_department_job'] = $enterprise_department_job_array;
+                // $item['enterprise_department_job'] = $enterprise_department_job_array;
             }
         }
 
