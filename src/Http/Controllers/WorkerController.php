@@ -3,14 +3,14 @@
 namespace DagaSmart\Organization\Http\Controllers;
 
 use DagaSmart\BizAdmin\Renderers\DialogAction;
-use DagaSmart\Organization\Enums\Enum;
-use DagaSmart\Organization\Services\WorkerService;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\WorkerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Swow\Coroutine;
 use Swow\Sync\WaitGroup;
@@ -22,69 +22,73 @@ use Swow\Sync\WaitGroup;
  */
 class WorkerController extends AdminController
 {
-	protected string $serviceName = WorkerService::class;
+    protected string $serviceName = WorkerService::class;
 
-	public function list(): Page
+    public function list(): Page
     {
-		$crud = $this->baseCRUD()
-			->filterTogglable(false)
-			->headerToolbar([
-				$this->createButton('dialog'),
-				...$this->baseHeaderToolBar(),
+        $crud = $this->baseCRUD()
+            ->filterTogglable(false)
+            ->headerToolbar([
+                $this->createButton('dialog'),
+                ...$this->baseHeaderToolBar(),
                 $this->importAction(admin_url('worker/import')),
                 $this->exportAction(),
-			])
+            ])
             ->autoGenerateFilter()
             ->affixHeader()
             ->columnsTogglable()
             ->footable(['expand' => 'first'])
             ->autoFillHeight(true)
             ->columns([
-                amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
-                amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed','left'),
-//                amis()->TableColumn('enterprise_id', '机构')
-//                    ->searchable([
-//                        'name' => 'enterprise_id',
-//                        'type' => 'select',
-//                        'multiple' => false,
-//                        'searchable' => true,
-//                        'options' => $this->service->getEnterpriseAll(),
-//                    ])
-//                    //->breakpoint('*')
-//                    ->set('type','input-tag')
-//                    ->set('options',$this->service->getEnterpriseAll())
-//                    ->set('value','${enterprise.enterprise_id}')
-//                    ->set('fixed','left')
-//                    ->set('static', true),
+                amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
+                amis()->TableColumn('worker_name', '姓名')->sortable()->searchable()->set('fixed', 'left'),
                 amis()->TableColumn('enterprise_department_job', '机构/部门/职务')
-                    ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->departmentData()])
+                    ->searchable(
+                        amis()->FormControl()->body([
+                            amis()->SelectControl('enterprise_id', false)
+                                ->options($this->service->getEnterpriseAll())
+                                ->placeholder('请选择机构')
+                                ->searchable()
+                                ->clearable(),
+                            amis()->TreeSelectControl('department_id', '部门')
+                                ->source(admin_url('biz/worker/${enterprise_id||0}/department/data'))
+                                ->disabledOn('${!enterprise_id}')
+                                ->onlyChildren(false)
+                                ->onlyLeaf(false)
+                                ->hideNodePathLabel()
+                                ->searchable()
+                                ->onEvent([
+                                    'change' => [
+                                        'actions' => [
+                                            [
+                                                'actionType' => 'clear',
+                                                'componentId' => 'test_job_list',
+                                            ],
+                                        ],
+                                    ],
+                                ]),
+                            amis()->TreeSelectControl('job_id', '职务')
+                                ->source(admin_url('biz/worker/${enterprise_id||0}/department/${department_id||0}/job/data'))
+                                ->disabledOn('${!department_id}')
+                                ->id('test_job_list')
+                                ->onlyChildren(false)
+                                ->onlyLeaf(false)
+                                // ->hideNodePathLabel()
+                                ->resetValue()
+                                ->searchable(),
+                        ])
+                    )
                     ->set('type', 'input-tag')
                     ->set('options', '${enterprise_department_job|json}')
                     ->set('static', true),
-//                amis()->TableColumn('department_job', '机构/部门/职务')
-//                    ->searchable(['type' => 'tree-select', 'multiple' => true, 'searchable' => true, 'options' => $this->service->departmentData()])
-//                    ->set('type', 'input-tag')
-//                    ->set('options', $this->service->departmentData())
-//                    ->set('value','${enterprise.department_id}')
-//                    ->set('multiple', true)
-//                    ->set('width', 150)
-//                    ->set('static', true),
-//                amis()->TableColumn('job_id', '职务')
-//                    ->searchable(['type'=>'tree-select', 'multiple'=>true, 'searchable'=>true, 'options'=>$this->service->departmentJobData()])
-//                    ->set('type', 'input-tag')
-//                    ->set('options', $this->service->departmentJobData())
-//                    ->set('value','${enterprise.job_id}')
-//                    ->set('multiple', true)
-//                    ->set('width', 150)
-//                    ->set('static', true),
-                amis()->TableColumn('worker_no','系统编号')->searchable()->sortable(),
-                amis()->TableColumn('id_card','身份证号')->searchable()->sortable(),
+                amis()->TableColumn('worker_no', '系统编号')->searchable()->sortable(),
+                amis()->TableColumn('id_card', '身份证号')->searchable()->sortable(),
                 amis()->TableColumn('avatar', '照片')
-                    ->set('src','${avatar}')
-                    ->set('type','avatar')
-                    ->set('fit','cover')
-                    ->set('size',60)
-                    ->set('onError','return true;')
+                    ->set('src', '${avatar}')
+                    ->set('type', 'avatar')
+                    ->set('fit', 'cover')
+                    ->set('size', 60)
+                    ->set('onError', 'return true;')
                     ->set('onEvent', [
                         'click' => [
                             'actions' => [
@@ -93,49 +97,49 @@ class WorkerController extends AdminController
                                     'drawer' => [
                                         'title' => '预览',
                                         'actions' => [],
-                                        'closeOnEsc' => true, //esc键关闭
-                                        'closeOnOutside' => true, //域外可关闭
-                                        'showCloseButton' => true, //显示关闭
+                                        'closeOnEsc' => true, // esc键关闭
+                                        'closeOnOutside' => true, // 域外可关闭
+                                        'showCloseButton' => true, // 显示关闭
                                         'body' => [
                                             amis()->Image()
                                                 ->src('${avatar}')
                                                 ->defaultImage(url(admin_config('admin.default_image')))
                                                 ->width('100%')
                                                 ->height('100%'),
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ]),
                 amis()->TableColumn('mobile', '联系电话')->searchable(),
-//                amis()->TableColumn('area_id', '所属地区id')
-//                    ->searchable(['name'=>'area_id','type'=>'input-city'])
-//                    ->quickEdit(['type'=>'input-city','value'=>'${area_id}'])
-//                    ->set('type','input-city')
-//                    ->set('static',true)
-//                    ->sortable(),
+                //                amis()->TableColumn('area_id', '所属地区id')
+                //                    ->searchable(['name'=>'area_id','type'=>'input-city'])
+                //                    ->quickEdit(['type'=>'input-city','value'=>'${area_id}'])
+                //                    ->set('type','input-city')
+                //                    ->set('static',true)
+                //                    ->sortable(),
                 amis()->TableColumn('alipay_user_id', '刷脸账号')->searchable(),
                 amis()->TableColumn('updated_at', '更新时间')->type('datetime')->width(150),
                 $this->rowActions('dialog')
-                    ->set('align','center')
-                    ->set('fixed','right')
-                    ->set('width',150)
+                    ->set('align', 'center')
+                    ->set('fixed', 'right')
+                    ->set('width', 150),
             ])
             ->affixRow([
-//                [
-//                    'type' => 'text',
-//                    'text' => '总计',
-//                    "colSpan" => 3,
-//                ],
-//                [
-//                    'type' => 'tpl',
-//                    "tpl" => '${rows|pick:mobile|sum}'
-//                ]
+                //                [
+                //                    'type' => 'text',
+                //                    'text' => '总计',
+                //                    "colSpan" => 3,
+                //                ],
+                //                [
+                //                    'type' => 'tpl',
+                //                    "tpl" => '${rows|pick:mobile|sum}'
+                //                ]
             ]);
 
-		return $this->baseList($crud);
-	}
+        return $this->baseList($crud);
+    }
 
     public function form($isEdit = false): Form
     {
@@ -159,14 +163,14 @@ class WorkerController extends AdminController
                                     'click' => [
                                         'actions' => [
                                             [
-                                                'actionType'  => 'reset',
+                                                'actionType' => 'reset',
                                                 'componentId' => 'worker_form_id',
                                             ],
                                             [
-                                                'actionType'  => 'setValue',
+                                                'actionType' => 'setValue',
                                                 'componentName' => 'id_card',
                                                 'args' => [
-                                                    'value' => '${id_card_enc | base64Decode}'
+                                                    'value' => '${id_card_enc | base64Decode}',
                                                 ],
                                             ],
                                         ],
@@ -178,7 +182,7 @@ class WorkerController extends AdminController
                                     'actions' => [
                                         [
                                             'actionType' => 'stopPropagation',
-                                            'expression' => '${isEdit}'
+                                            'expression' => '${isEdit}',
                                         ],
                                         [
                                             'actionType' => 'ajax',
@@ -188,55 +192,55 @@ class WorkerController extends AdminController
                                             ],
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'id',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.id||null}'
+                                                'value' => '${event.data.responseResult.responseData.id||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'id',
-                                            'expression' => '${!!event.data.responseResult.responseData.id}'
+                                            'expression' => '${!!event.data.responseResult.responseData.id}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'id',
-                                            'expression' => '${!event.data.responseResult.responseData.id}'
+                                            'expression' => '${!event.data.responseResult.responseData.id}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'worker_name',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.worker_name||null}'
+                                                'value' => '${event.data.responseResult.responseData.worker_name||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'worker_name',
-                                            'expression' => '${!!event.data.responseResult.responseData.worker_name}'
+                                            'expression' => '${!!event.data.responseResult.responseData.worker_name}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'worker_name',
-                                            'expression' => '${!event.data.responseResult.responseData.worker_name}'
+                                            'expression' => '${!event.data.responseResult.responseData.worker_name}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'worker_no',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.worker_no||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}'
+                                                'value' => '${event.data.responseResult.responseData.worker_no||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'worker_no',
-                                            'expression' => '${!!event.data.responseResult.responseData.worker_no}'
+                                            'expression' => '${!!event.data.responseResult.responseData.worker_no}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'worker_no',
-                                            'expression' => '${!event.data.responseResult.responseData.worker_no}'
+                                            'expression' => '${!event.data.responseResult.responseData.worker_no}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -248,182 +252,182 @@ class WorkerController extends AdminController
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'avatar',
-                                            'expression' => '${!!event.data.responseResult.responseData.avatar}'
+                                            'expression' => '${!!event.data.responseResult.responseData.avatar}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'avatar',
-                                            'expression' => '${!event.data.responseResult.responseData.avatar}'
+                                            'expression' => '${!event.data.responseResult.responseData.avatar}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'party',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.party||null}'
+                                                'value' => '${event.data.responseResult.responseData.party||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'party',
-                                            'expression' => '${!!event.data.responseResult.responseData.party}'
+                                            'expression' => '${!!event.data.responseResult.responseData.party}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'party',
-                                            'expression' => '${!event.data.responseResult.responseData.party}'
+                                            'expression' => '${!event.data.responseResult.responseData.party}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'email',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.email||null}'
+                                                'value' => '${event.data.responseResult.responseData.email||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'email',
-                                            'expression' => '${!!event.data.responseResult.responseData.email}'
+                                            'expression' => '${!!event.data.responseResult.responseData.email}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'email',
-                                            'expression' => '${!event.data.responseResult.responseData.email}'
+                                            'expression' => '${!event.data.responseResult.responseData.email}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'mobile',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.mobile||null}'
+                                                'value' => '${event.data.responseResult.responseData.mobile||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'mobile',
-                                            'expression' => '${!!event.data.responseResult.responseData.mobile}'
+                                            'expression' => '${!!event.data.responseResult.responseData.mobile}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'mobile',
-                                            'expression' => '${!event.data.responseResult.responseData.mobile}'
+                                            'expression' => '${!event.data.responseResult.responseData.mobile}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'sex',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.sex||null}'
+                                                'value' => '${event.data.responseResult.responseData.sex||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'sex',
-                                            'expression' => '${!!event.data.responseResult.responseData.sex}'
+                                            'expression' => '${!!event.data.responseResult.responseData.sex}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'sex',
-                                            'expression' => '${!event.data.responseResult.responseData.sex}'
+                                            'expression' => '${!event.data.responseResult.responseData.sex}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'nation',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.nation||null}'
+                                                'value' => '${event.data.responseResult.responseData.nation||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'nation',
-                                            'expression' => '${!!event.data.responseResult.responseData.nation}'
+                                            'expression' => '${!!event.data.responseResult.responseData.nation}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'nation',
-                                            'expression' => '${!event.data.responseResult.responseData.nation}'
+                                            'expression' => '${!event.data.responseResult.responseData.nation}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'combo',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.combo||null}'
+                                                'value' => '${event.data.responseResult.responseData.combo||null}',
                                             ],
                                         ],
-//                                        [
-//                                            'actionType' => 'disabled',
-//                                            'componentName' => 'combo',
-//                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
-//                                        ],
-//                                        [
-//                                            'actionType' => 'enabled',
-//                                            'componentName' => 'combo',
-//                                            'expression' => '${!event.data.responseResult.responseData.combo}'
-//                                        ],
+                                        //                                        [
+                                        //                                            'actionType' => 'disabled',
+                                        //                                            'componentName' => 'combo',
+                                        //                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
+                                        //                                        ],
+                                        //                                        [
+                                        //                                            'actionType' => 'enabled',
+                                        //                                            'componentName' => 'combo',
+                                        //                                            'expression' => '${!event.data.responseResult.responseData.combo}'
+                                        //                                        ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'region_id',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.region_id||null}'
+                                                'value' => '${event.data.responseResult.responseData.region_id||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'region_id',
-                                            'expression' => '${!!event.data.responseResult.responseData.region_id}'
+                                            'expression' => '${!!event.data.responseResult.responseData.region_id}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'region_id',
-                                            'expression' => '${!event.data.responseResult.responseData.region_id}'
+                                            'expression' => '${!event.data.responseResult.responseData.region_id}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'address',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.address||null}'
+                                                'value' => '${event.data.responseResult.responseData.address||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'address',
-                                            'expression' => '${!!event.data.responseResult.responseData.address}'
+                                            'expression' => '${!!event.data.responseResult.responseData.address}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'address',
-                                            'expression' => '${!event.data.responseResult.responseData.address}'
+                                            'expression' => '${!event.data.responseResult.responseData.address}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'region_info',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.region_info||null}'
+                                                'value' => '${event.data.responseResult.responseData.region_info||null}',
                                             ],
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'address_info',
                                             'args' => [
-                                                'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}'
+                                                'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}',
                                             ],
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'family',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.family||null}'
+                                                'value' => '${event.data.responseResult.responseData.family||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'family',
-                                            'expression' => '${!!event.data.responseResult.responseData.family}'
+                                            'expression' => '${!!event.data.responseResult.responseData.family}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'family',
-                                            'expression' => '${!event.data.responseResult.responseData.family}'
+                                            'expression' => '${!event.data.responseResult.responseData.family}',
                                         ],
-                                    ]
-                                ]
+                                    ],
+                                ],
                             ]),
                         amis()->TextControl('worker_name', '真实姓名')->id('worker_name')->required(),
                         amis()->HiddenControl('worker_no', '系统编号')
@@ -438,17 +442,17 @@ class WorkerController extends AdminController
                         amis()->ImageControl('avatar')
                             ->thumbRatio('1:1')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
-                            ->className(['overflow-hidden'=>true, 'h-full'=>true])
+                            ->className(['overflow-hidden' => true, 'h-full' => true])
                             ->imageClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ])
                             ->fixedSize()
                             ->fixedSizeClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ]),
                     ]),
                 ]),
@@ -471,41 +475,53 @@ class WorkerController extends AdminController
                         ->options($this->service->getEnterpriseAll())
                         ->searchable()
                         ->required(),
-                    amis()->TreeSelectControl('department_id', '部门${combo[index].enterprise_id}')
+                    amis()->TreeSelectControl('department_id', '部门')
                         ->source(admin_url('biz/worker/${combo[index].enterprise_id||0}/department/data'))
-                        //->options($this->service->departmentData())
                         ->disabledOn('${!combo[index].enterprise_id}')
                         ->onlyChildren(false)
                         ->onlyLeaf(false)
                         ->hideNodePathLabel()
                         ->searchable()
-                        ->required(),
-                    amis()->TreeSelectControl('job_id', '职务${combo[index].department_id}')
+                        ->required()
+                        ->onEvent([
+                            'change' => [
+                                'actions' => [
+                                    [
+                                        'actionType' => 'clear',
+                                        'componentId' => 'test_job_from',
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    amis()->TreeSelectControl('job_id', '职务')
                         ->source(admin_url('biz/worker/${combo[index].enterprise_id||0}/department/${combo[index].department_id||0}/job/data'))
-                        //->options($this->service->departmentJobData())
                         ->disabledOn('${!combo[index].department_id}')
-                        ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
-                        ->multiple(false)
-                        ->maxTagCount(5)
+                        ->id('test_job_from')
                         ->onlyChildren(false)
                         ->onlyLeaf(false)
                         ->hideNodePathLabel()
+                        ->resetValue()
                         ->searchable()
                         ->required(),
                     amis()->HiddenControl('worker_id')->value('${id}'),
                     amis()->HiddenControl('module')->value(admin_current_module()),
                     amis()->HiddenControl('mer_id')->value(admin_mer_id()),
                 ])
-                ->className('border-gray-100 border-dashed')
-                ->mode('horizontal')
-                ->multiLine(false)
-                ->multiple()
-                ->strictMode(false)
-                ->removable()
-                ->required(),
+                    ->className('border-gray-100 border-dashed')
+                    ->mode('horizontal')
+                    ->multiLine(false)
+                    ->multiple()
+                    ->strictMode(false)
+                    ->removable()
+                    ->required(),
             ]),
             // 家庭情况
             amis()->Tab()->title('家庭情况')->body([
+                // amis()->LocationControl()
+                // ->ak(env('AMAP_KEY'))
+                // ->staticSchema([
+                // 'embed' => true
+                // ]),
                 amis()->InputCityControl('region_id', '所在地区')
                     ->searchable()
                     ->extractValue(false)
@@ -514,10 +530,10 @@ class WorkerController extends AdminController
                         'change' => [
                             'actions' => [
                                 [
-                                    'actionType'  => 'setValue',
+                                    'actionType' => 'setValue',
                                     'componentId' => 'form_region_info',
-                                    'args'        => [
-                                        'value' => '${value}'
+                                    'args' => [
+                                        'value' => '${value}',
                                     ],
                                 ],
                             ],
@@ -539,30 +555,30 @@ class WorkerController extends AdminController
                         ->options(Enum::family())
                         ->clearable()
                         ->required(),
-                    amis()->TextControl('family_mobile','电话')->clearable(),
+                    amis()->TextControl('family_mobile', '电话')->clearable(),
                 ])
-                ->className('border-gray-100 border-dashed')
-                ->mode('horizontal')
-                ->multiLine(false)
-                ->multiple()
-                ->strictMode(false)
-                ->removable(),
+                    ->className('border-gray-100 border-dashed')
+                    ->mode('horizontal')
+                    ->multiLine(false)
+                    ->multiple()
+                    ->strictMode(false)
+                    ->removable(),
             ]),
         ])->onEvent([
             'submitSucc' => [
                 'actions' => [
                     [
                         'actionType' => 'custom',
-                        'script' => 'window.$owl.refreshAmisPage();'
+                        'script' => 'window.$owl.refreshAmisPage();',
                     ],
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
-	public function detail(): Form
+    public function detail(): Form
     {
-		return $this->baseDetail()->mode('horizontal')->tabs([
+        return $this->baseDetail()->mode('horizontal')->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
@@ -578,17 +594,17 @@ class WorkerController extends AdminController
                         amis()->ImageControl('avatar')
                             ->thumbRatio('1:1')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
-                            ->className(['overflow-hidden'=>true, 'h-full'=>true])
+                            ->className(['overflow-hidden' => true, 'h-full' => true])
                             ->imageClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ])
                             ->fixedSize()
                             ->fixedSizeClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ]),
                     ]),
                 ]),
@@ -625,13 +641,13 @@ class WorkerController extends AdminController
                         ->required(),
                     amis()->TagControl('worker_sn', '工号'),
                 ])
-                ->className('border-gray-100 border-dashed')
-                ->mode('horizontal')
-                ->multiLine(false)
-                ->strictMode(false)
-                ->multiple()
-                ->removable()
-                ->required(),
+                    ->className('border-gray-100 border-dashed')
+                    ->mode('horizontal')
+                    ->multiLine(false)
+                    ->strictMode(false)
+                    ->multiple()
+                    ->removable()
+                    ->required(),
             ]),
             // 家庭情况
             amis()->Tab()->title('家庭情况')->body([
@@ -643,10 +659,10 @@ class WorkerController extends AdminController
                         'change' => [
                             'actions' => [
                                 [
-                                    'actionType'  => 'setValue',
+                                    'actionType' => 'setValue',
                                     'componentId' => 'form_region_info',
-                                    'args'        => [
-                                        'value' => '${value}'
+                                    'args' => [
+                                        'value' => '${value}',
                                     ],
                                 ],
                             ],
@@ -668,21 +684,21 @@ class WorkerController extends AdminController
                         ->options(Enum::family())
                         ->clearable()
                         ->required(),
-                    amis()->TextControl('family_mobile','电话')->clearable(),
+                    amis()->TextControl('family_mobile', '电话')->clearable(),
                 ])
-                ->className('border-gray-100 border-dashed')
-                ->mode('horizontal')
-                ->multiLine(false)
-                ->multiple()
-                ->strictMode(false)
-                ->removable(),
+                    ->className('border-gray-100 border-dashed')
+                    ->mode('horizontal')
+                    ->multiLine(false)
+                    ->multiple()
+                    ->strictMode(false)
+                    ->removable(),
             ]),
         ])->static();
-	}
-
+    }
 
     /**
      * 部门数据
+     *
      * @return array
      */
     public function departmentData()
@@ -692,6 +708,7 @@ class WorkerController extends AdminController
 
     /**
      * 职务数据
+     *
      * @return array
      */
     public function jobData()
@@ -701,22 +718,22 @@ class WorkerController extends AdminController
 
     /**
      * 部门职务数据
-     * @return array
+     *
+     * @return Collection
      */
     public function departmentJobData()
     {
         return $this->service->departmentJobData();
     }
 
-
     /**
      * 检查身份证并获取员工信息
-     * @return JsonResponse|JsonResource
      */
     public function EnterpriseWorkerCheck(): JsonResponse|JsonResource
     {
         $id_card = request()->id_card ?? null;
         $res = $this->service->EnterpriseWorkerCheck($id_card);
+
         return $this->response()->success($res);
     }
 
@@ -738,8 +755,8 @@ class WorkerController extends AdminController
                         ->label('限制只能上传csv文件')
                         ->accept('.csv')
                         ->receiver('enterprise/worker/import')
-                        //->startChunkApi('enterprise/worker/import')
-                        //->chunkApi('enterprise/worker/import')
+                        // ->startChunkApi('enterprise/worker/import')
+                        // ->chunkApi('enterprise/worker/import')
                         ->finishChunkApi('enterprise/worker/importChunk')
                         ->required()
                         ->drag()
@@ -752,13 +769,13 @@ class WorkerController extends AdminController
                                             'url' => 'enterprise/common/remove',
                                             'method' => 'post',
                                             'data' => [
-                                                'path' => '${event.data.value}'
+                                                'path' => '${event.data.value}',
                                             ],
-                                            'silent' => true
-                                        ]
-                                    ]
-                                ]
-                            ]
+                                            'silent' => true,
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ]),
                 ]),
             ])->actions([])
@@ -770,15 +787,15 @@ class WorkerController extends AdminController
         $fileName = request('filename');
         $partList = request('partList');
         $uploadId = request('uploadId');
-        $type     = request('t', 'uploads');
-        $ext      = pathinfo($fileName, PATHINFO_EXTENSION);
-        $path     = $type . '/' . $uploadId . '.' . $ext;
-        $fullPath = storage_path('app/public/' . $path);
+        $type = request('t', 'uploads');
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        $path = $type.'/'.$uploadId.'.'.$ext;
+        $fullPath = storage_path('app/public/'.$path);
         make_dir(dirname($fullPath));
         for ($i = 0; $i < count($partList); $i++) {
             $partNumber = $partList[$i]['partNumber'];
-            $eTag       = $partList[$i]['eTag'];
-            $partPath = 'chunk/' . $uploadId . '/' . $partNumber;
+            $eTag = $partList[$i]['eTag'];
+            $partPath = 'chunk/'.$uploadId.'/'.$partNumber;
             $partETag = md5(Storage::disk('public')->get($partPath));
             if ($eTag != $partETag) {
                 return $this->response()->fail('分片上传失败');
@@ -786,50 +803,49 @@ class WorkerController extends AdminController
             file_put_contents($fullPath, Storage::disk('public')->get($partPath), FILE_APPEND);
         }
         clearstatcache();
-        app('files')->deleteDirectory(storage_path('app/public/chunk/' . $uploadId));
+        app('files')->deleteDirectory(storage_path('app/public/chunk/'.$uploadId));
         $this->readCsv($fullPath);
+
         return $this->response()->success(['value' => $path], '上传成功');
     }
 
     public function import(): JsonResponse|JsonResource
     {
-        //try {
-            // 验证文件是否存在且不为空
-            if (request()->hasFile('file') && request()->file('file')->isValid()) {
-                $file = request()->file('file');
-                $filename = time() . $file->getClientOriginalName(); // 使用时间戳和原始名称作为文件名
-                $path = $file->storeAs('files', $filename, 'public'); // 存储到 public 磁盘的 uploads 目录下
-                foreach ($this->readCsv(public_storage_path($path)) as $i => $item) {
-                    echo  $i . '行' . json_encode($item, JSON_UNESCAPED_UNICODE) . PHP_EOL;
-                }
-                return $this->response()->success(['value' => $path], '文件上传成功！'); // 返回成功消息
-            } else {
-                return $this->response()->fail('文件上传失败！');
+        // try {
+        // 验证文件是否存在且不为空
+        if (request()->hasFile('file') && request()->file('file')->isValid()) {
+            $file = request()->file('file');
+            $filename = time().$file->getClientOriginalName(); // 使用时间戳和原始名称作为文件名
+            $path = $file->storeAs('files', $filename, 'public'); // 存储到 public 磁盘的 uploads 目录下
+            foreach ($this->readCsv(public_storage_path($path)) as $i => $item) {
+                echo $i.'行'.json_encode($item, JSON_UNESCAPED_UNICODE).PHP_EOL;
             }
-        //} catch (\Exception $e) {
-            //return $this->response()->fail('文件上传失败！');
-        //}
-    }
 
+            return $this->response()->success(['value' => $path], '文件上传成功！'); // 返回成功消息
+        } else {
+            return $this->response()->fail('文件上传失败！');
+        }
+        // } catch (\Exception $e) {
+        // return $this->response()->fail('文件上传失败！');
+        // }
+    }
 
     public function readCsv($filePath)
     {
 
-        $wg = new WaitGroup();
+        $wg = new WaitGroup;
         $rows = SimpleExcelReader::create($filePath)->getRows()->toArray();
         foreach ($rows as $index => $row) {
-                $wg->add(); // 增加等待计数
-                Coroutine::run(function () use ($wg, $index, $row, &$results) {
-                    try {
-                        // 并发执行任务
-                        dump($index . '_' . $row);
-                    } finally {
-                        $wg->done(); // 任务完成，减少等待计数
-                    }
-                });
+            $wg->add(); // 增加等待计数
+            Coroutine::run(function () use ($wg, $index, $row, &$results) {
+                try {
+                    // 并发执行任务
+                    dump($index.'_'.$row);
+                } finally {
+                    $wg->done(); // 任务完成，减少等待计数
+                }
+            });
         }
 
     }
-
-
 }

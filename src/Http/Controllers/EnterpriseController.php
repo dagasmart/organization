@@ -34,7 +34,7 @@ class EnterpriseController extends AdminController
     {
         return amis()->Page()->body(
             amis()->Grid()->columns([
-                //$this->region()->set('md', 3),
+                // $this->region()->set('md', 3),
                 $this->list()->set('md', 12),
                 // $this->relevance()->set('md', 2),
                 // amis()->Flex()->className('h-full')->items([
@@ -532,7 +532,7 @@ class EnterpriseController extends AdminController
             amis()->Alert()
                 ->showIcon()
                 ->showCloseButton()
-                ->body('提示：部门必填'),
+                ->body('提示：部门至少保留一项'),
             amis()->TreeControl('department_id', false)
                 ->source(admin_url('biz/enterprise/${id||0}/department/data'))
                 ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
@@ -627,7 +627,7 @@ class EnterpriseController extends AdminController
             amis()->Alert()
                 ->showIcon()
                 ->showCloseButton()
-                ->body('提示：职务必填'),
+                ->body('提示：部门职务至少保留一项'),
             amis()->TreeControl('job_id', false)
                 ->source(admin_url('biz/enterprise/${id||0}/job/data'))
                 ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
