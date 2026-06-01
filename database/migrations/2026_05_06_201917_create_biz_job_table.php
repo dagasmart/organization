@@ -27,7 +27,7 @@ return new class extends Migration
         });
 
         // 在创建表之后，紧接着插入基础数据
-        DB::table($this->name)->insert([
+        DB::table($this->name)->insertOrIgnoreReturning([
             ['id' => 1, 'job_name' => '行政类', 'tag' => '主要负责学校日常运营的管理工作', 'parent_id' => 1, 'sort' => 0],
             ['id' => 2, 'job_name' => '教学类', 'tag' => '主要负责教育教学工作', 'parent_id' => 2, 'sort' => 1],
             ['id' => 3, 'job_name' => '科研类', 'tag' => '主要从事科学研究工作', 'parent_id' => 3, 'sort' => 2],
@@ -78,12 +78,12 @@ return new class extends Migration
     {
         if (Schema::hasTable($this->name)) {
             // 检查是否存在数据
-            $exists = DB::table($this->name)->exists();
+            // $exists = DB::table($this->name)->exists();
             // 不存在数据时，删除表
-            if (! $exists) {
-                // 删除 reverse
-                Schema::dropIfExists($this->name);
-            }
+            // if (! $exists) {
+            // 删除 reverse
+            Schema::dropIfExists($this->name);
+            // }
         }
     }
 };

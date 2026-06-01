@@ -34,13 +34,13 @@ class EnterpriseController extends AdminController
     {
         return amis()->Page()->body(
             amis()->Grid()->columns([
-                $this->region()->set('md', 3),
-                $this->list()->set('md', 9),
-                //$this->relevance()->set('md', 2),
-                //                amis()->Flex()->className('h-full')->items([
-                //                    $this->relevance(),
-                //                    $this->relevance(),
-                //                ])->direction('column'),
+                //$this->region()->set('md', 3),
+                $this->list()->set('md', 12),
+                // $this->relevance()->set('md', 2),
+                // amis()->Flex()->className('h-full')->items([
+                //     $this->relevance(),
+                //     $this->relevance(),
+                // ])->direction('column'),
             ])
         );
     }
@@ -79,15 +79,15 @@ class EnterpriseController extends AdminController
                         [
                             'actionType' => 'toast',
                             'args' => [
-                                'msg' => '当前行的数据：${event.data.rowItem.id|json}'
-                            ]
+                                'msg' => '当前行的数据：${event.data.rowItem.id|json}',
+                            ],
                         ],
                         [
                             'actionType' => 'reload',
-                            'target' => 'jobCRUD?id=${id}'
-                        ]
-                    ]
-                ]
+                            'target' => 'jobCRUD?id=${id}',
+                        ],
+                    ],
+                ],
             ])
             ->selectable()
             ->multiple(false)
@@ -95,8 +95,8 @@ class EnterpriseController extends AdminController
             ->itemAction([
                 'actionType' => [
                     'actionType' => 'reload',
-                    'target' => 'jobCRUD?id=${id}'
-                ]
+                    'target' => 'jobCRUD?id=${id}',
+                ],
             ])
             ->autoFillHeight(true)
             ->columns([
@@ -171,21 +171,21 @@ class EnterpriseController extends AdminController
                 ->source('basic/region/0/children')
                 ->autoFillHeight(true)
                 ->columns([
-                    amis()->TableColumn('name', false)
+                    amis()->TableColumn('name', false),
                 ]),
-//            amis()->TreeControl('region_id', false)
-//                ->source('basic/region/${region_id||0}/children')
-//                ->options([
-//                    [
-//                        'label' => '请选择省份',
-//                        'value' => 'root',
-//                        'defer' => true
-//                    ]
-//                ])
-//                ->labelField('name')
-//                ->valueField('id')
-//                ->staticInputClassName('h-full')
-//                ->inputClassName('h-full'),
+            //            amis()->TreeControl('region_id', false)
+            //                ->source('basic/region/${region_id||0}/children')
+            //                ->options([
+            //                    [
+            //                        'label' => '请选择省份',
+            //                        'value' => 'root',
+            //                        'defer' => true
+            //                    ]
+            //                ])
+            //                ->labelField('name')
+            //                ->valueField('id')
+            //                ->staticInputClassName('h-full')
+            //                ->inputClassName('h-full'),
         ]);
     }
 
@@ -218,7 +218,7 @@ class EnterpriseController extends AdminController
                         ->needConfirm()
                         ->draggable()
                         ->addable()
-                        ->addApi('put:' . admin_url('biz/enterprise/${id:1}/department/save'))
+                        ->addApi('put:'.admin_url('biz/enterprise/${id:1}/department/save'))
                         ->editable()
                         ->removable()
                         ->onEvent([
@@ -546,7 +546,7 @@ class EnterpriseController extends AdminController
                         ->options($this->service->departmentData())
                         ->disabledOn('${!!parent}')
                         ->value('${parent.id}'),
-                    amis()->TextareaControl('remark','部门描述'),
+                    amis()->TextareaControl('remark', '部门描述'),
                     amis()->SwitchControl('department_state', '状态')
                         ->onText('显示')
                         ->offText('隐藏')
@@ -567,7 +567,7 @@ class EnterpriseController extends AdminController
                     amis()->TreeSelectControl('parent_id', '上级部门')
                         ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
                         ->options($this->service->departmentData()),
-                    amis()->TextareaControl('remark','部门描述'),
+                    amis()->TextareaControl('remark', '部门描述'),
                     amis()->SwitchControl('department_state', '状态')
                         ->onText('显示')
                         ->offText('隐藏')
@@ -644,7 +644,7 @@ class EnterpriseController extends AdminController
                         ->options($this->service->jobData())
                         ->disabledOn('${!!parent}')
                         ->value('${parent.id}'),
-                    amis()->TextareaControl('remark','备注'),
+                    amis()->TextareaControl('remark', '备注'),
                     amis()->SwitchControl('job_state', '状态')
                         ->onText('显示')
                         ->offText('隐藏')
@@ -668,7 +668,7 @@ class EnterpriseController extends AdminController
                     amis()->TreeSelectControl('parent_id', '上级')
                         ->source(admin_url('biz/enterprise/${enterprise_id}/job/data'))
                         ->options($this->service->jobData()),
-                    amis()->TextareaControl('remark','描述'),
+                    amis()->TextareaControl('remark', '描述'),
                     amis()->SwitchControl('job_state', '状态')
                         ->onText('显示')
                         ->offText('隐藏')
@@ -697,6 +697,7 @@ class EnterpriseController extends AdminController
 
     /**
      * 部门数据
+     *
      * @return array
      */
     public function departmentData()
@@ -706,6 +707,7 @@ class EnterpriseController extends AdminController
 
     /**
      * 职务数据
+     *
      * @return array
      */
     public function jobData()
@@ -715,6 +717,7 @@ class EnterpriseController extends AdminController
 
     /**
      * 部门职务数据
+     *
      * @return array
      */
     public function departmentJobData()
@@ -724,44 +727,49 @@ class EnterpriseController extends AdminController
 
     /**
      * 部门保存
+     *
      * @return JsonResponse|JsonResource
      */
     public function departmentSave()
     {
         $res = $this->service->departmentSave();
+
         return $this->response()->success($res);
     }
 
     /**
      * 职务保存
+     *
      * @return JsonResponse|JsonResource
      */
     public function jobSave()
     {
         $res = $this->service->jobSave();
+
         return $this->response()->success($res);
     }
 
     /**
      * 删除部门
+     *
      * @return JsonResponse|JsonResource
      */
     public function departmentDelete()
     {
         $res = $this->service->departmentDelete();
+
         return $this->response()->success($res);
     }
 
     /**
      * 删除职务
+     *
      * @return JsonResponse|JsonResource
      */
     public function jobDelete()
     {
         $res = $this->service->jobDelete();
+
         return $this->response()->success($res);
     }
-
-
-
 }
