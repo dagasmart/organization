@@ -2,20 +2,19 @@
 
 namespace DagaSmart\Organization\Models;
 
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-
 /**
  * 基础-老师模型类
  */
 class Worker extends Model
 {
-	protected $table = 'biz_worker';
+    protected $table = 'biz_worker';
+
     protected $primaryKey = 'id';
 
     protected $casts = [
@@ -29,8 +28,6 @@ class Worker extends Model
 
     /**
      * 头像
-     * @param $value
-     * @return string|null
      */
     public function getAvatarAttribute($value): ?string
     {
@@ -39,13 +36,12 @@ class Worker extends Model
 
     public function setAvatarAttribute($value): void
     {
-        $avatar = str_replace(env('APP_URL') . Storage::url(''), '', $value);
+        $avatar = str_replace(env('APP_URL').Storage::url(''), '', $value);
         $this->attributes['avatar'] = $value ? Storage::url($avatar) : null;
     }
 
     /**
      * 身份证号加密
-     * @return false|string
      */
     public function getIdCardEncAttribute(): false|string
     {
@@ -54,7 +50,6 @@ class Worker extends Model
 
     /**
      * 手机号加密
-     * @return false|string
      */
     public function getMobileEncAttribute(): false|string
     {
@@ -63,53 +58,48 @@ class Worker extends Model
 
     /**
      * 手机号脱敏
-     * @param $value
-     * @return false|string
      */
     public function getMobileAttribute($value): false|string
     {
-        return admin_sensitive($value, 3,5);
+        return admin_sensitive($value, 3, 5);
     }
 
     public function setMobileAttribute($value): void
     {
-        if ($value && !strpos($value, '*')) {
+        if ($value && ! strpos($value, '*')) {
             $this->attributes['mobile'] = $value;
         }
     }
 
     /**
      * 身份证号脱敏
-     * @param $value
-     * @return false|string
      */
     public function getIdCardAttribute($value): false|string
     {
-        return admin_sensitive($value, 6,8);
+        return admin_sensitive($value, 6, 8);
     }
 
     public function setIdCardAttribute($value): void
     {
-        if ($value && !strpos($value, '*')) {
+        if ($value && ! strpos($value, '*')) {
             $this->attributes['id_card'] = $value;
         }
     }
 
-
-//    public function enterpriseThrough(): HasManyThrough
-//    {
-//        return $this->hasManyThrough(Enterprise::class, EnterpriseWorker::class,
-//            'worker_id',
-//            'id',
-//            'id',
-//            'enterprise_id'
-//        )->select(admin_raw("id as value, enterprise_name as label"));
-//    }
+    //    public function enterpriseThrough(): HasManyThrough
+    //    {
+    //        return $this->hasManyThrough(Enterprise::class, EnterpriseWorker::class,
+    //            'worker_id',
+    //            'id',
+    //            'id',
+    //            'enterprise_id'
+    //        )->select(admin_raw("id as value, enterprise_name as label"));
+    //    }
 
     public function rel(): hasMany
     {
         return $this->hasMany(EnterpriseDepartmentJobWorker::class, 'worker_id', 'id')
-            ->with(['job','department','enterprise']);
+            ->with(['job', 'department', 'enterprise']);
     }
 
     public function enterprise(): HasOne
@@ -117,7 +107,7 @@ class Worker extends Model
         return $this->hasOne(EnterpriseDepartmentJobWorker::class,
             'worker_id',
             'id'
-            )->select(admin_raw("
+        )->select(admin_raw("
                 worker_id
                 ,string_agg (DISTINCT enterprise_id::VARCHAR, ',' ) as enterprise_id
                 ,string_agg (DISTINCT department_id::VARCHAR, ',' ) as department_id
@@ -126,14 +116,14 @@ class Worker extends Model
             ->groupBy('worker_id');
     }
 
-    public function combo(): HasMany
+    public function combo(): hasMany
     {
         return $this->hasMany(EnterpriseDepartmentJobWorker::class,
             'worker_id',
             'id'
-            )
+        )
             ->withoutGlobalScope('ActiveScope')
-            ->select(admin_raw("enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id"));
+            ->select(admin_raw('enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id'));
     }
 
     public function job(): HasOne
@@ -141,7 +131,7 @@ class Worker extends Model
         return $this->HasOne(EnterpriseDepartmentJobWorker::class,
             'worker_id',
             'id'
-            )
+        )
             ->select(admin_raw("worker_id,string_agg(job_id::varchar, ',') job_id"))
             ->orderBy('job_id')
             ->groupBy(['worker_id']);
@@ -149,7 +139,7 @@ class Worker extends Model
 
     public function enterpriseData(): Collection
     {
-        return Enterprise::query()->whereNull('deleted_at')->pluck('enterprise_name','id');
+        return Enterprise::query()->whereNull('deleted_at')->pluck('enterprise_name', 'id');
     }
 
     public function enterpriseJobs(): BelongsToMany
@@ -159,10 +149,7 @@ class Worker extends Model
             EnterpriseDepartmentJobWorker::class,
             'worker_id',
             'job_id'
-            )
+        )
             ->wherePivot('mer_id', admin_mer_id());
     }
-
-
-
 }

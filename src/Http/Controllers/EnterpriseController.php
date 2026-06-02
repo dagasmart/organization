@@ -298,6 +298,7 @@ class EnterpriseController extends AdminController
                 amis()->InputCityControl('region', '所在地区')
                     ->searchable()
                     ->extractValue(false)
+                    ->value(admin_area_id())
                     ->required()
                     ->onEvent([
                         'change' => [

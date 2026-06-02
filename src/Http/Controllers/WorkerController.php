@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Martialbe\LaravelIp2region\Kernel\Ip2Region;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Swow\Coroutine;
 use Swow\Sync\WaitGroup;
@@ -27,10 +26,6 @@ class WorkerController extends AdminController
 
     public function list(): Page
     {
-        $ip = geo_ip();
-        $region = new Ip2Region;
-        $arr = $region->ip('117.188.0.210')->toArray();
-        dump($ip);die;
         $crud = $this->baseCRUD()
             ->filterTogglable(false)
             ->headerToolbar([
@@ -531,6 +526,7 @@ class WorkerController extends AdminController
                     ->searchable()
                     ->extractValue(false)
                     ->required()
+                    ->value(admin_area_id())
                     ->onEvent([
                         'change' => [
                             'actions' => [

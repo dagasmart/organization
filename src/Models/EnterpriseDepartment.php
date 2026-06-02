@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseDepartment extends Model
 {
-	protected $table = 'biz_enterprise_department';
+    protected $table = 'biz_enterprise_department';
 
     public $timestamps = false;
 
@@ -18,7 +18,6 @@ class EnterpriseDepartment extends Model
 
     /**
      * 关联机构
-     * @return void
      */
     protected static function booted(): void
     {
@@ -26,7 +25,7 @@ class EnterpriseDepartment extends Model
             $mer_id = admin_mer_id();
             $module = admin_current_module();
             $query->whereHas('base')
-                //->where('module', admin_current_module())
+                // ->where('module', admin_current_module())
                 ->when($mer_id, function ($query) use ($module) {
                     $query->where('module', $module);
                 })
@@ -38,9 +37,8 @@ class EnterpriseDepartment extends Model
 
     /**
      * 机构
-     * @return HasOne
      */
-    public function enterprise(): hasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
@@ -64,7 +62,4 @@ class EnterpriseDepartment extends Model
     {
         return $this->attributes['remark'] ?? null;
     }
-
-
-
 }

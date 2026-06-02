@@ -2,7 +2,8 @@
 
 namespace DagaSmart\Organization\Models;
 
-use Illuminate\Database\Eloquent\Relations\hasOne;
+use DagaSmart\BizAdmin\Traits\ModuleMerIdTrait;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -10,8 +11,13 @@ use Illuminate\Support\Facades\Storage;
  */
 class Enterprise extends Model
 {
+    use ModuleMerIdTrait; // 一行代码，自动拥有读隔离和写自动填充能力
 
-	protected $table = 'biz_enterprise';
+    protected $table = 'biz_enterprise';
+
+    // 按需开启,模型表没有标记为空数组
+    protected $activeScopeFields = ['module', 'mer_id'];
+
     protected $primaryKey = 'id';
 
     protected $casts = [
@@ -21,31 +27,29 @@ class Enterprise extends Model
 
     public $timestamps = false;
 
-    public $hidden = []; //排除字段
-
+    public $hidden = []; // 排除字段
 
     public function getEnterpriseLogoAttribute($value): ?string
     {
-        return empty($value) ? null : env('APP_URL') . $value;
+        return empty($value) ? null : env('APP_URL').$value;
     }
 
     public function setEnterpriseLogoAttribute($value): void
     {
         $this->attributes['enterprise_logo'] = null;
         if ($value) {
-            $logo = str_replace(env('APP_URL') . Storage::url(''), '', $value);
+            $logo = str_replace(env('APP_URL').Storage::url(''), '', $value);
             $this->attributes['enterprise_logo'] = Storage::url($logo);
         }
     }
 
     public function sexOption(): array
     {
-        return [['value'=>1, 'label'=>'男'], ['value'=>2, 'label'=>'女']];
+        return [['value' => 1, 'label' => '男'], ['value' => 2, 'label' => '女']];
     }
 
-    public function enterprise(): hasOne
+    public function enterprise(): HasOne
     {
-        return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select('id','enterprise_name');
+        return $this->HasOne(Enterprise::class, 'id', 'enterprise_id')->select('id', 'enterprise_name');
     }
-
 }

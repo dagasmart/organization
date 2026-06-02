@@ -3,34 +3,21 @@
 namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Models\BaseModel;
-use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- *基座模型
+ * 基座模型
  */
 class Model extends BaseModel
 {
+    // 指定使用 school 数据库连接
+    protected $connection = 'school'; // 空值默认数据库
 
-    const ?string schema = 'school'; //空值默认数据库
-
-    public function __construct()
+    // 关联机构
+    public function base(): HasMany
     {
-        if (!empty(self::schema)) {
-            $this->setConnection(self::schema);
-        }
-        parent::__construct();
+        return $this->HasMany(Enterprise::class, 'id', 'enterprise_id');
     }
 
-    protected static function booted(): void
-    {
-        parent::booted();
-    }
-
-    //关联机构
-    public function base(): hasMany
-    {
-        return $this->hasMany(Enterprise::class, 'id', 'enterprise_id');
-    }
 
 }

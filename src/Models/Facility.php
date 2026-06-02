@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Facility extends Model
 {
+    protected $table = 'biz_facility';
 
-	protected $table = 'biz_facility';
     protected $primaryKey = 'id';
 
     protected $appends = ['level_name', 'parent_level_name'];
 
     public $timestamps = true;
 
-    public function rel(): hasOne
+    public function rel(): HasOne
     {
         return $this->hasOne(EnterpriseFacility::class)->with(['enterprise']);
     }
@@ -38,7 +38,7 @@ class Facility extends Model
     public function getParentLevelNameAttribute(): string
     {
         $lastSlashPosition = strrpos($this->level_name, '/');
+
         return $this->attributes['parent_level_name'] = substr($this->level_name, 0, $lastSlashPosition);
     }
-
 }

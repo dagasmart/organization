@@ -2,7 +2,6 @@
 
 namespace DagaSmart\Organization\Models;
 
-
 use DagaSmart\Organization\Enums\Enum;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +13,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class Student extends Model
 {
-	protected $table = 'biz_student';
+    protected $table = 'biz_student';
+
     protected $primaryKey = 'id';
 
     public $timestamps = true;
@@ -33,7 +33,7 @@ class Student extends Model
 
     public function setIdCardAttribute($value): void
     {
-        if ($value && !strpos($value, '*')) {
+        if ($value && ! strpos($value, '*')) {
             $this->attributes['id_card'] = $value;
         }
     }
@@ -45,19 +45,18 @@ class Student extends Model
 
     public function setMobileAttribute($value): void
     {
-        if ($value && !strpos($value, '*')) {
+        if ($value && ! strpos($value, '*')) {
             $this->attributes['mobile'] = $value;
         }
     }
 
     public function getStudentCodeAttribute(): string
     {
-        return 'G' . $this->id_card;
+        return 'G'.$this->id_card;
     }
 
     /**
      * 身份证号加密
-     * @return false|string
      */
     public function getIdCardEncAttribute(): false|string
     {
@@ -66,7 +65,6 @@ class Student extends Model
 
     /**
      * 手机号加密
-     * @return false|string
      */
     public function getMobileEncAttribute(): false|string
     {
@@ -87,32 +85,34 @@ class Student extends Model
     public function getSexAsAttribute(): ?string
     {
         $sex = array_column(Enum::sex(), 'label', 'value');
+
         return $sex[$this->sex ?? null] ?? null;
     }
 
     public function getNationAsAttribute(): ?string
     {
         $nation = array_column(Enum::nation(), 'label', 'value');
+
         return $nation[$this->nation ?? null] ?? null;
     }
 
     public function sexOption(): array
     {
-        return [['value'=>1, 'label'=>'男'], ['value'=>2, 'label'=>'女']];
+        return [['value' => 1, 'label' => '男'], ['value' => 2, 'label' => '女']];
     }
 
     public function rel(): hasOne
     {
-        return $this->hasOne(EnterpriseGradeClassesStudent::class)->with(['classes','grade','enterprise']);
+        return $this->hasOne(EnterpriseGradeClassesStudent::class)->with(['classes', 'grade', 'enterprise']);
     }
 
-    public function classes(): belongsToMany
+    public function classes(): BelongsToMany
     {
         return $this->belongsToMany(Classes::class, EnterpriseGradeClassesStudent::class, 'student_id', 'classes_id');
     }
-    public function rel_enterprise_grade_classes_student(): hasMany
+
+    public function rel_enterprise_grade_classes_student(): HasMany
     {
         return $this->hasMany(EnterpriseGradeClassesStudent::class, 'student_id', 'id');
     }
-
 }
