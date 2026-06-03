@@ -1,11 +1,13 @@
 <?php
 
 use DagaSmart\Organization\Http\Controllers;
+use DagaSmart\Organization\Http\Middleware;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'biz',
+    'middleware' => [Middleware\Middleware::class],
 ], function (Router $router) {
 
     $router->delete('enterprise/job/{id}/delete', [Controllers\EnterpriseController::class, 'jobDelete']);

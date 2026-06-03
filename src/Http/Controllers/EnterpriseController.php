@@ -337,6 +337,7 @@ class EnterpriseController extends AdminController
                     ->clearable()
                     ->size('md'),
                 amis()->SelectControl('mer_id', '商户')
+                    ->source(admin_url('system/merchant/${module||0}/all'))
                     ->options($this->service->getMerchantAll())
                     ->clearable()
                     ->size('md'),
