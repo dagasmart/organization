@@ -20,7 +20,7 @@ return new class extends Migration
         && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-基础-年级表');
             $table->id();
-            $table->tinyInteger('grade_no')->nullable()->index()->comment('年级编号');
+            $table->integer('grade_no')->nullable()->index()->comment('年级编号');
             $table->string('grade_name', 20)->nullable()->index()->comment('年级名称');
             $table->integer('parent_id')->nullable()->default(0)->index()->comment('父级id');
             $table->tinyInteger('sort')->nullable()->default(0)->comment('排序[0-255]');
