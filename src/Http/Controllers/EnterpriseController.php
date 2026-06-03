@@ -323,9 +323,11 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->CheckboxesControl('enterprise_grade', null)
+                        ->source(admin_url('biz/enterprise/stage/${enterprise_mode||0}/grade/all'))
+                        ->options($this->service->getGradeAll())
                         ->checkAll()
                         ->columnsCount(1)
-                        ->options($this->service->getGradeAll())
+                        ->disabledOn('${!enterprise_mode}')
                         ->required(),
                 ]),
             ])->visible(is_school_module()),
@@ -695,6 +697,11 @@ class EnterpriseController extends AdminController
     public function stageOption(): array
     {
         return $this->service->stageOption();
+    }
+
+    public function getGradeAll(): array
+    {
+        return $this->service->getGradeAll();
     }
 
     /**

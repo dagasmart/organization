@@ -20,6 +20,7 @@ Route::group([
     $router->get('enterprise/{enterprise_id}/department/{department_id}/job/data', [Controllers\EnterpriseController::class, 'departmentJobData']);
 
     $router->get('enterprise/stage/{nature_id}/option', [Controllers\EnterpriseController::class, 'stageOption']);
+    $router->get('enterprise/stage/{stage_id}/grade/all', [Controllers\EnterpriseController::class, 'getGradeAll']);
     $router->get('enterprise/{enterprise_id}/grade', [Controllers\GradeController::class, 'EnterpriseGrade']);
     $router->get('enterprise/{enterprise_id}/grade/{grade_id}/classes', [Controllers\ClassesController::class, 'enterpriseGradeClasses']);
 

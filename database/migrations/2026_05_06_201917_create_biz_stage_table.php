@@ -37,7 +37,7 @@ return new class extends Migration
             ['id' => 4, 'stage_no' => '1030', 'stage_name' => '高级中学', 'type' => 'school', 'sort' => '4'],
             ['id' => 5, 'stage_no' => '1010,1020', 'stage_name' => '九年一贯制', 'type' => 'school', 'sort' => '5'],
             ['id' => 6, 'stage_no' => '1010,1020,1030', 'stage_name' => '十二年一贯制', 'type' => 'school', 'sort' => '6'],
-            ['id' => 7, 'stage_no' => '1070', 'stage_name' => '中专', 'type' => 'school', 'sort' => '7'],
+            ['id' => 7, 'stage_no' => '1070', 'stage_name' => '职专', 'type' => 'school', 'sort' => '7'],
             ['id' => 8, 'stage_no' => '1080', 'stage_name' => '大学', 'type' => 'school', 'sort' => '8'],
             ['id' => 9, 'stage_no' => '1110', 'stage_name' => '事业编制', 'type' => 'common', 'sort' => '1'],
             ['id' => 10, 'stage_no' => '1130', 'stage_name' => '股份责任', 'type' => 'company', 'sort' => '1'],

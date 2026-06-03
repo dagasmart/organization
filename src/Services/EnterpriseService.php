@@ -107,8 +107,18 @@ class EnterpriseService extends AdminService
      */
     public function getGradeAll(): array
     {
+        $stage_id = request()->stage_id ?? 0;
+
         $model = new Grade;
-        $data = $model->query()->get(['id as value', 'grade_name as label', 'id', 'parent_id'])->toArray();
+        $data = $model->query()
+            ->when($stage_id, function ($builder) use ($stage_id) {
+                $stageModel = new Stage;
+                $stage_no = $stageModel->query()->where(['id' => $stage_id])->value('stage_no');
+                $builder->whereIn('parent_id', explode(',', (string) $stage_no));
+                $builder->orWhereIn('id', explode(',', (string) $stage_no));
+            })
+            ->get(['id as value', 'grade_name as label', 'id', 'parent_id'])
+            ->toArray();
 
         return array2tree($data);
     }
@@ -162,6 +172,7 @@ class EnterpriseService extends AdminService
             })
             ->get()
             ?->toArray();
+
         return array2tree($data);
     }
 
@@ -175,6 +186,7 @@ class EnterpriseService extends AdminService
             })
             ->get()
             ?->toArray();
+
         return array2tree($data);
     }
 
@@ -184,7 +196,7 @@ class EnterpriseService extends AdminService
         $department_id = request()->department_id ?? 0;
         $model = new EnterpriseDepartmentJob;
         $data = $model->query()
-            //->where('enterprise_id', $enterprise_id)
+            // ->where('enterprise_id', $enterprise_id)
             ->when($enterprise_id, function ($builder) use ($enterprise_id) {
                 $builder->where('enterprise_id', $enterprise_id);
             })
@@ -193,6 +205,7 @@ class EnterpriseService extends AdminService
             })
             ->get()
             ?->toArray();
+
         return $data;
     }
 
@@ -203,7 +216,7 @@ class EnterpriseService extends AdminService
             admin_abort('enterprise_id参数必填');
         }
 
-        $id = $input['id'] ?? null; //通过id判断编辑操作
+        $id = $input['id'] ?? null; // 通过id判断编辑操作
 
         $data = [
             'enterprise_id' => $input['enterprise_id'],
@@ -232,6 +245,7 @@ class EnterpriseService extends AdminService
             $record->parent_id = $data['parent_id'];
             $record->state = $data['state'];
             $record->sort = $data['sort'];
+
             return $record->save();
         } else {
             return $model->query()->insertOrIgnore($data);
@@ -262,7 +276,7 @@ class EnterpriseService extends AdminService
         $data['module'] = admin_current_module();
         $data['mer_id'] = admin_mer_id();
 
-        $id = $input['id'] ?? null; //通过id判断编辑操作
+        $id = $input['id'] ?? null; // 通过id判断编辑操作
 
         if ($id) {
             $record = $model->query()->where(['id' => $id])->first();
@@ -271,6 +285,7 @@ class EnterpriseService extends AdminService
             $record->parent_id = $data['parent_id'];
             $record->state = $data['state'];
             $record->sort = $data['sort'];
+
             return $record->save();
         } else {
             return $model->query()->insertOrIgnore($data);
@@ -280,19 +295,18 @@ class EnterpriseService extends AdminService
     public function departmentDelete()
     {
         $id = request()->id ?? null;
-        admin_abort_if(!$id, 'id参数必填');
+        admin_abort_if(! $id, 'id参数必填');
         $model = new EnterpriseDepartment;
+
         return $model->query()->where(['id' => $id])->delete();
     }
 
     public function jobDelete()
     {
         $id = request()->id ?? null;
-        admin_abort_if(!$id, 'id参数必填');
+        admin_abort_if(! $id, 'id参数必填');
         $model = new EnterpriseDepartmentJob;
+
         return $model->query()->where(['id' => $id])->delete();
     }
-
-
-
 }
