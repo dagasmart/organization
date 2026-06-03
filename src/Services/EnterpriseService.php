@@ -9,6 +9,7 @@ use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Nature;
 use DagaSmart\Organization\Models\Stage;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * 基础-机构服务类
@@ -76,7 +77,18 @@ class EnterpriseService extends AdminService
             }
         }
         // 地区代码
-        $data['region'] = is_array($data['region']) ? $data['region']['code'] : $data['region'];
+        if (!empty($data['region'])) {
+            if (is_array($data['region'])) {
+                $data['region'] = $data['region']['code'];
+            }
+            $region = $data['region'] ?? 0;
+            $bearerToken = request()->bearerToken() . ':area';
+            Cache::delete($bearerToken);
+            Cache::remember($bearerToken, 7200, function () use($region) {
+                return (int) $region;
+            });
+        }
+
         // 模块
         if (admin_current_module()) {
             $data['module'] = admin_current_module();
@@ -107,7 +119,7 @@ class EnterpriseService extends AdminService
      */
     public function getGradeAll(): array
     {
-        $stage_id = request()->stage_id ?? 0;
+        $stage_id = request()->stage_id ?? null;
 
         $model = new Grade;
         $data = $model->query()

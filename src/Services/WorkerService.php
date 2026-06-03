@@ -9,6 +9,7 @@ use DagaSmart\Organization\Models\EnterpriseDepartmentJobWorker;
 use DagaSmart\Organization\Models\Worker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * 基础-老师服务类
@@ -121,11 +122,17 @@ class WorkerService extends AdminService
             admin_abort('机构信息12：部门或职务选项有重叠，请修改或删除');
         }
         // 地区代码
-        $region_id = $data['region_id'] ?? null;
-        if ($region_id) {
-            if (is_array($data['region_id'])) {
-                $data['region_id'] = $data['region_id']['code'];
+        $region = $data['region_id'] ?? null;
+        if ($region) {
+            if (is_array($region)) {
+                $data['region_id'] = $region['code'];
             }
+            $region_id = $data['region_id'] ?? 0;
+            $bearerToken = request()->bearerToken() . ':area';
+            Cache::delete($bearerToken);
+            Cache::remember($bearerToken, 7200, function () use($region_id) {
+                return (int) $region_id;
+            });
         }
         // 手机号码
         $mobile = $data['mobile'] ?? null;
