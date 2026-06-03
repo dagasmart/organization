@@ -158,6 +158,7 @@ class EnterpriseService extends AdminService
             ->when($type, function ($builder) use ($type) {
                 $builder->where(['type' => $type]);
             })
+            ->orderBy('sort')
             ->get()
             ?->toArray();
     }
