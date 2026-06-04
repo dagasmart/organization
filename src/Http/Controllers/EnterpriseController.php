@@ -58,7 +58,7 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
-            ->api('/biz/enterprise/index?_action=getData&region=${region}')
+            ->api($this->getListGetDataPath() . '&region=${region}')
             ->filterTogglable()
             ->headerToolbar([
                 $this->createButton(true)->permission('biz.enterprise.create'),
@@ -183,7 +183,14 @@ class EnterpriseController extends AdminController
                 ->options($this->service->regionAll())
                 ->labelField('name')
                 ->valueField('code')
-                ->nodeBehavior(['check', 'unfold']),
+                ->nodeBehavior(['check', 'unfold'])
+                ->initiallyOpen(false)
+                ->autoCheckChildren()
+                ->withChildren()
+                ->joinValues()
+                ->rootLabel('所处地区')
+                ->hideRoot(false)
+                ->cascade(),
         ]);
     }
 

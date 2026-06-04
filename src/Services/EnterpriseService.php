@@ -27,6 +27,39 @@ class EnterpriseService extends AdminService
         // $query->with('authorize');
     }
 
+    public function searchable($query): void
+    {
+        $code = request()->region ?? null;
+
+        if ($code) {
+
+            $region = BasicRegion::query()
+                ->when($code, function ($builder) use ($code) {
+                    $builder->where('code', $code);
+                })
+                ->select('id','parent_id','code')
+                ->with('children.children.children')
+                ->get();
+
+            $code = array2code($region, 'code');
+
+            $query->whereIn('region', $code);
+        }
+    }
+
+    public function array2code($data = [], &$res = []): array
+    {
+        if ($data) {
+            foreach ($data as $item) {
+                $res[] = $item->code;
+                if ($item->children) {
+                    $this->array2code($item->children, $res);
+                }
+            }
+        }
+        return $res;
+    }
+
     public function sortable($query): void
     {
         if (request()->orderBy && request()->orderDir) {
