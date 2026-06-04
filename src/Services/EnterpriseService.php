@@ -9,7 +9,6 @@ use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Nature;
 use DagaSmart\Organization\Models\Stage;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * 基础-机构服务类
@@ -77,16 +76,11 @@ class EnterpriseService extends AdminService
             }
         }
         // 地区代码
-        if (!empty($data['region'])) {
+        if (! empty($data['region'])) {
             if (is_array($data['region'])) {
-                $data['region'] = $data['region']['code'];
+                $data['region'] = $data['region']['code'] ?? null;
             }
-            $region = $data['region'] ?? 0;
-            $bearerToken = request()->bearerToken() . ':area';
-            Cache::delete($bearerToken);
-            Cache::remember($bearerToken, 7200, function () use($region) {
-                return (int) $region;
-            });
+            admin_area_id($data['region']); // 地区code更新缓存
         }
 
         // 模块

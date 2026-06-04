@@ -125,14 +125,9 @@ class WorkerService extends AdminService
         $region = $data['region_id'] ?? null;
         if ($region) {
             if (is_array($region)) {
-                $data['region_id'] = $region['code'];
+                $data['region_id'] = $region['code'] ?? null;
             }
-            $region_id = $data['region_id'] ?? 0;
-            $bearerToken = request()->bearerToken() . ':area';
-            Cache::delete($bearerToken);
-            Cache::remember($bearerToken, 7200, function () use($region_id) {
-                return (int) $region_id;
-            });
+            admin_area_id($data['region_id']); // 地区code更新缓存
         }
         // 手机号码
         $mobile = $data['mobile'] ?? null;

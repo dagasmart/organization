@@ -345,6 +345,15 @@ class EnterpriseController extends AdminController
                     ->size('md'),
             ])->visible(! admin_mer_id()),
 
+        ])->onEvent([
+            'submitSucc' => [
+                'actions' => [
+                    [
+                        'actionType' => 'custom',
+                        'script' => 'window.$owl.refreshAmisPage();',
+                    ],
+                ],
+            ],
         ]);
     }
 
