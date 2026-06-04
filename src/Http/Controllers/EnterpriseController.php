@@ -34,8 +34,18 @@ class EnterpriseController extends AdminController
     {
         return amis()->Page()->body(
             amis()->Grid()->columns([
-                // $this->region()->set('md', 3),
-                $this->list()->set('md', 12),
+                amis()->Flex()->className('h-full')->items([
+                    $this->region(),
+                    $this->region(),
+                ])->direction('column')->set('md', 3),
+
+                $this->list()->set('md', 7),
+
+                amis()->Flex()->className('h-full')->items([
+                    $this->region(),
+                    $this->region(),
+                    $this->region(),
+                ])->direction('column')->set('md', 2),
                 // $this->relevance()->set('md', 2),
                 // amis()->Flex()->className('h-full')->items([
                 //     $this->relevance(),
@@ -48,6 +58,7 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
+            ->api('/biz/enterprise/index?_action=getData&region=${region}')
             ->filterTogglable()
             ->headerToolbar([
                 $this->createButton(true)->permission('biz.enterprise.create'),
@@ -167,25 +178,12 @@ class EnterpriseController extends AdminController
     public function region()
     {
         return amis()->Card()->className('w-full h-full')->body([
-            amis()->TableControl('region')
-                ->source('basic/region/0/children')
-                ->autoFillHeight(true)
-                ->columns([
-                    amis()->TableColumn('name', false),
-                ]),
-            //            amis()->TreeControl('region_id', false)
-            //                ->source('basic/region/${region_id||0}/children')
-            //                ->options([
-            //                    [
-            //                        'label' => '请选择省份',
-            //                        'value' => 'root',
-            //                        'defer' => true
-            //                    ]
-            //                ])
-            //                ->labelField('name')
-            //                ->valueField('id')
-            //                ->staticInputClassName('h-full')
-            //                ->inputClassName('h-full'),
+            amis()->TreeControl('region', false)
+                // ->deferApi('basic/region/${value||0}/children')
+                ->options($this->service->regionAll())
+                ->labelField('name')
+                ->valueField('code')
+                ->nodeBehavior(['check', 'unfold']),
         ]);
     }
 
@@ -298,7 +296,7 @@ class EnterpriseController extends AdminController
                 amis()->InputCityControl('region', '所在地区')
                     ->searchable()
                     ->extractValue(false)
-                    ->value(admin_area_id())
+                    ->value(admin_region_code())
                     ->required()
                     ->onEvent([
                         'change' => [

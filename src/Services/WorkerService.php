@@ -127,7 +127,7 @@ class WorkerService extends AdminService
             if (is_array($region)) {
                 $data['region_id'] = $region['code'] ?? null;
             }
-            admin_area_id($data['region_id']); // 地区code更新缓存
+            // admin_region_code($data['region_id']); // 地区code更新缓存
         }
         // 手机号码
         $mobile = $data['mobile'] ?? null;

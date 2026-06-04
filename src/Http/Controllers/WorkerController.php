@@ -526,7 +526,7 @@ class WorkerController extends AdminController
                     ->searchable()
                     ->extractValue(false)
                     ->required()
-                    ->value(admin_area_id())
+                    ->value(admin_region_code())
                     ->onEvent([
                         'change' => [
                             'actions' => [

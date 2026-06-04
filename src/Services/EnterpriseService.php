@@ -2,6 +2,7 @@
 
 namespace DagaSmart\Organization\Services;
 
+use DagaSmart\BizAdmin\Models\BasicRegion;
 use DagaSmart\Organization\Models\Enterprise;
 use DagaSmart\Organization\Models\EnterpriseDepartment;
 use DagaSmart\Organization\Models\EnterpriseDepartmentJob;
@@ -9,6 +10,7 @@ use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Nature;
 use DagaSmart\Organization\Models\Stage;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * 基础-机构服务类
@@ -80,7 +82,7 @@ class EnterpriseService extends AdminService
             if (is_array($data['region'])) {
                 $data['region'] = $data['region']['code'] ?? null;
             }
-            admin_area_id($data['region']); // 地区code更新缓存
+            // admin_region_code($data['region']); // 地区code更新缓存
         }
 
         // 模块
@@ -315,5 +317,21 @@ class EnterpriseService extends AdminService
         $model = new EnterpriseDepartmentJob;
 
         return $model->query()->where(['id' => $id])->delete();
+    }
+
+    public function regionAll(): Collection
+    {
+        $code = admin_region_code();
+
+        $data = BasicRegion::query()
+            ->where('parent_id', 0)
+            ->when($code, function ($builder) use ($code) {
+                $code = substr($code, 0, 2);
+                $code = str_pad($code, 6, '0');
+                $builder->where('code', $code);
+            })
+            ->get();
+
+        return $data->load('children.children.children');
     }
 }
