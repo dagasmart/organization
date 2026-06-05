@@ -10,13 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseDepartmentJobWorker extends Model
 {
-	protected $table = 'biz_enterprise_department_job_worker';
+    protected $table = 'biz_enterprise_department_job_worker';
 
     public $timestamps = false;
 
     /**
      * 关联机构
-     * @return void
      */
     protected static function booted(): void
     {
@@ -24,7 +23,7 @@ class EnterpriseDepartmentJobWorker extends Model
             $mer_id = admin_mer_id();
             $module = admin_current_module();
             $query->whereHas('base')
-                //->where('module', admin_current_module())
+                // ->where('module', admin_current_module())
                 ->when($mer_id, function ($query) use ($module) {
                     $query->where('module', $module);
                 })
@@ -36,31 +35,25 @@ class EnterpriseDepartmentJobWorker extends Model
 
     /**
      * 机构
-     * @return HasOne
      */
-    public function enterprise(): hasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
     /**
      * 部门
-     * @return HasOne
      */
-    public function department(): hasOne
+    public function department(): HasOne
     {
         return $this->hasOne(EnterpriseDepartment::class, 'id', 'department_id')->select(['id', 'department_name']);
     }
 
-
     /**
      * 职务
-     * @return HasOne
      */
-    public function job(): hasOne
+    public function job(): HasOne
     {
         return $this->hasOne(EnterpriseDepartmentJob::class, 'id', 'job_id')->select(['id', 'job_name']);
     }
-
-
 }

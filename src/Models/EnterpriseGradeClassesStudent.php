@@ -4,8 +4,6 @@ namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Scopes\ActiveScope;
 use DagaSmart\Organization\Enums\Enum;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -13,10 +11,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseGradeClassesStudent extends Model
 {
-	protected $table = 'biz_enterprise_grade_classes_student';
+    protected $table = 'biz_enterprise_grade_classes_student';
 
     // 允许批量赋值的字段
-    protected $fillable = ['enterprise_id','grade_id','classes_id','student_id','state'];
+    protected $fillable = ['enterprise_id', 'grade_id', 'classes_id', 'student_id', 'state'];
 
     public $appends = ['state_as'];
 
@@ -24,7 +22,6 @@ class EnterpriseGradeClassesStudent extends Model
 
     /**
      * 关联机构
-     * @return void
      */
     protected static function booted(): void
     {
@@ -42,54 +39,48 @@ class EnterpriseGradeClassesStudent extends Model
     public function getStateAsAttribute(): ?string
     {
         $state = array_column(Enum::StudentState, 'label', 'value');
+
         return $state[$this->state ?? null] ?? null;
     }
 
     /**
      * 班级
-     * @return HasOne
      */
-    public function student(): hasOne
+    public function student(): HasOne
     {
         return $this->hasOne(Student::class, 'id', 'student_id')
-            ->select(['id', 'student_name', 'id_card', 'mobile','avatar','sex','nation']);
+            ->select(['id', 'student_name', 'id_card', 'mobile', 'avatar', 'sex', 'nation']);
     }
 
     /**
      * 班级
-     * @return HasOne
      */
-    public function classes(): hasOne
+    public function classes(): HasOne
     {
         return $this->hasOne(Classes::class, 'id', 'classes_id')->select(['id', 'classes_name']);
     }
 
     /**
      * 年级
-     * @return HasOne
      */
-    public function grade(): hasOne
+    public function grade(): HasOne
     {
         return $this->hasOne(Grade::class, 'id', 'grade_id')->select(['id', 'grade_name']);
     }
 
     /**
      * 机构
-     * @return HasOne
      */
-    public function enterprise(): hasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
-
     /**
      * 设备
-     * @return HasOne
      */
-    public function device(): hasOne
+    public function device(): HasOne
     {
         return $this->hasOne(Device::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
-
 }

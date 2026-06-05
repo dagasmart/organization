@@ -3,7 +3,7 @@
 namespace DagaSmart\Organization\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\hasMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -96,7 +96,7 @@ class Worker extends Model
     //        )->select(admin_raw("id as value, enterprise_name as label"));
     //    }
 
-    public function rel(): hasMany
+    public function rel(): HasMany
     {
         return $this->hasMany(EnterpriseDepartmentJobWorker::class, 'worker_id', 'id')
             ->with(['job', 'department', 'enterprise']);
@@ -116,7 +116,7 @@ class Worker extends Model
             ->groupBy('worker_id');
     }
 
-    public function combo(): hasMany
+    public function combo(): HasMany
     {
         return $this->hasMany(EnterpriseDepartmentJobWorker::class,
             'worker_id',
@@ -128,7 +128,7 @@ class Worker extends Model
 
     public function job(): HasOne
     {
-        return $this->HasOne(EnterpriseDepartmentJobWorker::class,
+        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
             'worker_id',
             'id'
         )

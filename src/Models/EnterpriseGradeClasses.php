@@ -10,14 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseGradeClasses extends Model
 {
-	protected $table = 'biz_enterprise_grade_classes';
+    protected $table = 'biz_enterprise_grade_classes';
 
     public $timestamps = false;
 
-
     /**
      * 关联机构
-     * @return void
      */
     protected static function booted(): void
     {
@@ -32,24 +30,19 @@ class EnterpriseGradeClasses extends Model
         });
     }
 
-
     /**
      * 年级
-     * @return HasOne
      */
-    public function grade(): hasOne
+    public function grade(): HasOne
     {
         return $this->hasOne(Grade::class, 'id', 'grade_id')->select(['id', 'grade_name']);
     }
 
     /**
      * 机构
-     * @return HasOne
      */
-    public function enterprise(): hasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
-
-
 }

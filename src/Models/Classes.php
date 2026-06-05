@@ -2,7 +2,6 @@
 
 namespace DagaSmart\Organization\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -10,16 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Classes extends Model
 {
+    protected $table = 'biz_classes';
 
-	protected $table = 'biz_classes';
     protected $primaryKey = 'id';
 
     public $timestamps = true;
 
-
-    public function rel(): hasOne
+    public function rel(): HasOne
     {
-        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade','enterprise']);
+        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade', 'enterprise']);
     }
 
     public function enterprise(): HasOne
@@ -29,6 +27,4 @@ class Classes extends Model
             'id'
         );
     }
-
-
 }

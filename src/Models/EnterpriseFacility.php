@@ -10,25 +10,22 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseFacility extends Model
 {
-	protected $table = 'biz_enterprise_facility';
+    protected $table = 'biz_enterprise_facility';
 
     public $timestamps = false;
 
-//    protected static function booted(): void
-//    {
-//        static::addGlobalScope(ActiveScope::class, function ($query) {
-//            $query->whereHas('base');
-//        });
-//    }
+    //    protected static function booted(): void
+    //    {
+    //        static::addGlobalScope(ActiveScope::class, function ($query) {
+    //            $query->whereHas('base');
+    //        });
+    //    }
 
     /**
      * 机构
-     * @return HasOne
      */
-    public function enterprise(): hasOne
+    public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
-
-
 }

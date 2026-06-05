@@ -36,7 +36,7 @@ class EnterpriseController extends AdminController
             amis()->Grid()->columns([
                 amis()->Flex()->className('h-full')->items([
                     $this->region(),
-                    $this->region(),
+                    $this->stage(),
                 ])->direction('column')->set('md', 3),
 
                 $this->list()->set('md', 7),
@@ -58,7 +58,7 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
-            ->api($this->getListGetDataPath() . '&region=${region}')
+            ->api($this->getListGetDataPath().'&region=${region}&enterprise_mode=${enterprise_mode}')
             ->filterTogglable()
             ->headerToolbar([
                 $this->createButton(true)->permission('biz.enterprise.create'),
@@ -120,11 +120,31 @@ class EnterpriseController extends AdminController
                 amis()->TableColumn('enterprise_mode', '开办模式')
                     ->set('type', 'select')
                     ->set('options', $this->service->getStageAll())
-                    ->filterable(['options' => $this->service->getStageAll()])
+                    ->filterable([
+                        'options' => $this->service->getStageAll(),
+                        'clearable' => true, // 允许清空
+                        'submitOnChange' => true,
+                    ])
                     ->searchable([
                         'name' => 'enterprise_mode',
                         'type' => 'select',
                         'options' => $this->service->getStageAll(),
+                        'mini' => true,
+                        'clearable' => true,
+                        'submitOnChange' => true,
+                        'onEvent' => [
+                            'change' => [
+                                'actions' => [
+                                    [
+                                        'actionType' => 'setValue',
+                                        'componentId' => 'enterpriseMode',
+                                        'args' => [
+                                            'value' => '${event.data.value | number:0}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ])
                     ->set('static', true),
                 amis()->TableColumn('enterprise_nature', '机构性质')
@@ -189,6 +209,27 @@ class EnterpriseController extends AdminController
                 ->withChildren()
                 ->joinValues()
                 ->rootLabel('所处地区')
+                ->hideRoot(false)
+                ->cascade(),
+        ]);
+    }
+
+    /**
+     * 左侧开办模式导航，用于筛选右侧列表
+     */
+    public function stage()
+    {
+        return amis()->Card()->className('w-full h-full')->body([
+            amis()->TreeControl('enterprise_mode', false)
+                ->id('enterpriseMode')
+                // ->deferApi('basic/region/${value||0}/children')
+                ->options($this->service->getStageAll())
+                ->nodeBehavior(['check', 'unfold'])
+                ->initiallyOpen(false)
+                ->autoCheckChildren()
+                ->withChildren()
+                ->joinValues()
+                ->rootLabel('开办模式')
                 ->hideRoot(false)
                 ->cascade(),
         ]);

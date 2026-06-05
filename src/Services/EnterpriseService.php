@@ -29,22 +29,24 @@ class EnterpriseService extends AdminService
 
     public function searchable($query): void
     {
+
         $code = request()->region ?? null;
 
         if ($code) {
-
             $region = BasicRegion::query()
                 ->when($code, function ($builder) use ($code) {
                     $builder->where('code', $code);
                 })
-                ->select('id','parent_id','code')
+                ->select('id', 'parent_id', 'code')
                 ->with('children.children.children')
                 ->get();
-
             $code = array2code($region, 'code');
-
-            $query->whereIn('region', $code);
+            // 追加参数
+            request()->merge(['region' => implode(',', $code)]);
         }
+
+        parent::searchable($query);
+
     }
 
     public function array2code($data = [], &$res = []): array
@@ -57,6 +59,7 @@ class EnterpriseService extends AdminService
                 }
             }
         }
+
         return $res;
     }
 

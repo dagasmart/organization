@@ -9,16 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Department extends Model
 {
+    protected $table = 'biz_department';
 
-	protected $table = 'biz_department';
     protected $primaryKey = 'id';
 
     public $timestamps = true;
 
-
-    public function rel(): hasOne
+    public function rel(): HasOne
     {
-        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade','enterprise']);
+        return $this->hasOne(EnterpriseGradeClasses::class)->with(['grade', 'enterprise']);
     }
-
 }

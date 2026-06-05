@@ -16,7 +16,7 @@ class Model extends BaseModel
     // 关联机构
     public function base(): HasMany
     {
-        return $this->HasMany(Enterprise::class, 'id', 'enterprise_id');
+        return $this->hasMany(Enterprise::class, 'id', 'enterprise_id');
     }
 
 

@@ -5,7 +5,7 @@ namespace DagaSmart\Organization\Models;
 use DagaSmart\Organization\Enums\Enum;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\hasOne;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -101,7 +101,7 @@ class Student extends Model
         return [['value' => 1, 'label' => '男'], ['value' => 2, 'label' => '女']];
     }
 
-    public function rel(): hasOne
+    public function rel(): HasOne
     {
         return $this->hasOne(EnterpriseGradeClassesStudent::class)->with(['classes', 'grade', 'enterprise']);
     }

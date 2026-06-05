@@ -3,6 +3,7 @@
 namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Scopes\ActiveScope;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -43,7 +44,7 @@ class EnterpriseDepartmentJob extends Model
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
     }
 
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(get_class($this), 'parent_id');
     }
