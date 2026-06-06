@@ -35,15 +35,16 @@ class EnterpriseController extends AdminController
         return amis()->Page()->body(
             amis()->Grid()->columns([
                 amis()->Flex()->className('h-full')->items([
-                    $this->region(),
+                    // $this->region(),
+                    $this->nature(),
                     $this->stage(),
                 ])->direction('column')->set('md', 3),
 
                 $this->list()->set('md', 7),
 
                 amis()->Flex()->className('h-full')->items([
-                    $this->region(),
-                    $this->region(),
+                    $this->chart_worker(),
+                    $this->chart_worker(),
                     $this->region(),
                 ])->direction('column')->set('md', 2),
                 // $this->relevance()->set('md', 2),
@@ -58,31 +59,25 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
-            ->api($this->getListGetDataPath().'&region=${region}&enterprise_mode=${enterprise_mode}')
+            ->api($this->getListGetDataPath() . '&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&enterprise_nature=${enterprise_nature}&enterprise_mode=${enterprise_mode}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
             ->filterTogglable()
             ->headerToolbar([
                 $this->createButton(true)->permission('biz.enterprise.create'),
                 ...$this->baseHeaderToolBar(),
             ])
             ->filter($this->baseFilter()->body([
-                amis()->TextControl('enterprise_code', '机构代码')
-                    ->size('md')
-                    ->clearable()
-                    ->placeholder('机构代码'),
-                amis()->TextControl('enterprise_name', '机构名称')
-                    ->size('md')
-                    ->clearable()
-                    ->placeholder('机构名称'),
-                amis()->SelectControl('enterprise_nature', '机构性质')
-                    ->options($this->service->natureOption())
-                    ->clearable(),
-                amis()->SelectControl('enterprise_mode', '开办模式')
-                    ->options($this->service->getStageAll())
-                    ->clearable(),
-                amis()->Divider(),
-                amis()->DateRangeControl('register_time', '注册登记')
-                    ->format('YYYY-MM-DD')
-                    ->clearValueOnHidden(),
+                amis()->Flex()->items([
+                    amis()->TextControl('enterprise_name', '机构名称')
+                        ->size('md')
+                        ->clearable()
+                        ->placeholder('机构名称'),
+                    amis()->InputCityControl('region', '地区城市')
+                        ->placeholder('请选择地区城市'),
+                    amis()->DateRangeControl('register_time', '注册登记')
+                        ->format('YYYY-MM-DD')
+                        ->clearValueOnHidden(),
+                ])->direction('column'),
+
             ]))
             ->onEvent([
                 'rowClick' => [
@@ -114,44 +109,67 @@ class EnterpriseController extends AdminController
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
                 amis()->TableColumn('enterprise_name', '机构名称')
                     ->searchable()
-                    ->width(200)
-                    ->set('fixed', 'left'),
-                amis()->TableColumn('enterprise_code', '机构代码'),
-                amis()->TableColumn('enterprise_mode', '开办模式')
-                    ->set('type', 'select')
-                    ->set('options', $this->service->getStageAll())
-                    ->filterable([
-                        'options' => $this->service->getStageAll(),
-                        'clearable' => true, // 允许清空
-                        'submitOnChange' => true,
-                    ])
-                    ->searchable([
-                        'name' => 'enterprise_mode',
-                        'type' => 'select',
-                        'options' => $this->service->getStageAll(),
-                        'mini' => true,
-                        'clearable' => true,
-                        'submitOnChange' => true,
-                        'onEvent' => [
-                            'change' => [
-                                'actions' => [
-                                    [
-                                        'actionType' => 'setValue',
-                                        'componentId' => 'enterpriseMode',
-                                        'args' => [
-                                            'value' => '${event.data.value | number:0}',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ])
-                    ->set('static', true),
+                    ->width(200),
+                amis()->TableColumn('enterprise_code', '机构代码')->searchable(),
                 amis()->TableColumn('enterprise_nature', '机构性质')
                     ->set('type', 'select')
                     ->set('options', $this->service->natureOption())
-                    ->filterable(['options' => $this->service->natureOption()])
-                    ->searchable(['name' => 'enterprise_nature', 'type' => 'select', 'options' => $this->service->natureOption()])
+//                    ->filterable([
+//                        'options' => $this->service->natureOption(),
+//                        'mini' => true,
+//                        'clearable' => true, // 允许清空
+//                        'submitOnChange' => true,
+//                    ])
+//                    ->searchable([
+//                        'name' => 'enterprise_nature',
+//                        'type' => 'select',
+//                        'options' => $this->service->natureOption(),
+//                        'clearable' => true,
+//                        'submitOnChange' => true,
+//                        'onEvent' => [
+//                            'change' => [
+//                                'actions' => [
+//                                    [
+//                                        'actionType' => 'setValue',
+//                                        'componentId' => 'enterpriseNature',
+//                                        'args' => [
+//                                            'value' => '${event.data.value | number:0}',
+//                                        ],
+//                                    ],
+//                                ],
+//                            ],
+//                        ],
+//                    ])
+                    ->set('static', true),
+                amis()->TableColumn('enterprise_mode', '开办模式')
+                    ->set('type', 'select')
+                    ->set('options', $this->service->getStageAll())
+//                    ->filterable([
+//                        'options' => $this->service->getStageAll(),
+//                        'mini' => true,
+//                        'clearable' => true, // 允许清空
+//                        'submitOnChange' => true,
+//                    ])
+//                    ->searchable([
+//                        'name' => 'enterprise_mode',
+//                        'type' => 'select',
+//                        'options' => $this->service->getStageAll(),
+//                        'clearable' => true,
+//                        'submitOnChange' => true,
+//                        'onEvent' => [
+//                            'change' => [
+//                                'actions' => [
+//                                    [
+//                                        'actionType' => 'setValue',
+//                                        'componentId' => 'enterpriseMode',
+//                                        'args' => [
+//                                            'value' => '${event.data.value | number:0}',
+//                                        ],
+//                                    ],
+//                                ],
+//                            ],
+//                        ],
+//                    ])
                     ->set('static', true),
                 amis()->TableColumn('region', '所属地区')
                     ->searchable(['name' => 'region', 'type' => 'input-city'])
@@ -167,6 +185,9 @@ class EnterpriseController extends AdminController
                     ->quickEdit(['type' => 'input-date', 'value' => '${register_time}'])
                     ->set('type', 'date')
                     ->width(120)
+                    ->searchable(
+                        amis()->DateRangeControl('register_time'),
+                    )
                     ->sortable(),
                 amis()->TableColumn('credit_code', '信用代码')->copyable(),
                 amis()->TableColumn('legal_person', '机构法人'),
@@ -214,6 +235,28 @@ class EnterpriseController extends AdminController
         ]);
     }
 
+
+    /**
+     * 左侧性质导航，用于筛选右侧列表
+     */
+    public function nature()
+    {
+        return amis()->Card()->className('w-full h-full')->body([
+            amis()->TreeControl('enterprise_nature', false)
+                ->id('enterpriseNature')
+                // ->deferApi('basic/region/${value||0}/children')
+                ->options($this->service->natureOption())
+                ->nodeBehavior(['check', 'unfold'])
+                ->initiallyOpen(false)
+                ->autoCheckChildren()
+                ->withChildren()
+                ->joinValues()
+                ->rootLabel('机构性质')
+                ->hideRoot(false)
+                ->cascade(),
+        ]);
+    }
+
     /**
      * 左侧开办模式导航，用于筛选右侧列表
      */
@@ -232,6 +275,52 @@ class EnterpriseController extends AdminController
                 ->rootLabel('开办模式')
                 ->hideRoot(false)
                 ->cascade(),
+        ]);
+    }
+
+    /**
+     * 左侧开办模式导航，用于筛选右侧列表
+     */
+    public function chart_worker()
+    {
+        $randArr = function () {
+            $_arr = [];
+            for ($i = 0; $i <= 4; $i++) {
+                $_arr[] = rand(50, 200);
+            }
+            return $_arr;
+        };
+
+        $random2 = $randArr();
+
+        $cache = cache_remember('system_theme_setting');
+
+        return amis()->Card()->className('w-full h-full')->body([
+            amis()->Chart()->height('100%')->config([
+                'color' => [$cache?->themeColor ?? null],
+                'backgroundColor' => '',
+                'title'           => ['text' => '员工人数'],
+                // 'tooltip'         => ['trigger' => 'axis'],
+                'xAxis'           => [
+                    'type'        => 'category',
+                    'boundaryGap' => false,
+                    'data'        => ['Mon', 'Tue', 'Wed', 'Thu'],
+                ],
+                'axisLine' => ['lineStyle' => ['color' => '#000']],
+                'yAxis'           => ['type' => 'value'],
+                'grid'            => ['left' => '7%', 'right' => '3%', 'top' => 60, 'bottom' => 30,],
+                'legend'          => ['data' => ['Visits', 'Bounce Rate']],
+                'series'          => [
+                    [
+                        'name'      => false,
+                        'data'      => $random2,
+                        'type'      => 'line',
+                        'areaStyle' => [],
+                        'smooth'    => true,
+                        'symbol'    => 'none',
+                    ],
+                ],
+            ]),
         ]);
     }
 
