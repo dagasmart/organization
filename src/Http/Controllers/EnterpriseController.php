@@ -297,10 +297,10 @@ class EnterpriseController extends AdminController
 
         return amis()->Card()->className('w-full h-full')->body([
             amis()->Chart()->height('100%')->config([
-                'color' => [$cache?->themeColor ?? null],
+                'color' => [$cache?->themeColor],
                 'backgroundColor' => '',
                 'title'           => ['text' => '员工人数'],
-                // 'tooltip'         => ['trigger' => 'axis'],
+                 'tooltip'         => ['trigger' => 'axis'],
                 'xAxis'           => [
                     'type'        => 'category',
                     'boundaryGap' => false,
@@ -308,7 +308,7 @@ class EnterpriseController extends AdminController
                 ],
                 'axisLine' => ['lineStyle' => ['color' => '#000']],
                 'yAxis'           => ['type' => 'value'],
-                'grid'            => ['left' => '7%', 'right' => '3%', 'top' => 60, 'bottom' => 30,],
+                'grid'            => ['left' => '5%', 'right' => '3%', 'top' => 30, 'bottom' => 20,],
                 'legend'          => ['data' => ['Visits', 'Bounce Rate']],
                 'series'          => [
                     [
@@ -320,7 +320,8 @@ class EnterpriseController extends AdminController
                         'symbol'    => 'none',
                     ],
                 ],
-            ]),
+            ])
+            ->interval(3000),
         ]);
     }
 
