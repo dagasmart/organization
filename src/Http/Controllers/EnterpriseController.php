@@ -291,13 +291,25 @@ class EnterpriseController extends AdminController
             return $_arr;
         };
 
+        $random1 = $randArr();
         $random2 = $randArr();
 
+        $themeColor = '#1677ff';
+
         $cache = cache_remember('system_theme_setting');
+        if (isset($cache?->themeColor)) {
+            if (!isHexColor($cache?->themeColor)) {
+                $themeColor = rgb2hex($cache?->themeColor);
+            }
+        }
+
+        $colors = generateColors($themeColor, reverse2color($themeColor), 10);
+
+        //dump($colors);
 
         return amis()->Card()->className('w-full h-full')->body([
             amis()->Chart()->height('100%')->config([
-                'color' => [$cache?->themeColor],
+                'color' => $colors,
                 'backgroundColor' => '',
                 'title'           => ['text' => '员工人数'],
                  'tooltip'         => ['trigger' => 'axis'],
@@ -311,6 +323,14 @@ class EnterpriseController extends AdminController
                 'grid'            => ['left' => '5%', 'right' => '3%', 'top' => 30, 'bottom' => 20,],
                 'legend'          => ['data' => ['Visits', 'Bounce Rate']],
                 'series'          => [
+                    [
+                        'name'      => false,
+                        'data'      => $random1,
+                        'type'      => 'line',
+                        'areaStyle' => [],
+                        'smooth'    => true,
+                        'symbol'    => 'none',
+                    ],
                     [
                         'name'      => false,
                         'data'      => $random2,
