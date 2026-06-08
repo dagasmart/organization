@@ -5,16 +5,13 @@ namespace DagaSmart\Organization\Models;
 use DagaSmart\BizAdmin\Traits\ModuleMerIdTrait;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
-use OwenIt\Auditing\Auditable as AuditableTrait;
-use OwenIt\Auditing\Contracts\Auditable;
+
 
 /**
  * 基础-机构模型类
  */
-class Enterprise extends Model implements Auditable
+class Enterprise extends Model
 {
-    // 一行代码，自动增删改审计能力
-    use AuditableTrait;
 
     // 一行代码，自动拥有读隔离和写自动填充能力
     use ModuleMerIdTrait;
@@ -25,12 +22,6 @@ class Enterprise extends Model implements Auditable
 
     // 按需开启,模型表没有标记为空数组
     protected $activeScopeFields = ['module', 'mer_id'];
-
-    // 排除不需要审计的属性
-    protected array $auditExclude = ['updated_at', 'created_at'];
-
-    // 自定义审计事件
-    protected array $auditEvents = ['created', 'updated', 'deleted'];
 
     protected $casts = [
         'region_info' => 'array',

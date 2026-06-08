@@ -5,11 +5,9 @@ namespace DagaSmart\Organization\Services;
 use DagaSmart\Organization\Models\Enterprise;
 use DagaSmart\Organization\Models\EnterpriseDepartment;
 use DagaSmart\Organization\Models\EnterpriseDepartmentJob;
-use DagaSmart\Organization\Models\EnterpriseDepartmentJobWorker;
 use DagaSmart\Organization\Models\Worker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * 基础-老师服务类
@@ -167,31 +165,42 @@ class WorkerService extends AdminService
 
     public function saved($model, $isEdit = false): void
     {
+
         $combo = $this->request->combo ?? null;
-        if ($model && $combo) {
-            $current = [];
-            array_walk($combo, function ($item) use ($model, &$current) {
-                $jobs = explode(',', $item['job_id']);
-                array_walk($jobs, function ($value) use ($model, $item, &$current) {
-                    $enterprise_id = $item['enterprise_id'];
-                    $department_id = $item['department_id'];
-                    $worker_id = $model->id;
-                    $module = $item['module'] ?? admin_current_module();
-                    $mer_id = $item['mer_id'] ?? admin_mer_id();
-                    $row = [];
-                    $row['enterprise_id'] = $enterprise_id;
-                    $row['department_id'] = $department_id;
-                    $row['job_id'] = $value;
-                    $row['worker_id'] = $worker_id;
-                    $row['worker_sn'] = $enterprise_id.$worker_id;
-                    $row['module'] = $module;
-                    $row['mer_id'] = $mer_id;
-                    $current[] = $row;
-                    EnterpriseDepartmentJobWorker::query()->where($row)->forceDelete();
-                });
-            });
-            $model->enterpriseJobs()->sync($current);
+
+        // 防御性判断
+        if (! $model || empty($combo)) {
+            return;
         }
+
+        $data = [];
+        $module = admin_current_module();
+        $mer_id = admin_mer_id();
+
+        // 1. 仅做数据组装，绝对不要在循环中执行数据库操作
+        foreach ($combo as $item) {
+            $jobs = explode(',', $item['job_id']);
+
+            foreach ($jobs as $jobId) {
+                $data[] = [
+                    'enterprise_id' => $item['enterprise_id'],
+                    'department_id' => $item['department_id'],
+                    'job_id' => $jobId,
+                    'worker_id' => $model->id,
+                    'worker_sn' => $item['enterprise_id'].$model->id,
+                    'module' => $item['module'] ?? $module,
+                    'mer_id' => $item['mer_id'] ?? $mer_id,
+                ];
+            }
+        }
+
+        // 2. 使用事务保证数据一致性
+        admin_transaction(function () use ($model, $data) {
+            // 3. 直接调用 sync，Laravel 会自动比对差异并执行安全的增删操作
+            // 注意：如果中间表没有唯一索引，sync 可能会报重复插入错误，需确保表结构正确
+            $model->enterpriseJobs()->sync($data);
+        });
+
     }
 
     /**

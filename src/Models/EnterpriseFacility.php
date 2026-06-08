@@ -12,14 +12,20 @@ class EnterpriseFacility extends Model
 {
     protected $table = 'biz_enterprise_facility';
 
+    protected $primaryKey = 'facility_id';
+
     public $timestamps = false;
 
-    //    protected static function booted(): void
-    //    {
-    //        static::addGlobalScope(ActiveScope::class, function ($query) {
-    //            $query->whereHas('base');
-    //        });
-    //    }
+    /**
+     * 允许被批量赋值的属性（白名单）
+     */
+    protected $fillable = [
+        'enterprise_id',
+        'facility_id',
+        'module',
+        'mer_id',
+    ];
+
 
     /**
      * 机构

@@ -2,11 +2,10 @@
 
 namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\Organization\Enums\Enum;
-use DagaSmart\Organization\Services\DeviceService;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
-
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\DeviceService;
 
 /**
  * 基础-设备类
@@ -15,16 +14,16 @@ use DagaSmart\BizAdmin\Renderers\Page;
  */
 class DeviceController extends AdminController
 {
-	protected string $serviceName = DeviceService::class;
+    protected string $serviceName = DeviceService::class;
 
-	public function list(): Page
+    public function list(): Page
     {
-		$crud = $this->baseCRUD()
-			->filterTogglable(false)
-			->headerToolbar([
-				$this->createButton('dialog',250),
-				...$this->baseHeaderToolBar()
-			])
+        $crud = $this->baseCRUD()
+            ->filterTogglable(false)
+            ->headerToolbar([
+                $this->createButton('dialog', 250),
+                ...$this->baseHeaderToolBar(),
+            ])
             ->autoGenerateFilter()
             ->affixHeader()
             ->columnsTogglable()
@@ -33,7 +32,7 @@ class DeviceController extends AdminController
             ->columns([
                 amis()->TableColumn('id', 'ID')
                     ->sortable()
-                    ->set('fixed','left'),
+                    ->set('fixed', 'left'),
                 amis()->TableColumn('rel.enterprise.enterprise_name', '机构单位')
                     ->searchable([
                         'name' => 'enterprise_id',
@@ -63,31 +62,31 @@ class DeviceController extends AdminController
                         'options' => $this->service->options(),
                     ])
                     ->width(200),
-                amis()->TableColumn('device_sn','设备编号')
+                amis()->TableColumn('device_sn', '设备编号')
                     ->searchable([
                         'name' => 'device_sn',
                         'type' => 'input-text',
                     ])
                     ->width(150),
                 amis()->TableColumn('state', '状态')
-                    ->set('type','status'),
-                amis()->TableColumn('sort','排序'),
+                    ->set('type', 'status'),
+                amis()->TableColumn('sort', '排序'),
                 amis()->TableColumn('updated_at', '更新时间')
                     ->type('datetime')
                     ->sortable()
                     ->width(150),
-                $this->rowActions('dialog',250)
-                    ->set('align','center')
-                    ->set('fixed','right')
-                    ->set('width',150)
+                $this->rowActions('dialog', 250)
+                    ->set('align', 'center')
+                    ->set('fixed', 'right')
+                    ->set('width', 150),
             ]);
 
-		return $this->baseList($crud);
-	}
+        return $this->baseList($crud);
+    }
 
-	public function form($isEdit = false): Form
+    public function form($isEdit = false): Form
     {
-		return $this->baseForm()->body([
+        return $this->baseForm()->body([
             amis()->SelectControl('enterprise_id', '机构单位')
                 ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
@@ -102,7 +101,7 @@ class DeviceController extends AdminController
                 ->searchable()
                 ->clearable()
                 ->required(),
-            amis()->SelectControl('device_type','设备类型')
+            amis()->SelectControl('device_type', '设备类型')
                 ->options(Enum::DeviceType)
                 ->clearable()
                 ->required(),
@@ -127,17 +126,17 @@ class DeviceController extends AdminController
                 ->max(100)
                 ->size('xs')
                 ->value(10),
-            amis()->SwitchControl('state','状态')
+            amis()->SwitchControl('state', '状态')
                 ->onText('开启')
                 ->offText('禁用')
                 ->value(true),
-		]);
-	}
+        ]);
+    }
 
-	public function detail(): Form
+    public function detail(): Form
     {
-		return $this->baseDetail()->body([
-            amis()->StaticExactControl('id','ID')->visibleOn('${id}'),
+        return $this->baseDetail()->body([
+            amis()->StaticExactControl('id', 'ID')->visibleOn('${id}'),
             amis()->SelectControl('enterprise_id', '机构单位')
                 ->options($this->service->getEnterpriseAll())
                 ->value('${rel.enterprise_id}')
@@ -149,7 +148,7 @@ class DeviceController extends AdminController
                 ->disabledOn('${!enterprise_id}')
                 ->clearable()
                 ->required(),
-            amis()->SelectControl('device_type','设备类型')->options(Enum::DeviceType),
+            amis()->SelectControl('device_type', '设备类型')->options(Enum::DeviceType),
             amis()->TextControl('device_name', '设备名称')
                 ->clearable()
                 ->required(),
@@ -163,14 +162,14 @@ class DeviceController extends AdminController
                 ->max(100)
                 ->size('xs')
                 ->value(10),
-            amis()->SwitchControl('state','状态')
+            amis()->SwitchControl('state', '状态')
                 ->onText('开启')
                 ->offText('禁用')
                 ->value(true)
                 ->disabled()
                 ->static(false),
-		])->static();
-	}
+        ])->static();
+    }
 
     public function deviceOptions(): array
     {
@@ -181,6 +180,4 @@ class DeviceController extends AdminController
     {
         return $type ? Enum::brand($type) : [];
     }
-
-
 }

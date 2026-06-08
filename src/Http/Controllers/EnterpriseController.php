@@ -59,7 +59,7 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
-            ->api($this->getListGetDataPath() . '&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&enterprise_nature=${enterprise_nature}&enterprise_mode=${enterprise_mode}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
+            ->api($this->getListGetDataPath().'&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&enterprise_nature=${enterprise_nature}&enterprise_mode=${enterprise_mode}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
             ->filterTogglable()
             ->headerToolbar([
                 $this->createButton(true)->permission('biz.enterprise.create'),
@@ -80,20 +80,24 @@ class EnterpriseController extends AdminController
 
             ]))
             ->onEvent([
-                'rowClick' => [
-                    'actions' => [
-                        [
-                            'actionType' => 'toast',
-                            'args' => [
-                                'msg' => '当前行的数据：${event.data.rowItem.id|json}',
-                            ],
-                        ],
-                        [
-                            'actionType' => 'reload',
-                            'target' => 'jobCRUD?id=${id}',
-                        ],
-                    ],
-                ],
+//                'rowClick' => [
+//                    'actions' => [
+//                        [
+//                            'actionType' => 'toast',
+//                            'args' => [
+//                                'msg' => '当前行的数据：${event.data.rowItem.id|json}',
+//                            ],
+//                        ],
+//                        [
+//                            'actionType' => 'reload',
+//                            'target' => 'jobCRUD?id=${id}',
+//                        ],
+//                        [
+//                            'actionType' => 'reload',
+//                            'target' => 'chartWorker?id=${id}',
+//                        ],
+//                    ],
+//                ],
             ])
             ->selectable()
             ->multiple(false)
@@ -235,7 +239,6 @@ class EnterpriseController extends AdminController
         ]);
     }
 
-
     /**
      * 左侧性质导航，用于筛选右侧列表
      */
@@ -288,6 +291,7 @@ class EnterpriseController extends AdminController
             for ($i = 0; $i <= 4; $i++) {
                 $_arr[] = rand(50, 200);
             }
+
             return $_arr;
         };
 
@@ -298,50 +302,50 @@ class EnterpriseController extends AdminController
 
         $cache = cache_remember('system_theme_setting');
         if (isset($cache?->themeColor)) {
-            if (!isHexColor($cache?->themeColor)) {
+            if (! isHexColor($cache?->themeColor)) {
                 $themeColor = rgb2hex($cache?->themeColor);
             }
         }
 
         $colors = generateColors($themeColor, reverse2color($themeColor), 10);
 
-        //dump($colors);
+        // dump($colors);
 
         return amis()->Card()->className('w-full h-full')->body([
-            amis()->Chart()->height('100%')->config([
+            amis()->Chart()->name('chartWorker')->height('100%')->config([
                 'color' => $colors,
                 'backgroundColor' => '',
-                'title'           => ['text' => '员工人数'],
-                 'tooltip'         => ['trigger' => 'axis'],
-                'xAxis'           => [
-                    'type'        => 'category',
+                'title' => ['text' => '员工人数'],
+                'tooltip' => ['trigger' => 'axis'],
+                'xAxis' => [
+                    'type' => 'category',
                     'boundaryGap' => false,
-                    'data'        => ['Mon', 'Tue', 'Wed', 'Thu'],
+                    'data' => ['Mon', 'Tue', 'Wed', 'Thu'],
                 ],
                 'axisLine' => ['lineStyle' => ['color' => '#000']],
-                'yAxis'           => ['type' => 'value'],
-                'grid'            => ['left' => '5%', 'right' => '3%', 'top' => 30, 'bottom' => 20,],
-                'legend'          => ['data' => ['Visits', 'Bounce Rate']],
-                'series'          => [
+                'yAxis' => ['type' => 'value'],
+                'grid' => ['left' => '5%', 'right' => '3%', 'top' => 30, 'bottom' => 20],
+                'legend' => ['data' => ['Visits', 'Bounce Rate']],
+                'series' => [
                     [
-                        'name'      => false,
-                        'data'      => $random1,
-                        'type'      => 'line',
+                        'name' => false,
+                        'data' => $random1,
+                        'type' => 'line',
                         'areaStyle' => [],
-                        'smooth'    => true,
-                        'symbol'    => 'none',
+                        'smooth' => true,
+                        'symbol' => 'none',
                     ],
                     [
-                        'name'      => false,
-                        'data'      => $random2,
-                        'type'      => 'line',
+                        'name' => false,
+                        'data' => $random2,
+                        'type' => 'line',
                         'areaStyle' => [],
-                        'smooth'    => true,
-                        'symbol'    => 'none',
+                        'smooth' => true,
+                        'symbol' => 'none',
                     ],
                 ],
             ])
-            ->interval(3000),
+                ->interval(3000),
         ]);
     }
 

@@ -39,9 +39,6 @@ class DeviceService extends AdminService
 
     /**
      * 新增
-     *
-     * @param $data
-     * @return bool
      */
     public function store($data): bool
     {
@@ -50,10 +47,6 @@ class DeviceService extends AdminService
 
     /**
      * 更新
-     *
-     * @param $primaryKey
-     * @param $data
-     * @return bool
      */
     public function update($primaryKey, $data): bool
     {
@@ -96,7 +89,7 @@ class DeviceService extends AdminService
     {
         $id = request()->id;
         $school_id = request()->enterprise_id;
-        $data = $this->query()->from('biz_facility as a')
+        $data = $this->query()->from('biz_facility', 'a')
             ->join('biz_enterprise_facility as b', 'a.id', '=', 'b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
             ->when($school_id, function ($query) use ($school_id) {
@@ -122,7 +115,7 @@ class DeviceService extends AdminService
         $device_type = request()->device_type; // 设备类型
         $device_brand = request()->device_brand; // 设备品牌
 
-        return $this->query()->from('biz_device as a')
+        return $this->query()->from('biz_device', 'a')
             ->join('biz_enterprise_facility_device as b', 'a.id', '=', 'b.device_id')
             ->select(['a.id as value', admin_raw("concat(device_name, ' ', device_sn) as label"), 'a.device_name as name'])
             ->when($enterprise_id, function ($query) use ($enterprise_id) {
@@ -143,8 +136,6 @@ class DeviceService extends AdminService
 
     /**
      * 分(种)类型
-     *
-     * @param  null  $key
      */
     public function typeOption($key = null): array|string|null
     {
@@ -162,26 +153,36 @@ class DeviceService extends AdminService
      */
     protected function saveData(array $data, mixed $primaryKey = null): bool
     {
-        $model = $primaryKey ? $this->query()->find($primaryKey) : $this->getModel();
-        $columns = $this->getTableColumns(); // 获取表列字段名
-        foreach ($data as $k => $v) {
-            if (! in_array($k, $columns)) {
-                continue;
+        // 1.安全获取模型
+        $model = $primaryKey ? $this->query()->findOrFail($primaryKey) : $this->getModel();
+
+        // 2.安全过滤并填充字段
+        array_walk($data, function ($value, $key) use ($model) {
+            $columns = $this->getTableColumns(); // 获取表列字段名
+            if (in_array($key, $columns)) {
+                $model->{$key} = $value;
             }
-            $model->setAttribute($k, $v);
-        }
-        if ($model->save()) {
-            if (! empty($data['enterprise_id']) && ! empty($data['facility_id'])) {
-                $extra = [
-                    'enterprise_id' => $data['enterprise_id'],
-                    'facility_id' => $data['facility_id'],
-                ];
-                $model->relation()->sync([$model->id => $extra]);
+        });
+
+        // 3.使用事务保证数据一致性
+        return admin_transaction(function () use ($model, $data) {
+            if ($model->save()) {
+                // 4.关联同步逻辑
+                if (! empty($data['enterprise_id']) && ! empty($data['facility_id'])) {
+                    $extra = [
+                        'enterprise_id' => $data['enterprise_id'],
+                        'facility_id' => $data['facility_id'],
+                        'module' => admin_current_module(),
+                        'mer_id' => admin_mer_id(),
+                    ];
+                    // 5.使用 getKey() 替代硬编码的 $model->id
+                    $model->relation()->sync([$model->getKey() => $extra]);
+                }
+
+                return true;
             }
 
-            return true;
-        }
-
-        return false;
+            return false;
+        });
     }
 }
