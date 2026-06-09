@@ -95,27 +95,17 @@ class EnterpriseController extends AdminController
                         ],
                     ],
                 ],
-                'rowClick' => [
+                'selectedChange' => [
                     'actions' => [
                         //                        [
-                        //                            'actionType' => 'toast',
-                        //                            'args' => [
-                        //                                'msg' => '当前行的数据：${event.data.rowItem.id|json}',
-                        //                            ],
-                        //                        ],
-                        //                        [
                         //                            'actionType' => 'reload',
-                        //                            'target' => 'jobCRUD?id=${id}',
-                        //                        ],
-                        //                        [
-                        //                            'actionType' => 'reload',
-                        //                            'target' => 'chartWorker?id=${id}',
+                        //                            'target' => 'chartWorker?id=${event.data.rowItem.id|json}',
                         //                        ],
                         [
                             'actionType' => 'setValue',
                             'componentName' => '__enterprise_id',
                             'args' => [
-                                'value' => '${event.data.rowItem.id}',
+                                'value' => '${event.data.selectedItems[0].id||null}',
                             ],
                         ],
                         [
@@ -128,12 +118,6 @@ class EnterpriseController extends AdminController
             ->selectable()
             ->multiple(false)
             ->syncLocation(false)
-//            ->itemAction([
-//                'actionType' => [
-//                    'actionType' => 'reload',
-//                    'target' => 'jobCRUD?id=${id}',
-//                ],
-//            ])
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
