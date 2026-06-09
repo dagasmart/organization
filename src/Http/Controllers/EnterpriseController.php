@@ -43,8 +43,8 @@ class EnterpriseController extends AdminController
                 $this->list()->set('md', 7),
 
                 amis()->Flex()->className('h-full')->items([
-                    $this->chart_worker(),
-                    $this->chart_worker(),
+                    $this->chart(),
+                    $this->chart(),
                     $this->region(),
                 ])->direction('column')->set('md', 2),
                 // $this->relevance()->set('md', 2),
@@ -60,6 +60,7 @@ class EnterpriseController extends AdminController
     {
         $crud = $this->baseCRUD()
             ->api($this->getListGetDataPath().'&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&enterprise_nature=${enterprise_nature}&enterprise_mode=${enterprise_mode}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
+            ->id('crud_record')
             ->filterTogglable()
             ->headerToolbar([
                 $this->createButton(true)->permission('biz.enterprise.create'),
@@ -79,35 +80,60 @@ class EnterpriseController extends AdminController
                 ])->direction('column'),
 
             ]))
+            ->checkOnItemClick() // 核心：开启点击整行时同步勾选左侧按钮
+
             ->onEvent([
-//                'rowClick' => [
-//                    'actions' => [
-//                        [
-//                            'actionType' => 'toast',
-//                            'args' => [
-//                                'msg' => '当前行的数据：${event.data.rowItem.id|json}',
-//                            ],
-//                        ],
-//                        [
-//                            'actionType' => 'reload',
-//                            'target' => 'jobCRUD?id=${id}',
-//                        ],
-//                        [
-//                            'actionType' => 'reload',
-//                            'target' => 'chartWorker?id=${id}',
-//                        ],
-//                    ],
-//                ],
+                'fetchInited' => [
+                    'actions' => [
+                        [
+                            'actionType' => 'select',
+                            'componentId' => 'crud_record',
+                            'args' => [
+                                'key' => 'selected',
+                                'condition' => '${ARRAYINCLUDES([__enterprise_id], id)}',
+                            ],
+                        ],
+                    ],
+                ],
+                'rowClick' => [
+                    'actions' => [
+                        //                        [
+                        //                            'actionType' => 'toast',
+                        //                            'args' => [
+                        //                                'msg' => '当前行的数据：${event.data.rowItem.id|json}',
+                        //                            ],
+                        //                        ],
+                        //                        [
+                        //                            'actionType' => 'reload',
+                        //                            'target' => 'jobCRUD?id=${id}',
+                        //                        ],
+                        //                        [
+                        //                            'actionType' => 'reload',
+                        //                            'target' => 'chartWorker?id=${id}',
+                        //                        ],
+                        [
+                            'actionType' => 'setValue',
+                            'componentName' => '__enterprise_id',
+                            'args' => [
+                                'value' => '${event.data.rowItem.id}',
+                            ],
+                        ],
+                        [
+                            'actionType' => 'selected', // ✅ 正确：触发选中行为
+                            'componentId' => 'crud_record', // 指向当前的 CRUD 组件
+                        ],
+                    ],
+                ],
             ])
             ->selectable()
             ->multiple(false)
             ->syncLocation(false)
-            ->itemAction([
-                'actionType' => [
-                    'actionType' => 'reload',
-                    'target' => 'jobCRUD?id=${id}',
-                ],
-            ])
+//            ->itemAction([
+//                'actionType' => [
+//                    'actionType' => 'reload',
+//                    'target' => 'jobCRUD?id=${id}',
+//                ],
+//            ])
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
@@ -284,39 +310,16 @@ class EnterpriseController extends AdminController
     /**
      * 左侧开办模式导航，用于筛选右侧列表
      */
-    public function chart_worker()
+    public function chart()
     {
-        $randArr = function () {
-            $_arr = [];
-            for ($i = 0; $i <= 4; $i++) {
-                $_arr[] = rand(50, 200);
-            }
-
-            return $_arr;
-        };
-
-        $random1 = $randArr();
-        $random2 = $randArr();
-
-        $themeColor = '#1677ff';
-
-        $cache = cache_remember('system_theme_setting');
-        if (isset($cache?->themeColor)) {
-            if (! isHexColor($cache?->themeColor)) {
-                $themeColor = rgb2hex($cache?->themeColor);
-            }
-        }
-
-        $colors = generateColors($themeColor, reverse2color($themeColor), 10);
-
-        // dump($colors);
 
         return amis()->Card()->className('w-full h-full')->body([
             amis()->Chart()->name('chartWorker')->height('100%')->config([
-                'color' => $colors,
+                'color' => generateColors(null, null, 10),
                 'backgroundColor' => '',
                 'title' => ['text' => '员工人数'],
                 'tooltip' => ['trigger' => 'axis'],
+                'loading' => false,
                 'xAxis' => [
                     'type' => 'category',
                     'boundaryGap' => false,
@@ -329,7 +332,7 @@ class EnterpriseController extends AdminController
                 'series' => [
                     [
                         'name' => false,
-                        'data' => $random1,
+                        'data' => '${option1}',
                         'type' => 'line',
                         'areaStyle' => [],
                         'smooth' => true,
@@ -337,7 +340,7 @@ class EnterpriseController extends AdminController
                     ],
                     [
                         'name' => false,
-                        'data' => $random2,
+                        'data' => '${option2}',
                         'type' => 'line',
                         'areaStyle' => [],
                         'smooth' => true,
@@ -345,8 +348,21 @@ class EnterpriseController extends AdminController
                     ],
                 ],
             ])
+                ->api('biz/enterprise/chart/data?enterprise_id=${__enterprise_id}')
                 ->interval(3000),
+            amis()->HiddenControl('__enterprise_id')->resetValue(0),
         ]);
+    }
+
+    public function chartData()
+    {
+        $data = [];
+        for ($i = 0; $i <= 4; $i++) {
+            $data['option1'][] = rand(50, 200);
+            $data['option2'][] = rand(50, 200);
+        }
+
+        return $this->response()->success($data);
     }
 
     /**

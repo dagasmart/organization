@@ -10,6 +10,8 @@ Route::group([
     'middleware' => [Middleware\Middleware::class],
 ], function (Router $router) {
 
+    $router->get('enterprise/chart/data', [Controllers\EnterpriseController::class, 'chartData']);
+
     $router->delete('enterprise/job/{id}/delete', [Controllers\EnterpriseController::class, 'jobDelete']);
     $router->delete('enterprise/department/{id}/delete', [Controllers\EnterpriseController::class, 'departmentDelete']);
     $router->post('enterprise/department/save', [Controllers\EnterpriseController::class, 'departmentSave']);
