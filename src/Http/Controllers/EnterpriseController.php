@@ -401,7 +401,10 @@ class EnterpriseController extends AdminController
 
     public function form($isEdit = false): Form
     {
-        return $this->baseForm()->mode('horizontal')->tabs([
+        return $this->baseForm()->mode('horizontal')->data([
+            'enterprise_nature' => '${enterprise_nature}',
+            'enterprise_mode' => '${enterprise_mode}',
+        ])->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
@@ -410,12 +413,14 @@ class EnterpriseController extends AdminController
                         amis()->TextControl('enterprise_code', '机构代码'),
                         amis()->SelectControl('enterprise_nature', '机构性质')
                             ->options($this->service->natureOption())
+                            ->value('${enterprise_nature}')
                             ->clearable()
                             ->required(),
                         amis()->SelectControl('enterprise_mode', '开办模式')
                             ->options($this->service->stageOption())
                             ->source(admin_url('biz/enterprise/stage/${enterprise_nature||0}/option'))
                             ->disabledOn('${!enterprise_nature||null}')
+                            ->value('${enterprise_mode}')
                             ->clearable()
                             ->required(),
                         amis()->DateControl('register_time', '注册日期')
