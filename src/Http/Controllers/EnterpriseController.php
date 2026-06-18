@@ -258,7 +258,8 @@ class EnterpriseController extends AdminController
             amis()->TreeControl('enterprise_nature', false)
                 ->id('enterpriseNature')
                 // ->deferApi('basic/region/${value||0}/children')
-                ->options($this->service->natureOption())
+                ->source(admin_url('biz/enterprise/nature/${enterprise_mode||0}/option'))
+                ->options($this->service->getNatureAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
                 ->autoCheckChildren()
@@ -279,6 +280,7 @@ class EnterpriseController extends AdminController
             amis()->TreeControl('enterprise_mode', false)
                 ->id('enterpriseMode')
                 // ->deferApi('basic/region/${value||0}/children')
+                ->source(admin_url('biz/enterprise/stage/${enterprise_nature||0}/option'))
                 ->options($this->service->getStageAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
@@ -866,6 +868,11 @@ class EnterpriseController extends AdminController
                 ->required(),
 
         ]);
+    }
+
+    public function natureOption(): array
+    {
+        return $this->service->natureOption();
     }
 
     public function stageOption(): array

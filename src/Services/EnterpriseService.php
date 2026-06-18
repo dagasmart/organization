@@ -132,15 +132,32 @@ class EnterpriseService extends AdminService
     }
 
     /**
+     * 机构(全部)列表
+     */
+    public function getNatureAll(): array
+    {
+        return Nature::query()
+            ->when(
+                is_school_module(),
+                fn ($query) => $query->where('type', 'school'),
+                fn ($query) => $query->where('type', '!=', 'school')
+            )
+            ->orderBy('sort')
+            ->get(['value', 'label'])
+            ->toArray();
+    }
+
+    /**
      * 开办模式(学段)列表
      */
     public function getStageAll(): array
     {
-        $type = is_school_module() ? 'school' : 'company';
-        $model = new Stage;
-
-        return $model->query()
-            ->where('type', $type)
+        return Stage::query()
+            ->when(
+                is_school_module(),
+                fn ($query) => $query->where('type', 'school'),
+                fn ($query) => $query->where('type', '!=', 'school')
+            )
             ->orderBy('sort')
             ->get(['id as value', 'stage_name as label'])
             ->toArray();
@@ -151,60 +168,72 @@ class EnterpriseService extends AdminService
      */
     public function getGradeAll(): array
     {
-        $stage_id = request()->stage_id ?? null;
+        $stage_id = (int) request('stage_id');
+        $stage_no = Stage::query()->where(['id' => $stage_id])->value('stage_no');
 
-        $model = new Grade;
-        $data = $model->query()
-            ->when($stage_id, function ($builder) use ($stage_id) {
-                $stageModel = new Stage;
-                $stage_no = $stageModel->query()->where(['id' => $stage_id])->value('stage_no');
-                $builder->whereIn('parent_id', explode(',', (string) $stage_no));
-                $builder->orWhereIn('id', explode(',', (string) $stage_no));
+        $data = Grade::query()
+            ->when($stage_no, function ($query) use ($stage_no) {
+                $stageIds = explode(',', (string) $stage_no);
+                $query->whereIn('id', $stageIds);
+                $query->orWhereIn('parent_id', $stageIds);
             })
+            ->orderBy('id')
+            ->orderBy('sort')
             ->get(['id as value', 'grade_name as label', 'id', 'parent_id'])
             ->toArray();
 
-        return array2tree($data);
+        return array2treeUltimate($data);
     }
 
     /**
-     * 机构列表
+     * 机构列表(联动)
      */
     public function natureOption(): array
     {
-        $model = new Nature;
+        $id = (int) request('stage_id');
 
-        return $model->query()
-            ->select('value', 'label')
-            ->where(function (Builder $builder) {
-                if (is_school_module()) {
-                    $builder->whereIn('type', ['school']);
-                } else {
-                    $builder->whereNotIn('type', ['school']);
-                }
+        return Nature::query()
+            ->whereHas('relation', function ($builder) use ($id) {
+                $builder
+                    ->when(
+                        $id,
+                        fn ($query) => $query->where('id', $id),
+                    )
+                    ->when(
+                        is_school_module(),
+                        fn ($query) => $query->where('type', 'school'),
+                        fn ($query) => $query->where('type', '!=', 'school')
+                    );
             })
-            ->get()
-            ?->toArray();
+            ->orderBy('sort')
+            ->get(['value', 'label'])
+            ->toArray();
     }
 
     /**
-     * 开办模式列表
+     * 开办模式列表(联动)
      */
     public function stageOption(): array
     {
-        $id = request()->nature_id ?? 0;
-        $model = new Nature;
-        $type = $model->query()->where(['id' => $id])->value('type');
-        $model = new Stage;
+        $id = (int) request('nature_id');
 
-        return $model->query()
-            ->select('id as value', 'stage_name as label')
-            ->when($type, function ($builder) use ($type) {
-                $builder->where(['type' => $type]);
+        return Stage::query()
+            ->whereHas('relation', function ($builder) use ($id) {
+                $builder
+                    ->when(
+                        $id,
+                        fn ($query) => $query->where('id', $id),
+                    )
+                    ->when(
+                        is_school_module(),
+                        fn ($query) => $query->where('type', 'school'),
+                        fn ($query) => $query->where('type', '!=', 'school')
+                    );
             })
             ->orderBy('sort')
-            ->get()
-            ?->toArray();
+            ->get(['id as value', 'stage_name as label'])
+            ->toArray();
+
     }
 
     public function departmentData(): array
