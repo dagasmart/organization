@@ -27,6 +27,7 @@ return new class extends Migration
             $table->smallInteger('nation')->nullable()->default(1)->comment('民族');
             $table->integer('place')->nullable()->comment('户籍地');
             $table->string('id_card', 32)->index()->nullable()->comment('身份证号');
+            $table->string('student_code', 32)->index()->nullable()->comment('国网学籍');
             $table->string('mobile', 32)->nullable()->comment('联系电话');
             $table->string('email', 64)->nullable()->comment('联系邮件');
             $table->integer('region_id')->index()->nullable()->comment('户籍地');

@@ -3,6 +3,7 @@
 namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Traits\ModuleMerIdTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,5 +57,10 @@ class Enterprise extends Model
     public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select('id', 'enterprise_name');
+    }
+
+    public function enterpriseGrade(): BelongsToMany
+    {
+        return $this->belongsToMany(Grade::class, EnterpriseGrade::class, 'enterprise_id', 'grade_id');
     }
 }

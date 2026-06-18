@@ -28,6 +28,14 @@ return new class extends Migration
             $table->unique(['grade_no', 'parent_id']);
         });
 
+        $driver = config('database.connections.'.$this->connection.'.driver');
+        if ($driver == 'mysql') {
+            DB::statement("ALTER TABLE {$this->name} AUTO_INCREMENT=1000");
+        }
+        if ($driver == 'pgsql') {
+            DB::statement("alter sequence {$this->name}_id_seq restart with 1000");
+        }
+
         // 在创建表之后，紧接着插入基础数据
         DB::table($this->name)->insertOrIgnoreReturning([
             ['id' => 1000, 'grade_no' => 1000, 'grade_name' => '幼儿园', 'parent_id' => 0, 'sort' => 0],

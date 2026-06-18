@@ -488,6 +488,7 @@ class EnterpriseController extends AdminController
             ]),
             // 学段管理
             amis()->Tab()->title('学段年级')->body([
+                amis()->Alert()->showCloseButton()->body('请在【基本信息】选择‹开办模式›后，再选择学段年级。'),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->CheckboxesControl('enterprise_grade', null)
                         ->source(admin_url('biz/enterprise/stage/${enterprise_mode||0}/grade/all'))

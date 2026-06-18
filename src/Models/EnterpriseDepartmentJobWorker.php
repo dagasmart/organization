@@ -2,7 +2,7 @@
 
 namespace DagaSmart\Organization\Models;
 
-use DagaSmart\BizAdmin\Scopes\ActiveScope;
+use DagaSmart\BizAdmin\Traits\ModuleMerIdTrait;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -10,28 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseDepartmentJobWorker extends Model
 {
+    // 一行代码，自动拥有读隔离和写自动填充能力
+    use ModuleMerIdTrait;
+
     protected $table = 'biz_enterprise_department_job_worker';
 
     public $timestamps = false;
 
-    /**
-     * 关联机构
-     */
-    protected static function booted(): void
-    {
-        static::addGlobalScope(ActiveScope::class, function ($query) {
-            $mer_id = admin_mer_id();
-            $module = admin_current_module();
-            $query->whereHas('base')
-                // ->where('module', admin_current_module())
-                ->when($mer_id, function ($query) use ($module) {
-                    $query->where('module', $module);
-                })
-                ->when($mer_id, function ($query) use ($mer_id) {
-                    $query->where('mer_id', $mer_id);
-                });
-        });
-    }
+    // 按需开启,模型表没有标记为空数组
+    protected $activeScopeFields = ['module', 'mer_id'];
 
     /**
      * 机构

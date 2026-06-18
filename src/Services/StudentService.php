@@ -3,11 +3,11 @@
 namespace DagaSmart\Organization\Services;
 
 use DagaSmart\Organization\Models\Classes;
-use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Enterprise;
-use DagaSmart\Organization\Models\EnterpriseGradeClassesStudent;
+use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
+
 /**
  * 基础-学生服务类
  *
@@ -16,41 +16,42 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class StudentService extends AdminService
 {
-	protected string $modelName = Student::class;
+    protected string $modelName = Student::class;
 
     public function loadRelations($query): void
     {
         $query->whereHas('rel', function ($query) {
             $mer_id = admin_mer_id();
             $module = admin_current_module();
-            $query->when($module, function ($query) use($module) {
+            $query->when($module, function ($query) use ($module) {
                 $query->where('module', $module);
-            })->when($mer_id, function ($query) use($mer_id) {
+            })->when($mer_id, function ($query) use ($mer_id) {
                 $query->where('mer_id', $mer_id);
             });
         })->with(['rel']);
     }
+
     public function searchable($query): void
     {
         parent::searchable($query);
         $query->whereHas('rel', function (Builder $builder) {
             $school_id = request('enterprise_id');
             $builder->when($school_id, function (Builder $builder) use (&$school_id) {
-                if (!is_array($school_id)) {
+                if (! is_array($school_id)) {
                     $school_id = explode(',', $school_id);
                 }
                 $builder->whereIn('enterprise_id', $school_id);
             });
             $grade_id = request('grade_id');
             $builder->when($grade_id, function (Builder $builder) use (&$grade_id) {
-                if (!is_array($grade_id)) {
+                if (! is_array($grade_id)) {
                     $grade_id = explode(',', $grade_id);
                 }
                 $builder->whereIn('grade_id', $grade_id);
             });
             $classes_id = request('classes_id');
             $builder->when($classes_id, function (Builder $builder) use (&$classes_id) {
-                if (!is_array($classes_id)) {
+                if (! is_array($classes_id)) {
                     $classes_id = explode(',', $classes_id);
                 }
                 $builder->whereIn('job_id', $classes_id);
@@ -69,33 +70,33 @@ class StudentService extends AdminService
 
     public function saving(&$data, $primaryKey = ''): void
     {
-        //提取地区代码
+        // 提取地区代码
         $region_id = $data['region_id'] ?? null;
         if ($region_id) {
             if (is_array($data['region_id'])) {
                 $data['region_id'] = $data['region_id']['code'];
             }
         }
-        //为0为空不存在时
+        // 为0为空不存在时
         if (empty($data['region_id'])) {
             $data['region_id'] = null;
             $data['region_info'] = null;
         }
-        //手机号码
+        // 手机号码
         $mobile = $data['mobile'] ?? null;
         if ($mobile && strpos($mobile, '*')) {
             unset($data['mobile']);
         }
-        //身份证号
+        // 身份证号
         admin_abort_if(empty($data['id_card']), '请输入有效身份证号');
         $id_card = $data['id_card'] ?? null;
         if ($id_card) {
             if (strpos($id_card, '*')) {
                 unset($data['id_card']);
             } else {
-                //身份证号校验
+                // 身份证号校验
                 identifyByIdCard($id_card);
-                //是否已存在
+                // 是否已存在
                 $id = $data['id'] ?? null;
                 $exists = $this->getModel()::query()
                     ->where(['id_card' => $id_card])
@@ -106,11 +107,11 @@ class StudentService extends AdminService
                 admin_abort_if($exists, '身份证号(${id_card})已存在，请检查');
             }
         }
-        //模块
+        // 模块
         if (admin_current_module()) {
             $data['module'] = admin_current_module();
         }
-        //商户
+        // 商户
         if (admin_mer_id()) {
             $data['mer_id'] = admin_mer_id();
         }
@@ -118,63 +119,70 @@ class StudentService extends AdminService
 
     /**
      * 新增或修改后更新关联数据
-     * @param $model
-     * @param bool $isEdit
-     * @return void
+     *
+     * @param  bool  $isEdit
      */
     public function saved($model, $isEdit = false): void
     {
+        // 1. 调用父类方法（如果父类有相关逻辑）
         parent::saved($model, $isEdit);
-        $request = request()->all();
-        $data = [
-            'enterprise_id' => $request['enterprise_id'],
-            'grade_id' => $request['grade_id'],
-            'classes_id' => $request['classes_id'],
-            'student_id' => $model->id,
-            'state' => $request['state'] ?? 1,
-        ];
-        admin_transaction(function () use ($data) {
-            if ($data['classes_id']) {
-                EnterpriseGradeClassesStudent::query()->where('student_id', $data['student_id'])->delete();
-            }
-            EnterpriseGradeClassesStudent::query()->insert($data);
-        });
-    }
 
-//    public function deleted($ids): void
-//    {
-//        $this->getModel()->rel_enterprise_grade_classes_student()->whereIn($this->primaryKey(), $ids)->delete();
-//    }
+        // 2. 防御性判断
+        if (! $model) {
+            return;
+        }
+
+        // 3. 使用白名单提取数据，防止恶意字段注入
+        $request = request()->only([
+            'enterprise_id',
+            'grade_id',
+            'classes_id',
+            'student_id',
+            'state',
+        ]);
+
+        // 4. 如果前端没有传递 classes_id，说明不需要更新关联，直接返回
+        if (empty($request['classes_id'])) {
+            return;
+        }
+
+        $request['module'] = admin_current_module();
+        $request['mer_id'] = admin_mer_id();
+
+        // 5. 更新关联数据
+        $model->enterpriseGradeClassesStudent()->sync([
+            $model->id => $request,
+        ]);
+    }
 
     /**
      * 机构列表
-     * @return array
      */
     public function getEnterpriseAll(): array
     {
         $model = new Enterprise;
-        return $model->query()->whereNull('deleted_at')->get(['id as value','enterprise_name as label'])->toArray();
+
+        return $model->query()->whereNull('deleted_at')->get(['id as value', 'enterprise_name as label'])->toArray();
     }
 
     /**
      * 年级列表
-     * @return array
      */
     public function getGradeAll(): array
     {
         $model = new Grade;
-        $data = $model->query()->get(['id as value','grade_name as label', 'id', 'parent_id'])->toArray();
+        $data = $model->query()->get(['id as value', 'grade_name as label', 'id', 'parent_id'])->toArray();
+
         return array2tree($data);
     }
 
     /**
      * 班级列表
-     * @return array
      */
     public function getClassesAll(): array
     {
         $model = new Classes;
-        return $model->query()->get(['id as value','classes_name as label'])->toArray();
-    }
 
+        return $model->query()->get(['id as value', 'classes_name as label'])->toArray();
+    }
 }

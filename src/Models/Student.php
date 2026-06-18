@@ -24,7 +24,7 @@ class Student extends Model
         'family' => 'array',
     ];
 
-    protected $appends = ['student_code', 'id_card_enc', 'mobile_enc', 'sex_as', 'nation_as'];
+    protected $appends = ['student_code_param', 'id_card_enc', 'mobile_enc', 'sex_as', 'nation_as'];
 
     public function getIdCardAttribute($value): string
     {
@@ -50,9 +50,19 @@ class Student extends Model
         }
     }
 
-    public function getStudentCodeAttribute(): string
+    /**
+     * 学籍号参数
+     */
+    public function getStudentCodeParamAttribute(): array
     {
-        return 'G'.$this->id_card;
+        $data = ['type' => null, 'number' => null];
+        $type = substr($this->student_code, 0, 1);
+        $number = substr($this->student_code, 1);
+        if (in_array($type, ['G', 'J', 'L']) && $number) {
+            $data = ['type' => $type, 'number' => $number];
+        }
+
+        return $data;
     }
 
     /**
@@ -114,5 +124,18 @@ class Student extends Model
     public function rel_enterprise_grade_classes_student(): HasMany
     {
         return $this->hasMany(EnterpriseGradeClassesStudent::class, 'student_id', 'id');
+    }
+
+    public function enterpriseGradeClassesStudent(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Classes::class,
+            EnterpriseGradeClassesStudent::class,
+            'student_id',
+            'classes_id'
+        )
+            // ->withTimestamps() // 自动维护 created_at 和 updated_at
+            // ->wherePivot('module', admin_current_module())
+            ->wherePivot('mer_id', admin_mer_id());
     }
 }

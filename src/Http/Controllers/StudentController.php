@@ -137,15 +137,18 @@ class StudentController extends AdminController
                             ])
                             ->required(),
                         amis()->TextControl('student_name', '姓名')->required(),
-                        amis()->InputGroupControl('student_code', '国网学籍')->mode('horizontal')->body([
-                            amis()->SelectControl('student_code.type', '类型')->options([
+                        amis()->InputGroupControl(false, '国网学籍')->mode('horizontal')->body([
+                            amis()->SelectControl('student_code_param.type', '类型')->options([
                                 ['label' => 'G', 'value' => 'G'],
                                 ['label' => 'J', 'value' => 'J'],
                                 ['label' => 'L', 'value' => 'L'],
                             ])->value('G'),
-                            amis()->TextControl('student_code.number', '学籍号')->value('${id_number}'),
+                            amis()->TextControl('student_code_param.number', '学籍号')
+                                ->disabledOn('${student_code_param.type == "G"}')
+                                ->value('${student_code_param.type == "G" ? id_card : student_code_param.number}'),
                         ]),
-                        amis()->HiddenControl('student_code', '国网学籍')->value('G${id_number}'),
+                        amis()->HiddenControl('student_code', '国网学籍')
+                            ->value('${student_code_param.type}${student_code_param.number}'),
                         amis()->SelectControl('enterprise_id', '机构')
                             ->options($this->service->getEnterpriseAll())
                             ->value('${rel.enterprise.id}')
@@ -295,7 +298,7 @@ class StudentController extends AdminController
                         amis()->TextControl('student_name', '姓名')->required(),
                         amis()->TextControl('id_card', '身份证号')
                             ->required(),
-                        amis()->HiddenControl('student_code', '国网学籍')->value('G${id_number}'),
+                        amis()->HiddenControl('student_code', '国网学籍')->value('G${id_card}'),
                         amis()->SelectControl('rel.enterprise.id', '机构')
                             ->options($this->service->getEnterpriseAll())
                             ->searchable()

@@ -2,6 +2,7 @@
 
 namespace DagaSmart\Organization\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -27,4 +28,16 @@ class Classes extends Model
             'id'
         );
     }
+
+    public function enterpriseGradeClasses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Grade::class,
+            EnterpriseGradeClasses::class,
+            'classes_id',
+            'grade_id'
+        );
+    }
+
+
 }

@@ -122,7 +122,7 @@ class Worker extends Model
             'worker_id',
             'id'
         )
-            ->withoutGlobalScope('ActiveScope')
+            //->withoutGlobalScope('ActiveScope')
             ->select(admin_raw('enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id'));
     }
 

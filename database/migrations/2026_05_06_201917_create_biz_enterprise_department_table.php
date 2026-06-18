@@ -29,6 +29,14 @@ return new class extends Migration
             $table->string('module', 32)->nullable();
             $table->integer('mer_id')->nullable();
         });
+
+        $driver = config('database.connections.'.$this->connection.'.driver');
+        if ($driver == 'mysql') {
+            DB::statement("ALTER TABLE {$this->name} AUTO_INCREMENT=10000000");
+        }
+        if ($driver == 'pgsql') {
+            DB::statement("alter sequence {$this->name}_id_seq restart with 10000000");
+        }
     }
 
     /**

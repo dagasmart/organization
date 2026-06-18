@@ -2,7 +2,7 @@
 
 namespace DagaSmart\Organization\Models;
 
-use DagaSmart\BizAdmin\Scopes\ActiveScope;
+use DagaSmart\BizAdmin\Traits\ModuleMerIdTrait;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -10,25 +10,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class EnterpriseGradeClasses extends Model
 {
+    // 一行代码，自动拥有读隔离和写自动填充能力
+    use ModuleMerIdTrait;
+
     protected $table = 'biz_enterprise_grade_classes';
 
     public $timestamps = false;
 
-    /**
-     * 关联机构
-     */
-    protected static function booted(): void
-    {
-        static::addGlobalScope(ActiveScope::class, function ($query) {
-            $query->whereHas('base')
-                ->when(admin_current_module(), function ($query) {
-                    $query->where('module', admin_current_module());
-                })
-                ->when(admin_mer_id(), function ($query) {
-                    $query->where('mer_id', admin_mer_id());
-                });
-        });
-    }
+    // 按需开启,模型表没有标记为空数组,默认开启
+    protected $activeScopeFields = ['module', 'mer_id'];
+
 
     /**
      * 年级

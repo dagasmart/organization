@@ -131,6 +131,43 @@ class EnterpriseService extends AdminService
         }
     }
 
+    public function saved($model, $isEdit = false): void
+    {
+
+        $grade = $model->enterprise_grade ?? null;
+
+        // 防御性判断
+        if (! $model || empty($grade)) {
+            return;
+        }
+
+        $gradeIds = explode(',', $grade);
+
+        sort($gradeIds); // 升序
+
+        $data = [];
+        $module = admin_current_module();
+        $mer_id = admin_mer_id();
+
+        // 1. 仅做数据组装，绝对不要在循环中执行数据库操作
+        foreach ($gradeIds as $id) {
+            $data[] = [
+                'enterprise_id' => $model->id,
+                'grade_id' => $id,
+                'module' => $module,
+                'mer_id' => $mer_id,
+            ];
+        }
+
+        // 2. 使用事务保证数据一致性
+        admin_transaction(function () use ($model, $data) {
+            // 3. 直接调用 sync，Laravel 会自动比对差异并执行安全的增删操作
+            // 注意：如果中间表没有唯一索引，sync 可能会报重复插入错误，需确保表结构正确
+            $model->enterpriseGrade()->sync($data);
+        });
+
+    }
+
     /**
      * 机构(全部)列表
      */
@@ -168,20 +205,45 @@ class EnterpriseService extends AdminService
      */
     public function getGradeAll(): array
     {
+        // 1. 获取并校验请求参数
         $stage_id = (int) request('stage_id');
-        $stage_no = Stage::query()->where(['id' => $stage_id])->value('stage_no');
+        if (empty($stage_id)) {
+            return [];
+        }
 
+        // 2. 获取学段编号,找不到对应的或 stage_no 为空，直接返回
+        $stage_no = Stage::query()->where(['id' => $stage_id])->value('stage_no');
+        if (empty($stage_no)) {
+            return [];
+        }
+
+        // 3. 解析阶段学段编号列表并过滤空值,找不到对应的或为空，直接返回
+        $stageIds = array_filter(explode(',', (string) $stage_no), 'strlen');
+
+        if (empty($stageIds)) {
+            return [];
+        }
+
+        // 4. 查询年级数据
         $data = Grade::query()
-            ->when($stage_no, function ($query) use ($stage_no) {
-                $stageIds = explode(',', (string) $stage_no);
-                $query->whereIn('id', $stageIds);
-                $query->orWhereIn('parent_id', $stageIds);
+            ->where(function ($query) use ($stageIds) {
+                $query
+                    ->whereIn('id', $stageIds)
+                    ->orWhereIn('parent_id', $stageIds);
             })
-            ->orderBy('id')
-            ->orderBy('sort')
-            ->get(['id as value', 'grade_name as label', 'id', 'parent_id'])
+            ->orderByRaw('id ASC, sort ASC')
+            ->get(['id', 'parent_id', 'grade_name'])
+            ->map(function ($item) {
+                return [
+                    'value' => $item->id,
+                    'label' => $item->grade_name,
+                    'id' => $item->id,
+                    'parent_id' => $item->parent_id,
+                ];
+            })
             ->toArray();
 
+        // 5. 转换为树形结构并返回
         return array2treeUltimate($data);
     }
 
