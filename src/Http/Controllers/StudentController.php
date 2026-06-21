@@ -144,8 +144,8 @@ class StudentController extends AdminController
                                 ['label' => 'L', 'value' => 'L'],
                             ])->value('G'),
                             amis()->TextControl('student_code_param.number', '学籍号')
-                                ->disabledOn('${student_code_param.type == "G"}')
-                                ->value('${student_code_param.type == "G" ? id_card : student_code_param.number}'),
+                                ->disabledOn('${student_code_param.type === "G"}')
+                                ->value('${student_code_param.type === "G" ? id_card : student_code_param.number}'),
                         ]),
                         amis()->HiddenControl('student_code', '国网学籍')
                             ->value('${student_code_param.type}${student_code_param.number}'),

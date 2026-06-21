@@ -24,7 +24,7 @@ class Student extends Model
         'family' => 'array',
     ];
 
-    protected $appends = ['student_code_param', 'id_card_enc', 'mobile_enc', 'sex_as', 'nation_as'];
+    protected $appends = ['student_code_param', 'student_code_enc', 'id_card_enc', 'mobile_enc', 'sex_as', 'nation_as'];
 
     public function getIdCardAttribute($value): string
     {
@@ -50,19 +50,51 @@ class Student extends Model
         }
     }
 
+    public function getStudentCodeAttribute($value): string
+    {
+        if (empty($value)) {
+            return $value ?? '';
+        }
+        $first = substr($value, 0, 1);
+        if ($first == 'G') {
+            return admin_sensitive($value, 7, 8);
+        }
+
+        return $value;
+    }
+
+    public function setStudentCodeAttribute($value): void
+    {
+        if ($value && ! strpos($value, '*')) {
+            $this->attributes['student_code'] = $value;
+        }
+    }
+
     /**
      * 学籍号参数
      */
     public function getStudentCodeParamAttribute(): array
     {
         $data = ['type' => null, 'number' => null];
-        $type = substr($this->student_code, 0, 1);
-        $number = substr($this->student_code, 1);
-        if (in_array($type, ['G', 'J', 'L']) && $number) {
-            $data = ['type' => $type, 'number' => $number];
+
+        // 增加类型和空值判断，防止传入 null 导致报错
+        if (is_string($this->student_code) &&
+            preg_match('/^([GJL])(.+)$/', $this->student_code, $matches)) {
+            $data = [
+                'type' => $matches[1] ?? null,
+                'number' => $matches[2] ?? null,
+            ];
         }
 
         return $data;
+    }
+
+    /**
+     * 学籍号加密参数
+     */
+    public function getStudentCodeEncAttribute(): false|string
+    {
+        return base64_encode($this->attributes['student_code']);
     }
 
     /**
