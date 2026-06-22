@@ -2,8 +2,8 @@
 
 namespace DagaSmart\Organization\Services;
 
-use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Enterprise;
+use DagaSmart\Organization\Models\Grade;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -14,26 +14,36 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class GradeService extends AdminService
 {
-	protected string $modelName = Grade::class;
+    protected string $modelName = Grade::class;
 
     /**
      * 机构年级列表
-     * @param int $school_id
-     * @return array
      */
     public function EnterpriseGrade(int $school_id = 0): array
     {
-        $schoolGrade = [];
-        if ($school_id) {
-            $enterprise_grade = Enterprise::query()->where('id', $school_id)->value('enterprise_grade');
-            $schoolGrade = array_filter(explode(',', $enterprise_grade));
+        // 1. 如果未传入有效的机构ID，直接返回空数组
+        if (! $school_id) {
+            return [];
         }
-        $model = new Grade;
-        $data = $model->query()
-            ->whereIn('id', $schoolGrade)
-            ->get(['id as value','grade_name as label', 'id', 'parent_id'])
-            ->toArray();
-        return array2tree($data);
-    }
 
+        // 2. 获取机构配置的年级ID字符串并转换为数组
+        $enterprise_grade = Enterprise::query()->where('id', $school_id)->value('enterprise_grade');
+        // 过滤掉空字符串或无效值
+        $schoolGrade = array_filter(explode(',', (string) $enterprise_grade));
+
+        // 3. 防御性判断：如果该机构没有配置任何年级，直接返回空数组，避免空数组传入 whereIn 导致潜在SQL问题
+        if (empty($schoolGrade)) {
+            return [];
+        }
+
+        // 4. 查询年级数据并转换为数组
+        $data = Grade::query()
+            ->whereIn('id', $schoolGrade)
+            ->orderByRaw('id ASC, sort ASC')
+            ->get(['id as value', 'grade_name as label', 'id', 'parent_id'])
+            ->toArray();
+
+        // 5. 将扁平数组转换为树形结构并返回
+        return array2treeUltimate($data);
+    }
 }

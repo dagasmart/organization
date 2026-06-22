@@ -11,19 +11,14 @@ use DagaSmart\Organization\Services\GradeService;
  */
 class GradeController extends AdminController
 {
-	protected string $serviceName = GradeService::class;
+    protected string $serviceName = GradeService::class;
 
     /**
      * 机构年级列表
-     * @param $school_id
-     * @return array
      */
     public function EnterpriseGrade($school_id): array
     {
         return $this->service->EnterpriseGrade($school_id);
 
     }
-
-
-
 }

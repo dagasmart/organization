@@ -121,7 +121,7 @@ class StudentController extends AdminController
 
     public function form($isEdit = false): Form
     {
-        return $this->baseForm()->id('student_form_id')->mode('horizontal')->tabs([
+        return $this->baseForm()->id('student_form_id')->data(['student_code_param_number' => '${student_code_param.number}'])->mode('horizontal')->tabs([
 
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
@@ -136,7 +136,7 @@ class StudentController extends AdminController
                                 'matchRegexp' => '请输入有效的身份证号码',
                             ])
                             ->addOn($isEdit ?
-                                amis()->VanillaAction()->icon('iconfont icon-cdnrefresh')->onEvent([
+                                amis()->VanillaAction()->disabled()->icon('iconfont icon-cdnrefresh')->onEvent([
                                     'click' => [
                                         'actions' => [
                                             [
@@ -164,7 +164,7 @@ class StudentController extends AdminController
                             ])->value('G'),
                             amis()->TextControl('student_code_param.number', '学籍号')
                                 ->disabledOn('${student_code_param.type === "G"}')
-                                ->value('${student_code_param.type === "G" ? id_card : student_code_param.number}'),
+                                ->value('${student_code_param.type === "G" ? id_card : student_code_param_number}'),
                         ]),
                         amis()->HiddenControl('student_code', '国网学籍')
                             ->value('${student_code_param.type}${student_code_param.number}'),
