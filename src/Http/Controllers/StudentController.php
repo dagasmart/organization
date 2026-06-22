@@ -121,7 +121,7 @@ class StudentController extends AdminController
 
     public function form($isEdit = false): Form
     {
-        return $this->baseForm()->mode('horizontal')->tabs([
+        return $this->baseForm()->id('student_form_id')->mode('horizontal')->tabs([
 
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
@@ -135,6 +135,25 @@ class StudentController extends AdminController
                             ->validationErrors([
                                 'matchRegexp' => '请输入有效的身份证号码',
                             ])
+                            ->addOn($isEdit ?
+                                amis()->VanillaAction()->icon('iconfont icon-cdnrefresh')->onEvent([
+                                    'click' => [
+                                        'actions' => [
+                                            [
+                                                'actionType' => 'reset',
+                                                'componentId' => 'student_form_id',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'id_card',
+                                                'args' => [
+                                                    'value' => '${id_card_enc | base64Decode}',
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ]) : false
+                            )
                             ->required(),
                         amis()->TextControl('student_name', '姓名')->required(),
                         amis()->InputGroupControl(false, '国网学籍')->mode('horizontal')->body([

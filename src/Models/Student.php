@@ -94,7 +94,7 @@ class Student extends Model
      */
     public function getStudentCodeEncAttribute(): false|string
     {
-        return base64_encode($this->attributes['student_code']);
+        return base64_encode($this->student_code);
     }
 
     /**
@@ -102,7 +102,7 @@ class Student extends Model
      */
     public function getIdCardEncAttribute(): false|string
     {
-        return base64_encode($this->attributes['id_card']);
+        return base64_encode($this->id_card);
     }
 
     /**

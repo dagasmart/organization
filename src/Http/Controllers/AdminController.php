@@ -4,7 +4,4 @@ namespace DagaSmart\Organization\Http\Controllers;
 
 use DagaSmart\BizAdmin\Controllers\AdminController as BaseAdminController;
 
-class AdminController extends BaseAdminController
-{
-
-}
+class AdminController extends BaseAdminController {}

@@ -2,13 +2,12 @@
 
 namespace DagaSmart\Organization\Http\Controllers;
 
-use DagaSmart\Organization\Enums\Enum;
-use DagaSmart\Organization\Services\PatriarchService;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\Page;
+use DagaSmart\Organization\Enums\Enum;
+use DagaSmart\Organization\Services\PatriarchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-
 
 /**
  * 基础-家长类
@@ -17,48 +16,48 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class PatriarchController extends AdminController
 {
-	protected string $serviceName = PatriarchService::class;
+    protected string $serviceName = PatriarchService::class;
 
-	public function list(): Page
+    public function list(): Page
     {
-		$crud = $this->baseCRUD()
-			->filterTogglable(false)
-			->headerToolbar([
-				$this->createButton('dialog'),
-				...$this->baseHeaderToolBar(),
-                //$this->importAction(admin_url('worker/import')),
+        $crud = $this->baseCRUD()
+            ->filterTogglable(false)
+            ->headerToolbar([
+                $this->createButton('dialog'),
+                ...$this->baseHeaderToolBar(),
+                // $this->importAction(admin_url('worker/import')),
                 $this->exportAction(),
-			])
+            ])
             ->autoGenerateFilter()
             ->affixHeader()
             ->columnsTogglable()
             ->footable(['expand' => 'first'])
             ->autoFillHeight(true)
             ->columns([
-                amis()->TableColumn('id', 'ID')->sortable()->set('fixed','left'),
-                amis()->TableColumn('patriarch_name', '家长姓名')->sortable()->searchable()->set('fixed','left'),
-//                amis()->TableColumn('enterprise_id', '机构')
-//                    ->searchable([
-//                        'name' => 'enterprise_id',
-//                        'type' => 'select',
-//                        'multiple' => false,
-//                        'searchable' => true,
-//                        'options' => $this->service->getEnterpriseAll(),
-//                    ])
-//                    //->breakpoint('*')
-//                    ->set('type','input-tag')
-//                    ->set('options',$this->service->getEnterpriseAll())
-//                    ->set('value','${enterprise.enterprise_id}')
-//                    ->set('fixed','left')
-//                    ->set('static', true),
+                amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
+                amis()->TableColumn('patriarch_name', '家长姓名')->sortable()->searchable()->set('fixed', 'left'),
+                //                amis()->TableColumn('enterprise_id', '机构')
+                //                    ->searchable([
+                //                        'name' => 'enterprise_id',
+                //                        'type' => 'select',
+                //                        'multiple' => false,
+                //                        'searchable' => true,
+                //                        'options' => $this->service->getEnterpriseAll(),
+                //                    ])
+                //                    //->breakpoint('*')
+                //                    ->set('type','input-tag')
+                //                    ->set('options',$this->service->getEnterpriseAll())
+                //                    ->set('value','${enterprise.enterprise_id}')
+                //                    ->set('fixed','left')
+                //                    ->set('static', true),
 
-                amis()->TableColumn('id_card','身份证号')->searchable()->sortable(),
+                amis()->TableColumn('id_card', '身份证号')->searchable()->sortable(),
                 amis()->TableColumn('avatar', '照片')
-                    ->set('src','${avatar}')
-                    ->set('type','avatar')
-                    ->set('fit','cover')
-                    ->set('size',60)
-                    ->set('onError','return true;')
+                    ->set('src', '${avatar}')
+                    ->set('type', 'avatar')
+                    ->set('fit', 'cover')
+                    ->set('size', 60)
+                    ->set('onError', 'return true;')
                     ->set('onEvent', [
                         'click' => [
                             'actions' => [
@@ -67,20 +66,20 @@ class PatriarchController extends AdminController
                                     'drawer' => [
                                         'title' => '预览',
                                         'actions' => [],
-                                        'closeOnEsc' => true, //esc键关闭
-                                        'closeOnOutside' => true, //域外可关闭
-                                        'showCloseButton' => true, //显示关闭
+                                        'closeOnEsc' => true, // esc键关闭
+                                        'closeOnOutside' => true, // 域外可关闭
+                                        'showCloseButton' => true, // 显示关闭
                                         'body' => [
                                             amis()->Image()
                                                 ->src('${avatar}')
                                                 ->defaultImage(url(admin_config('admin.default_image')))
                                                 ->width('100%')
                                                 ->height('100%'),
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ]),
                 amis()->TableColumn('mobile', '联系电话')->searchable(),
 
@@ -93,24 +92,24 @@ class PatriarchController extends AdminController
                 amis()->TableColumn('alipay_user_id', '刷脸账号')->searchable(),
                 amis()->TableColumn('updated_at', '更新时间')->type('datetime')->width(150),
                 $this->rowActions('dialog')
-                    ->set('align','center')
-                    ->set('fixed','right')
-                    ->set('width',150)
+                    ->set('align', 'center')
+                    ->set('fixed', 'right')
+                    ->set('width', 150),
             ])
             ->affixRow([
-//                [
-//                    'type' => 'text',
-//                    'text' => '总计',
-//                    "colSpan" => 3,
-//                ],
-//                [
-//                    'type' => 'tpl',
-//                    "tpl" => '${rows|pick:mobile|sum}'
-//                ]
+                //                [
+                //                    'type' => 'text',
+                //                    'text' => '总计',
+                //                    "colSpan" => 3,
+                //                ],
+                //                [
+                //                    'type' => 'tpl',
+                //                    "tpl" => '${rows|pick:mobile|sum}'
+                //                ]
             ]);
 
-		return $this->baseList($crud);
-	}
+        return $this->baseList($crud);
+    }
 
     public function form($isEdit = false): Form
     {
@@ -134,14 +133,14 @@ class PatriarchController extends AdminController
                                     'click' => [
                                         'actions' => [
                                             [
-                                                'actionType'  => 'reset',
+                                                'actionType' => 'reset',
                                                 'componentId' => 'worker_form_id',
                                             ],
                                             [
-                                                'actionType'  => 'setValue',
+                                                'actionType' => 'setValue',
                                                 'componentName' => 'id_card',
                                                 'args' => [
-                                                    'value' => '${id_card_enc | base64Decode}'
+                                                    'value' => '${id_card_enc | base64Decode}',
                                                 ],
                                             ],
                                         ],
@@ -153,7 +152,7 @@ class PatriarchController extends AdminController
                                     'actions' => [
                                         [
                                             'actionType' => 'stopPropagation',
-                                            'expression' => '${isEdit}'
+                                            'expression' => '${isEdit}',
                                         ],
                                         [
                                             'actionType' => 'ajax',
@@ -163,55 +162,55 @@ class PatriarchController extends AdminController
                                             ],
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'id',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.id||null}'
+                                                'value' => '${event.data.responseResult.responseData.id||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'id',
-                                            'expression' => '${!!event.data.responseResult.responseData.id}'
+                                            'expression' => '${!!event.data.responseResult.responseData.id}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'id',
-                                            'expression' => '${!event.data.responseResult.responseData.id}'
+                                            'expression' => '${!event.data.responseResult.responseData.id}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'patriarch_name',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.patriarch_name||null}'
+                                                'value' => '${event.data.responseResult.responseData.patriarch_name||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'patriarch_name',
-                                            'expression' => '${!!event.data.responseResult.responseData.patriarch_name}'
+                                            'expression' => '${!!event.data.responseResult.responseData.patriarch_name}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'patriarch_name',
-                                            'expression' => '${!event.data.responseResult.responseData.patriarch_name}'
+                                            'expression' => '${!event.data.responseResult.responseData.patriarch_name}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'patriarch_sn',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.patriarch_sn||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}'
+                                                'value' => '${event.data.responseResult.responseData.patriarch_sn||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'patriarch_sn',
-                                            'expression' => '${!!event.data.responseResult.responseData.patriarch_sn}'
+                                            'expression' => '${!!event.data.responseResult.responseData.patriarch_sn}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'patriarch_sn',
-                                            'expression' => '${!event.data.responseResult.responseData.patriarch_sn}'
+                                            'expression' => '${!event.data.responseResult.responseData.patriarch_sn}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -223,165 +222,165 @@ class PatriarchController extends AdminController
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'avatar',
-                                            'expression' => '${!!event.data.responseResult.responseData.avatar}'
+                                            'expression' => '${!!event.data.responseResult.responseData.avatar}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'avatar',
-                                            'expression' => '${!event.data.responseResult.responseData.avatar}'
+                                            'expression' => '${!event.data.responseResult.responseData.avatar}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'email',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.email||null}'
+                                                'value' => '${event.data.responseResult.responseData.email||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'email',
-                                            'expression' => '${!!event.data.responseResult.responseData.email}'
+                                            'expression' => '${!!event.data.responseResult.responseData.email}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'email',
-                                            'expression' => '${!event.data.responseResult.responseData.email}'
+                                            'expression' => '${!event.data.responseResult.responseData.email}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'mobile',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.mobile||null}'
+                                                'value' => '${event.data.responseResult.responseData.mobile||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'mobile',
-                                            'expression' => '${!!event.data.responseResult.responseData.mobile}'
+                                            'expression' => '${!!event.data.responseResult.responseData.mobile}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'mobile',
-                                            'expression' => '${!event.data.responseResult.responseData.mobile}'
+                                            'expression' => '${!event.data.responseResult.responseData.mobile}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'sex',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.sex||null}'
+                                                'value' => '${event.data.responseResult.responseData.sex||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'sex',
-                                            'expression' => '${!!event.data.responseResult.responseData.sex}'
+                                            'expression' => '${!!event.data.responseResult.responseData.sex}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'sex',
-                                            'expression' => '${!event.data.responseResult.responseData.sex}'
+                                            'expression' => '${!event.data.responseResult.responseData.sex}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'nation',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.nation||null}'
+                                                'value' => '${event.data.responseResult.responseData.nation||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'nation',
-                                            'expression' => '${!!event.data.responseResult.responseData.nation}'
+                                            'expression' => '${!!event.data.responseResult.responseData.nation}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'nation',
-                                            'expression' => '${!event.data.responseResult.responseData.nation}'
+                                            'expression' => '${!event.data.responseResult.responseData.nation}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'combo',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.combo||null}'
+                                                'value' => '${event.data.responseResult.responseData.combo||null}',
                                             ],
                                         ],
-//                                        [
-//                                            'actionType' => 'disabled',
-//                                            'componentName' => 'combo',
-//                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
-//                                        ],
-//                                        [
-//                                            'actionType' => 'enabled',
-//                                            'componentName' => 'combo',
-//                                            'expression' => '${!event.data.responseResult.responseData.combo}'
-//                                        ],
+                                        //                                        [
+                                        //                                            'actionType' => 'disabled',
+                                        //                                            'componentName' => 'combo',
+                                        //                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
+                                        //                                        ],
+                                        //                                        [
+                                        //                                            'actionType' => 'enabled',
+                                        //                                            'componentName' => 'combo',
+                                        //                                            'expression' => '${!event.data.responseResult.responseData.combo}'
+                                        //                                        ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'region_id',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.region_id||null}'
+                                                'value' => '${event.data.responseResult.responseData.region_id||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'region_id',
-                                            'expression' => '${!!event.data.responseResult.responseData.region_id}'
+                                            'expression' => '${!!event.data.responseResult.responseData.region_id}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'region_id',
-                                            'expression' => '${!event.data.responseResult.responseData.region_id}'
+                                            'expression' => '${!event.data.responseResult.responseData.region_id}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'address',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.address||null}'
+                                                'value' => '${event.data.responseResult.responseData.address||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'address',
-                                            'expression' => '${!!event.data.responseResult.responseData.address}'
+                                            'expression' => '${!!event.data.responseResult.responseData.address}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'address',
-                                            'expression' => '${!event.data.responseResult.responseData.address}'
+                                            'expression' => '${!event.data.responseResult.responseData.address}',
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'region_info',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.region_info||null}'
+                                                'value' => '${event.data.responseResult.responseData.region_info||null}',
                                             ],
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'address_info',
                                             'args' => [
-                                                'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}'
+                                                'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}',
                                             ],
                                         ],
                                         [
-                                            'actionType'  => 'setValue',
+                                            'actionType' => 'setValue',
                                             'componentName' => 'family',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.family||null}'
+                                                'value' => '${event.data.responseResult.responseData.family||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
                                             'componentName' => 'family',
-                                            'expression' => '${!!event.data.responseResult.responseData.family}'
+                                            'expression' => '${!!event.data.responseResult.responseData.family}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
                                             'componentName' => 'family',
-                                            'expression' => '${!event.data.responseResult.responseData.family}'
+                                            'expression' => '${!event.data.responseResult.responseData.family}',
                                         ],
-                                    ]
-                                ]
+                                    ],
+                                ],
                             ]),
                         amis()->TextControl('patriarch_name', '真实姓名')->id('patriarch_name')->required(),
                         amis()->TextControl('patriarch_sn', '系统编号')
@@ -394,17 +393,17 @@ class PatriarchController extends AdminController
                         amis()->ImageControl('avatar')
                             ->thumbRatio('1:1')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
-                            ->className(['overflow-hidden'=>true, 'h-full'=>true])
+                            ->className(['overflow-hidden' => true, 'h-full' => true])
                             ->imageClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ])
                             ->fixedSize()
                             ->fixedSizeClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ]),
                     ]),
                 ]),
@@ -419,21 +418,24 @@ class PatriarchController extends AdminController
                         ->offText('否'),
                 ]),
             ]),
+            amis()->Tab()->title('关联学生信息')->body([
+
+            ]),
         ])->onEvent([
-//            'submitSucc' => [
-//                'actions' => [
-//                    [
-//                        'actionType' => 'custom',
-//                        'script' => 'window.$owl.refreshAmisPage();'
-//                    ],
-//                ]
-//            ]
+            //            'submitSucc' => [
+            //                'actions' => [
+            //                    [
+            //                        'actionType' => 'custom',
+            //                        'script' => 'window.$owl.refreshAmisPage();'
+            //                    ],
+            //                ]
+            //            ]
         ]);
     }
 
-	public function detail(): Form
+    public function detail(): Form
     {
-		return $this->baseDetail()->mode('horizontal')->tabs([
+        return $this->baseDetail()->mode('horizontal')->tabs([
             // 基本信息
             amis()->Tab()->title('家长基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
@@ -448,17 +450,17 @@ class PatriarchController extends AdminController
                         amis()->ImageControl('avatar')
                             ->thumbRatio('1:1')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
-                            ->className(['overflow-hidden'=>true, 'h-full'=>true])
+                            ->className(['overflow-hidden' => true, 'h-full' => true])
                             ->imageClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ])
                             ->fixedSize()
                             ->fixedSizeClassName([
-                                'w-52'=>true,
-                                'h-64'=>true,
-                                'overflow-hidden'=>true
+                                'w-52' => true,
+                                'h-64' => true,
+                                'overflow-hidden' => true,
                             ]),
                     ]),
                 ]),
@@ -479,17 +481,16 @@ class PatriarchController extends AdminController
                 amis()->DateTimeControl('updated_at', '更新时间'),
             ]),
         ])->static();
-	}
+    }
 
     /**
      * 检查身份证并获取家长信息
-     * @return JsonResponse|JsonResource
      */
     public function EnterprisePatriarchCheck(): JsonResponse|JsonResource
     {
         $id_card = request()->id_card ?? null;
         $res = $this->service->EnterprisePatriarchCheck($id_card);
+
         return $this->response()->success($res);
     }
-
 }
