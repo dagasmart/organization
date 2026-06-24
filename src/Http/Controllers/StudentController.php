@@ -217,11 +217,11 @@ class StudentController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->SelectControl('gender', '性别')
+                    amis()->SelectControl('sex', '性别')
                         ->options(Enum::sex())
                         ->value(3)
                         ->required(),
-                    amis()->SelectControl('nation_id', '民族')
+                    amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation())
                         ->value(1)
                         ->required(),
@@ -360,11 +360,11 @@ class StudentController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->SelectControl('gender', '性别')
+                    amis()->SelectControl('sex', '性别')
                         ->options(Enum::sex())
                         ->value(3)
                         ->required(),
-                    amis()->SelectControl('nation_id', '民族')
+                    amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation())
                         ->value(1)
                         ->required(),
@@ -621,4 +621,10 @@ class StudentController extends AdminController
             )
         );
     }
+
+    public function search()
+    {
+        return $this->service->search();
+    }
+
 }

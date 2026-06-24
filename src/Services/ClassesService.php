@@ -123,10 +123,13 @@ class ClassesService extends AdminService
     }
 
     /**
-     * 机构年级列表
+     * （机构年级)班级列表
      */
     public function enterpriseGradeClasses(int $enterprise_id, int $grade_id): array
     {
+        if (empty($enterprise_id) || empty($grade_id)) {
+            return [];
+        }
         return Classes::query()
             ->whereHas('enterpriseGradeClasses', function ($builder) use ($enterprise_id, $grade_id) {
                 $builder

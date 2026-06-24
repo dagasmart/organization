@@ -4,9 +4,11 @@ namespace DagaSmart\Organization\Services;
 
 use DagaSmart\Organization\Models\Classes;
 use DagaSmart\Organization\Models\Enterprise;
+use DagaSmart\Organization\Models\EnterpriseGradeClassesStudent;
 use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * 基础-学生服务类
@@ -160,9 +162,7 @@ class StudentService extends AdminService
      */
     public function getEnterpriseAll(): array
     {
-        $model = new Enterprise;
-
-        return $model->query()->whereNull('deleted_at')->get(['id as value', 'enterprise_name as label'])->toArray();
+        return Enterprise::query()->whereNull('deleted_at')->get(['id as value', 'enterprise_name as label'])->toArray();
     }
 
     /**
@@ -170,8 +170,7 @@ class StudentService extends AdminService
      */
     public function getGradeAll(): array
     {
-        $model = new Grade;
-        $data = $model->query()->get(['id as value', 'grade_name as label', 'id', 'parent_id'])->toArray();
+        $data = Grade::query()->get(['id as value', 'grade_name as label', 'id', 'parent_id'])->toArray();
 
         return array2tree($data);
     }
@@ -181,8 +180,41 @@ class StudentService extends AdminService
      */
     public function getClassesAll(): array
     {
-        $model = new Classes;
+        return Classes::query()->get(['id as value', 'classes_name as label'])->toArray();
+    }
 
-        return $model->query()->get(['id as value', 'classes_name as label'])->toArray();
+    public function search(): LengthAwarePaginator
+    {
+        $input = request()->input();
+
+        $enterprise_id = $input['enterprise_id'] ?? null;
+        $grade_id = $input['grade_id'] ?? null;
+        $classes_id = $input['classes_id'] ?? null;
+        $student_name = $input['student_name'] ?? null;
+        $id_card = $input['id_card'] ?? null;
+        if ($id_card) {
+            identifyByIdCard($id_card);
+        }
+
+        return EnterpriseGradeClassesStudent::query()
+            ->whereHas('student', function (Builder $builder) use ($student_name, $id_card) {
+                $builder->when($student_name, function (Builder $builder) use ($student_name) {
+                    $builder->whereLike('student_name', '%'.$student_name.'%');
+                });
+                $builder->when($id_card, function (Builder $builder) use ($id_card) {
+                    $builder->where('id_card', $id_card);
+                });
+            })
+            ->where(['enterprise_id' => $enterprise_id])
+            ->when(
+                $grade_id,
+                fn ($query) => $query->where('grade_id', $grade_id),
+            )
+            ->when(
+                $classes_id,
+                fn ($query) => $query->where('classes_id', $classes_id),
+            )
+            ->with(['grade', 'classes', 'student'])
+            ->paginate();
     }
 }

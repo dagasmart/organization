@@ -39,6 +39,8 @@ Route::group([
     $router->get('enterprise/{enterprise_id}/facility/{facility_id}/device/{device_type}/brand/{device_brand}/options', [Controllers\DeviceController::class, 'deviceOptions']);
     $router->get('enterprise/device/{type}/brand/options', [Controllers\DeviceController::class, 'brandOptions']);
 
+    $router->get('enterprise/student/search', [Controllers\StudentController::class, 'search']);
+
     $router->resource('enterprise/index', Controllers\EnterpriseController::class);
     $router->resource('enterprise/worker', Controllers\WorkerController::class);
     $router->resource('enterprise/student', Controllers\StudentController::class);

@@ -419,6 +419,202 @@ class PatriarchController extends AdminController
                 ]),
             ]),
             amis()->Tab()->title('关联学生信息')->body([
+                amis()->Alert()->body([
+                    amis()->Tpl()->className('float-left')->tpl('<span class="text-danger">提示：</span>家长本人可通过小程序自行绑定学生关系'),
+                    amis()->Button()
+                        ->icon('iconfont icon-edap-tool-btn-add')
+                        ->level('link')
+                        ->label('添加')
+                        ->className('float-right')
+                        ->actionType('drawer')
+                        ->drawer([
+                            'title' => '添加',
+                            'closeOnOutside' => true,
+                            'closeOnEsc' => true,
+                            'actions' => [],
+                            'body' => [
+                                amis()->Form()->mode('inline')->body([
+                                    amis()->SelectControl('search_enterprise_id', '机构')
+                                        ->id('searchEnterpriseId')
+                                        ->mode('horizontal')
+                                        ->options($this->service->getEnterpriseAll())
+                                        ->autoComplete(false)
+                                        ->labelWidth('12%')
+                                        ->searchable()
+                                        ->clearable()
+                                        ->required(),
+                                    amis()->GroupControl()->mode('horizontal')->body([
+                                        amis()->SelectControl('search_grade_id', '年级')
+                                            ->id('searchGradeId')
+                                            ->mode('horizontal')
+                                            ->source(admin_url('biz/enterprise/${search_enterprise_id||0}/grade'))
+                                            ->selectMode('group')
+                                            ->autoComplete(false)
+                                            ->labelWidth('25%')
+                                            ->clearable()
+                                            ->disabledOn('${!search_enterprise_id}')
+                                            ->onEvent([
+                                                'change' => [
+                                                    'actions' => [
+                                                        [
+                                                            'actionType' => 'reset',
+                                                            'componentId' => 'searchGradeId',
+                                                        ],
+                                                        [
+                                                            'actionType' => 'clear',
+                                                            'componentId' => 'searchClassesId',
+                                                        ],
+                                                    ],
+                                                ],
+                                            ]),
+                                        amis()->SelectControl('search_classes_id', '班级')
+                                            ->id('searchClassesId')
+                                            ->mode('horizontal')
+                                            ->sendOn('${search_grade_id > 0}')
+                                            ->initFetch(false)
+                                            ->autoComplete(false)
+                                            ->labelWidth('30%')
+                                            ->source(admin_url('biz/enterprise/${search_enterprise_id||0}/grade/${search_grade_id||0}/classes'))
+                                            ->labelClassName('w-1/3')
+                                            ->disabledOn('${!search_grade_id}')
+                                            ->clearable(),
+                                    ]),
+                                    amis()->GroupControl()->mode('horizontal')->body([
+                                        amis()->TextControl('search_student_name', '姓名')
+                                            ->mode('horizontal')
+                                            ->disabledOn('${!search_enterprise_id}')
+                                            ->autoComplete(false)
+                                            ->labelWidth('25%')
+                                            ->clearable(),
+                                        amis()->TextControl('search_id_card', '身份证号')
+                                            ->mode('horizontal')
+                                            ->autoComplete(false)
+                                            ->labelWidth('30%')
+                                            ->disabledOn('${!search_enterprise_id}')
+                                            ->clearable(),
+                                    ]),
+                                    amis()->Divider(),
+                                    amis()->CRUD2Cards()
+                                        ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
+                                        ->silentPolling()
+                                        ->columnsCount(2)
+                                        ->autoFillHeight()
+                                        ->card([
+                                            'style' => [
+                                                'border' => '1px solid var(--colors-brand-9)',
+                                                'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
+                                            ],
+                                            'header' => [
+                                                'title' => '${student.student_name}',
+                                                'subTitle' => '${student.sex_as}　${student.nation_as}',
+                                                'subTitlePlaceholder' => '暂无说明',
+                                                'avatar' => '${student.avatar}',
+                                                'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
+                                            ],
+                                            'body' => [
+                                                [
+                                                    'name' => '${grade.grade_name}',
+                                                    'label' => '年级',
+                                                ],
+                                                [
+                                                    'name' => '${classes.classes_name}',
+                                                    'label' => '班级',
+                                                ],
+                                            ],
+                                            'actions' => [
+                                                amis()->Button()->icon('iconfont icon-edap-tool-btn-add')->label('添加'),
+                                            ],
+                                        ]),
+                                ]),
+                            ],
+                        ]),
+                ]),
+                amis()->Cards()->source('${child}')->columnsCount(3)->card([
+                    'style' => [
+                        'border' => '1px solid var(--colors-brand-9)',
+                        'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
+                    ],
+                    'header' => [
+                        'title' => '${rel.student.student_name}',
+                        'subTitle' => '${rel.student.sex_as}　${rel.student.nation_as}',
+                        'subTitlePlaceholder' => '暂无说明',
+                        'avatar' => '${rel.student.avatar}',
+                        'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
+                    ],
+                    'body' => [
+                        [
+                            'name' => '${rel.enterprise.enterprise_name}',
+                            'label' => '学校',
+                        ],
+                        [
+                            'name' => '${rel.grade.grade_name}',
+                            'label' => '年级',
+                        ],
+                        [
+                            'name' => '${rel.classes.classes_name}',
+                            'label' => '班级',
+                        ],
+                    ],
+                ]),
+                //                amis()->Page()->id('studentSearch')->data(['isFetching' => false, 'fetched' => false])->body([
+                //                    amis()->SearchBox()
+                //                        ->name('keywords')
+                //                        ->placeholder('请输入身份证号')
+                //                        ->style(['width' => '15rem'])
+                //                        ->loadingOn('${isFetching}')
+                //                        ->clearable()
+                //                        ->clearAndSubmit()
+                //                        ->enhance()
+                //                        ->onEvent([
+                //                            'search' => [
+                //                                'actions' => [
+                //                                    [
+                //                                        'actionType' => 'setValue',
+                //                                        'componentId' => 'studentSearch',
+                //                                        'args' => [
+                //                                            'value' => [
+                //                                                'isFetching' => true,
+                //                                            ],
+                //                                        ],
+                //                                    ],
+                //                                    [
+                //                                        'actionType' => 'toast',
+                //                                        'args' => [
+                //                                            'msgType' => 'warning',
+                //                                            'msg' => '开始搜索...',
+                //                                        ],
+                //                                    ],
+                //                                    [
+                //                                        'actionType' => 'ajax',
+                //                                        'api' => [
+                //                                            'url' => 'biz/enterprise/student/search',
+                //                                            'method' => 'get',
+                //                                            'data' => [
+                //                                                'keywords' => '${keywords}',
+                //                                            ],
+                //                                            'messages' => [
+                //                                                'failed' => '搜索失败${event.data.responseResult.msg}',
+                //                                            ],
+                //                                        ],
+                //                                        'feedback' => [
+                //                                            'title' => '搜索结果',
+                //                                            'body' => 'info',
+                //                                        ],
+                //                                    ],
+                //                                    [
+                //                                        'actionType' => 'setValue',
+                //                                        'componentId' => 'studentSearch',
+                //                                        'args' => [
+                //                                            'value' => [
+                //                                                'isFetching' => false,
+                //                                                'fetched' => true,
+                //                                            ],
+                //                                        ],
+                //                                    ],
+                //                                ],
+                //                            ],
+                //                        ]),
+                //                ]),
 
             ]),
         ])->onEvent([
