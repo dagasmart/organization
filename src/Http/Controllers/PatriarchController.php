@@ -97,15 +97,15 @@ class PatriarchController extends AdminController
                     ->set('width', 150),
             ])
             ->affixRow([
-                //                [
-                //                    'type' => 'text',
-                //                    'text' => '总计',
-                //                    "colSpan" => 3,
-                //                ],
-                //                [
-                //                    'type' => 'tpl',
-                //                    "tpl" => '${rows|pick:mobile|sum}'
-                //                ]
+                // [
+                //    'type' => 'text',
+                //    'text' => '总计',
+                //    "colSpan" => 2,
+                // ],
+                // [
+                //    'type' => 'tpl',
+                //    "tpl" => '${rows|pick:total|sum}'
+                // ]
             ]);
 
         return $this->baseList($crud);
@@ -407,15 +407,16 @@ class PatriarchController extends AdminController
                             ]),
                     ]),
                 ]),
-                amis()->Divider(),
+                amis()->Divider()->color('var(--colors-brand-6)'),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->SelectControl('sex', '性别')
                         ->options(Enum::sex())->value(3),
                     amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation()),
-                    amis()->SwitchControl('is_primary', '主关系')
+                    amis()->SwitchControl('is_primary', '监护人')
                         ->onText('是')
-                        ->offText('否'),
+                        ->offText('否')
+                        ->value(true),
                 ]),
             ]),
             amis()->Tab()->title('关联学生信息')->body([
@@ -493,7 +494,7 @@ class PatriarchController extends AdminController
                                             ->disabledOn('${!search_enterprise_id}')
                                             ->clearable(),
                                     ]),
-                                    amis()->Divider(),
+                                    amis()->Divider()->color('var(--colors-brand-6)'),
                                     amis()->CRUD2Cards()
                                         ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
                                         ->silentPolling()
@@ -554,6 +555,28 @@ class PatriarchController extends AdminController
                             'name' => '${rel.classes.classes_name}',
                             'label' => '班级',
                         ],
+                    ],
+                    'actions' => [
+                        [
+                            'label' => '移除',
+                            'confirmTitle' => '操作提示',
+                            'icon' => 'iconfont icon-trash-alt',
+                            // 'actionType' => 'remove',
+                            'confirmText' => '是否移除关联关系<b class="text-danger"> ${rel.student.student_name} </b>?',
+                            'actionType' => 'setValue',
+                            'data' => [
+                                'child' => '${child | filter: (_, idx) => idx !== index}',
+                            ],
+
+                        ],
+                        //                        amis()->Button()
+                        //                            ->icon('iconfont icon-trash-alt')
+                        //                            ->label('删除')
+                        //                            ->actionType('dialog')
+                        //                            ->dialog([
+                        //                                'title' => '确认提示',
+                        //                                'body' => '是否删除关联关系<b class="text-danger"> ${rel.student.student_name} </b>?',
+                        //                            ]),
                     ],
                 ]),
                 //                amis()->Page()->id('studentSearch')->data(['isFetching' => false, 'fetched' => false])->body([
@@ -666,7 +689,7 @@ class PatriarchController extends AdminController
                         ->options(Enum::sex()),
                     amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation()),
-                    amis()->SwitchControl('is_primary', '主关系')
+                    amis()->SwitchControl('is_primary', '监护人')
                         ->onText('是')
                         ->offText('否')
                         ->static(false)
