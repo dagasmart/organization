@@ -19,10 +19,11 @@ return new class extends Migration
         ! Schema::hasTable($this->table)
         && Schema::create($this->table, function (Blueprint $table) {
             $table->comment('数智校园-机构-年级-班级-学生关联表');
-            $table->integer('enterprise_id')->comment('机构id');
-            $table->integer('grade_id')->comment('年级id');
-            $table->integer('classes_id')->comment('班级id');
-            $table->integer('student_id')->comment('学生id');
+            $table->integer('enterprise_id')->index()->comment('机构id');
+            $table->integer('grade_id')->index()->comment('年级id');
+            $table->integer('classes_id')->index()->comment('班级id');
+            $table->integer('student_id')->index()->comment('学生id');
+            $table->string('student_no', 32)->index()->nullable()->comment('学号');
             $table->smallInteger('state')->nullable()->default(1)->comment('状态：1-正常 2-毕业 3-转学 4-休学 5-退学');
             $table->string('reason')->nullable()->comment('备注');
             $table->string('module', 32)->nullable();

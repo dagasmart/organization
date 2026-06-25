@@ -19,8 +19,7 @@ return new class extends Migration
         ! Schema::hasTable($this->name)
         && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-基础-学生表');
-            $table->bigIncrements('id');
-            $table->string('student_no', 64)->index()->nullable()->comment('学号');
+            $table->id();
             $table->string('student_name', 64)->index()->comment('姓名');
             $table->string('avatar')->nullable()->comment('照片');
             $table->smallInteger('sex')->nullable()->comment('性别');

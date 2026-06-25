@@ -47,14 +47,17 @@ class PatriarchService extends AdminService
         $list = parent::list();
         if ($list['items']) {
             foreach ($list['items'] as &$item) {
+                $childes = [];
                 $property = [];
                 if ($item['child']) {
-                    foreach ($item['child'] as &$child) {
-                        if ($child['rel']) {
+                    foreach ($item['child'] as $child) {
+                        $rel = $child['rel'] ?? [];
+                        if ($rel) {
+                            $childes[] = $rel;
                             $property[] = [
                                 'label' => [
                                     'type' => 'avatar',
-                                    'src' => $child['rel']['student']['avatar'],
+                                    'src' => $rel['student']['avatar'],
                                     'size' => 'small',
                                     'onEvent' => [
                                         'click' => [
@@ -86,19 +89,19 @@ class PatriarchService extends AdminService
                                                                                     'type' => 'input-text',
                                                                                     'label' => '学生姓名',
                                                                                     'static' => true,
-                                                                                    'value' => $child['rel']['student']['student_name'],
+                                                                                    'value' => $rel['student']['student_name'],
                                                                                 ],
                                                                                 [
                                                                                     'type' => 'input-text',
                                                                                     'label' => '身份证号',
                                                                                     'static' => true,
-                                                                                    'value' => $child['rel']['student']['id_card'],
+                                                                                    'value' => $rel['student']['id_card'],
                                                                                 ],
                                                                                 [
                                                                                     'type' => 'input-text',
                                                                                     'label' => '国网学籍',
                                                                                     'static' => true,
-                                                                                    'value' => 'G'.$child['rel']['student']['id_card'],
+                                                                                    'value' => 'G'.$rel['student']['id_card'],
                                                                                 ],
                                                                             ],
                                                                         ],
@@ -110,7 +113,7 @@ class PatriarchService extends AdminService
                                                                             'body' => [
                                                                                 [
                                                                                     'type' => 'static-image',
-                                                                                    'value' => $child['rel']['student']['avatar'],
+                                                                                    'value' => $rel['student']['avatar'],
                                                                                     'thumbRatio' => '1:1',
                                                                                     'thumbMode' => 'cover h-full rounded-md overflow-hidden',
                                                                                     'className' => 'h-full overflow-hidden',
@@ -134,7 +137,7 @@ class PatriarchService extends AdminService
                                                                             'type' => 'input-text',
                                                                             'label' => '就读学校',
                                                                             'static' => true,
-                                                                            'value' => $child['rel']['enterprise']['enterprise_name'].' / '.$child['rel']['grade']['grade_name'].' / '.$child['rel']['classes']['classes_name'],
+                                                                            'value' => $rel['enterprise']['enterprise_name'].' / '.$rel['grade']['grade_name'].' / '.$rel['classes']['classes_name'],
                                                                         ],
                                                                     ],
                                                                 ],
@@ -147,20 +150,20 @@ class PatriarchService extends AdminService
                                                                         [
                                                                             'type' => 'input-text',
                                                                             'label' => '性别',
-                                                                            'value' => $child['rel']['student']['sex_as'],
+                                                                            'value' => $rel['student']['sex_as'],
                                                                             'static' => true,
                                                                         ],
                                                                         [
                                                                             'type' => 'input-text',
                                                                             'label' => '民族',
-                                                                            'value' => $child['rel']['student']['nation_as'],
+                                                                            'value' => $rel['student']['nation_as'],
                                                                             'static' => true,
                                                                         ],
                                                                         [
                                                                             'type' => 'input-text',
                                                                             'label' => '状态',
                                                                             'static' => true,
-                                                                            'value' => $child['rel']['state_as'],
+                                                                            'value' => $rel['state_as'],
                                                                         ],
                                                                     ],
                                                                 ],
@@ -176,6 +179,7 @@ class PatriarchService extends AdminService
                         }
                     }
                 }
+                $item['childes'] = $childes;
                 $item['property'] = $property;
             }
         }

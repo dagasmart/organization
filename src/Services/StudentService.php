@@ -215,6 +215,6 @@ class StudentService extends AdminService
                 fn ($query) => $query->where('classes_id', $classes_id),
             )
             ->with(['grade', 'classes', 'student'])
-            ->paginate();
+            ->paginate(4);
     }
 }

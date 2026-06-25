@@ -89,7 +89,7 @@ class PatriarchController extends AdminController
                     ->mode('simple')
                     ->separator('')
                     ->items('${property}'),
-                amis()->TableColumn('alipay_user_id', '刷脸账号')->searchable(),
+                // amis()->TableColumn('alipay_user_id', '刷脸账号')->searchable(),
                 amis()->TableColumn('updated_at', '更新时间')->type('datetime')->width(150),
                 $this->rowActions('dialog')
                     ->set('align', 'center')
@@ -495,44 +495,124 @@ class PatriarchController extends AdminController
                                             ->clearable(),
                                     ]),
                                     amis()->Divider()->color('var(--colors-brand-6)'),
-                                    amis()->CRUD2Cards()
-                                        ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
-                                        ->silentPolling()
-                                        ->columnsCount(2)
-                                        ->autoFillHeight()
-                                        ->card([
-                                            'style' => [
-                                                'border' => '1px solid var(--colors-brand-9)',
-                                                'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
-                                            ],
-                                            'header' => [
-                                                'title' => '${student.student_name}',
-                                                'subTitle' => '${student.sex_as}　${student.nation_as}',
-                                                'subTitlePlaceholder' => '暂无说明',
-                                                'avatar' => '${student.avatar}',
-                                                'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
-                                            ],
-                                            'body' => [
-                                                [
-                                                    'name' => '${grade.grade_name}',
-                                                    'label' => '年级',
+                                    amis()->PaginationWrapper()->mode('horizontal')->perPage(1)->body([
+                                        amis()->CRUD2Cards()
+                                            ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
+                                            ->silentPolling()
+                                            ->columnsCount(2)
+                                            ->defaultParams([
+                                                'perPage' => 1,
+                                            ])
+                                            ->pagination(true)
+                                            ->autoFillHeight()
+                                            ->card([
+                                                'style' => [
+                                                    'border' => '1px solid var(--colors-brand-9)',
+                                                    'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
                                                 ],
-                                                [
-                                                    'name' => '${classes.classes_name}',
-                                                    'label' => '班级',
+                                                'header' => [
+                                                    'title' => '${student.student_name}',
+                                                    'subTitle' => '${student.sex_as}　${student.nation_as}',
+                                                    'subTitlePlaceholder' => '暂无说明',
+                                                    'avatar' => '${student.avatar}',
+                                                    'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
                                                 ],
-                                            ],
-                                            'actions' => [
-                                                amis()->Button()->icon('iconfont icon-edap-tool-btn-add')->label('添加'),
-                                            ],
-                                        ]),
+                                                'body' => [
+                                                    [
+                                                        'name' => '${grade.grade_name}',
+                                                        'label' => '年级',
+                                                    ],
+                                                    [
+                                                        'name' => '${classes.classes_name}',
+                                                        'label' => '班级',
+                                                    ],
+                                                ],
+                                                'actions' => [
+                                                    [
+                                                        'label' => '添加',
+                                                        'actionType' => 'button',
+                                                        'level' => 'link',
+                                                        'icon' => 'iconfont icon-edap-tool-btn-add',
+                                                        'confirmTitle' => '操作提示',
+                                                        'confirmText' => '是否添加<b class="text-danger"> ${student.student_name} </b>关联关系?',
+                                                        'onEvent' => [
+                                                            'click' => [
+                                                                'actions' => [
+                                                                    [
+                                                                        'actionType' => 'custom',
+                                                                        'script' => '
+                                                                            // ✅ 修复1: 安全获取上下文和数据
+            var data = context?.data || event?.data || {};
+            var currentItem = data.item || data;
+
+            // ✅ 修复2: 如果依然取不到，尝试从事件目标获取
+            if (!currentItem || !currentItem.student) {
+                console.error("无法获取当前卡片数据，完整上下文:", JSON.parse(JSON.stringify(data)));
+                doAction({
+                    actionType: "toast",
+                    args: { msgType: "error", msg: "数据获取失败，请查看控制台" }
+                });
+                return;
+            }
+
+            // 获取外层已有的关联列表（安全取值）
+            var currentList = data.childes || [];
+
+            // 【调试打印】
+            console.log("===== 纯前端添加调试信息 =====");
+            console.log("1. 当前卡片数据 (currentItem):", JSON.parse(JSON.stringify(currentItem)));
+            console.log("2. 外层已有列表 (currentList):", JSON.parse(JSON.stringify(currentList)));
+            console.log("=============================");
+
+            // 防重复校验
+            var exists = currentList.some(function(item) {
+                var id = item.student_id || (item.rel && item.student && item.student.student_id);
+                return id === currentItem.student.student_id;
+            });
+
+            if (exists) {
+                doAction({
+                    actionType: "toast",
+                    args: { msgType: "warning", msg: "该学生已在关联列表中" }
+                });
+                return;
+            }
+
+            // 数据结构对齐（根据控制台打印结果调整）
+            var formattedItem = currentItem;
+
+            // 追加新数据
+            var newList = currentList.concat([formattedItem]);
+
+            console.log("3. 即将写入的新列表:", JSON.parse(JSON.stringify(newList)));
+
+            // ✅ 通过 componentId 精准更新外层 Cards
+            doAction({
+                actionType: "setValue",
+                componentId: "component_cards_child_id",
+                args: {
+                    value: {
+                        childes: newList
+                    }
+                }
+            });
+                                                                        ',
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ]),
+                                    ]),
                                 ]),
                             ],
                         ]),
                 ]),
+                amis()->TextareaControl('childes', '关联学生')->id('component_child_id'),
                 amis()->Cards()
-                    ->id('your_parent_component_id')
-                    ->source('${child}')
+                    ->id('component_cards_child_id')
+                    ->source('${childes}')
                     ->columnsCount(3)
                     ->placeholder('暂无关联学生')   // ✅ 空状态提示
                     ->card([
@@ -541,23 +621,23 @@ class PatriarchController extends AdminController
                             'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
                         ],
                         'header' => [
-                            'title' => '${rel.student.student_name}',
-                            'subTitle' => '${rel.student.sex_as} ${rel.student.nation_as}',
+                            'title' => '${student.student_name}',
+                            'subTitle' => '${student.sex_as} ${student.nation_as}',
                             'subTitlePlaceholder' => '暂无说明',
-                            'avatar' => '${rel.student.avatar}',
+                            'avatar' => '${student.avatar}',
                             'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
                         ],
                         'body' => [
                             [
-                                'name' => '${rel.enterprise.enterprise_name}',
+                                'name' => '${enterprise.enterprise_name}',
                                 'label' => '学校',
                             ],
                             [
-                                'name' => '${rel.grade.grade_name}',
+                                'name' => '${grade.grade_name}',
                                 'label' => '年级',
                             ],
                             [
-                                'name' => '${rel.classes.classes_name}',
+                                'name' => '${classes.classes_name}',
                                 'label' => '班级',
                             ],
                         ],
@@ -568,58 +648,39 @@ class PatriarchController extends AdminController
                                 'level' => 'link',
                                 'icon' => 'iconfont icon-trash-alt',
                                 'confirmTitle' => '操作提示',
-                                'confirmText' => '是否移除关联关系？',
+                                'confirmText' => '是否移除<b class="text-danger"> ${student.student_name} </b>关联关系?',
                                 'onEvent' => [
                                     'click' => [
                                         'actions' => [
                                             [
                                                 'actionType' => 'custom',
                                                 'script' => '
-    // 1. 打开浏览器 F12 控制台，查看 event.data 和 context 的真实结构
-    console.log("当前事件数据:", event.data);
-    console.log("当前上下文:", event.context);
-
-    // 2. 获取当前行数据（优先取 item，兼容不同版本）
-    var currentRow = event.data.item || event.data;
-
-    // 3. 【关键】通过 event.context.scoped 获取父级数据域中的 child 数组
-    // 这种方式比直接用 event.data.child 更稳定，能跨作用域获取数据
-    var scoped = event.context.scoped;
-    var childList = [];
-
-    // 尝试从当前作用域获取 child
-    if (scoped && scoped.data && scoped.data.child) {
-        childList = scoped.data.child;
-    } else if (event.data && event.data.child) {
-        // 兜底：如果 scoped 拿不到，再从 event.data 拿
-        childList = event.data.child;
-    }
-
-    console.log("获取到的原始 childList:", childList);
-
-    // 4. 过滤掉当前点击的行
-    var newList = childList.filter(function(item) {
-        // 确保这里的字段路径与你实际的数据结构一致
-        return item.student_id !== currentRow.student_id;
-    });
-
-    console.log("过滤后的 newList:", newList);
-
-    // 5. 重新设置数据源
-    doAction({
-        actionType: "setValue",
-        componentId: "your_parent_component_id", // ✅ 关键：明确告诉 amis 更新哪个组件的数据
-        args: {
-            value: {
-                child: newList
-            }
-        }
-    });
-'
-                                            ]
-                                        ]
-                                    ]
-                                ]
+                                                    const currentRow = event.data.item || event.data;
+                                                    const childList = event.data.childes || [];
+                                                    const newList = childList.filter(function(item) {
+                                                        return item.student_id !== currentRow.student_id;
+                                                    });
+                                                    doAction({
+                                                        actionType: "setValue",
+                                                        componentId: "component_cards_child_id", // ✅ 关键：明确告诉 amis 更新哪个组件的数据
+                                                        args: {
+                                                            value: {
+                                                                childes: newList
+                                                            }
+                                                        }
+                                                    });
+                                                    doAction({
+                                                        actionType: "setValue",
+                                                        componentId: "component_child_id",
+                                                        args: {
+                                                            value: newList
+                                                        }
+                                                    });
+                                                ',
+                                            ],
+                                        ],
+                                    ],
+                                ],
                             ],
                         ],
                     ]),

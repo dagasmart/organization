@@ -20,6 +20,13 @@ class EnterprisePatriarchStudent extends Model
     // 按需开启,模型表没有标记为空数组
     protected $activeScopeFields = ['module', 'mer_id'];
 
+    protected $appends = ['code'];
+
+    public function getCodeAttribute(): string
+    {
+        return $this->enterprise_id.$this->patriarch_id.$this->student_id;
+    }
+
     /**
      * 机构
      */
