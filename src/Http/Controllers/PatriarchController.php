@@ -530,114 +530,99 @@ class PatriarchController extends AdminController
                             ],
                         ]),
                 ]),
-                amis()->Cards()->source('${child}')->columnsCount(3)->card([
-                    'style' => [
-                        'border' => '1px solid var(--colors-brand-9)',
-                        'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
-                    ],
-                    'header' => [
-                        'title' => '${rel.student.student_name}',
-                        'subTitle' => '${rel.student.sex_as}　${rel.student.nation_as}',
-                        'subTitlePlaceholder' => '暂无说明',
-                        'avatar' => '${rel.student.avatar}',
-                        'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
-                    ],
-                    'body' => [
-                        [
-                            'name' => '${rel.enterprise.enterprise_name}',
-                            'label' => '学校',
+                amis()->Cards()
+                    ->id('your_parent_component_id')
+                    ->source('${child}')
+                    ->columnsCount(3)
+                    ->placeholder('暂无关联学生')   // ✅ 空状态提示
+                    ->card([
+                        'style' => [
+                            'border' => '1px solid var(--colors-brand-9)',
+                            'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
                         ],
-                        [
-                            'name' => '${rel.grade.grade_name}',
-                            'label' => '年级',
+                        'header' => [
+                            'title' => '${rel.student.student_name}',
+                            'subTitle' => '${rel.student.sex_as} ${rel.student.nation_as}',
+                            'subTitlePlaceholder' => '暂无说明',
+                            'avatar' => '${rel.student.avatar}',
+                            'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
                         ],
-                        [
-                            'name' => '${rel.classes.classes_name}',
-                            'label' => '班级',
-                        ],
-                    ],
-                    'actions' => [
-                        [
-                            'label' => '移除',
-                            'confirmTitle' => '操作提示',
-                            'icon' => 'iconfont icon-trash-alt',
-                            // 'actionType' => 'remove',
-                            'confirmText' => '是否移除关联关系<b class="text-danger"> ${rel.student.student_name} </b>?',
-                            'actionType' => 'setValue',
-                            'data' => [
-                                'child' => '${child | filter: (_, idx) => idx !== index}',
+                        'body' => [
+                            [
+                                'name' => '${rel.enterprise.enterprise_name}',
+                                'label' => '学校',
                             ],
-
+                            [
+                                'name' => '${rel.grade.grade_name}',
+                                'label' => '年级',
+                            ],
+                            [
+                                'name' => '${rel.classes.classes_name}',
+                                'label' => '班级',
+                            ],
                         ],
-                        //                        amis()->Button()
-                        //                            ->icon('iconfont icon-trash-alt')
-                        //                            ->label('删除')
-                        //                            ->actionType('dialog')
-                        //                            ->dialog([
-                        //                                'title' => '确认提示',
-                        //                                'body' => '是否删除关联关系<b class="text-danger"> ${rel.student.student_name} </b>?',
-                        //                            ]),
-                    ],
-                ]),
-                //                amis()->Page()->id('studentSearch')->data(['isFetching' => false, 'fetched' => false])->body([
-                //                    amis()->SearchBox()
-                //                        ->name('keywords')
-                //                        ->placeholder('请输入身份证号')
-                //                        ->style(['width' => '15rem'])
-                //                        ->loadingOn('${isFetching}')
-                //                        ->clearable()
-                //                        ->clearAndSubmit()
-                //                        ->enhance()
-                //                        ->onEvent([
-                //                            'search' => [
-                //                                'actions' => [
-                //                                    [
-                //                                        'actionType' => 'setValue',
-                //                                        'componentId' => 'studentSearch',
-                //                                        'args' => [
-                //                                            'value' => [
-                //                                                'isFetching' => true,
-                //                                            ],
-                //                                        ],
-                //                                    ],
-                //                                    [
-                //                                        'actionType' => 'toast',
-                //                                        'args' => [
-                //                                            'msgType' => 'warning',
-                //                                            'msg' => '开始搜索...',
-                //                                        ],
-                //                                    ],
-                //                                    [
-                //                                        'actionType' => 'ajax',
-                //                                        'api' => [
-                //                                            'url' => 'biz/enterprise/student/search',
-                //                                            'method' => 'get',
-                //                                            'data' => [
-                //                                                'keywords' => '${keywords}',
-                //                                            ],
-                //                                            'messages' => [
-                //                                                'failed' => '搜索失败${event.data.responseResult.msg}',
-                //                                            ],
-                //                                        ],
-                //                                        'feedback' => [
-                //                                            'title' => '搜索结果',
-                //                                            'body' => 'info',
-                //                                        ],
-                //                                    ],
-                //                                    [
-                //                                        'actionType' => 'setValue',
-                //                                        'componentId' => 'studentSearch',
-                //                                        'args' => [
-                //                                            'value' => [
-                //                                                'isFetching' => false,
-                //                                                'fetched' => true,
-                //                                            ],
-                //                                        ],
-                //                                    ],
-                //                                ],
-                //                            ],
-                //                        ]),
-                //                ]),
+                        'actions' => [
+                            [
+                                'label' => '移除',
+                                'actionType' => 'button',
+                                'level' => 'link',
+                                'icon' => 'iconfont icon-trash-alt',
+                                'confirmTitle' => '操作提示',
+                                'confirmText' => '是否移除关联关系？',
+                                'onEvent' => [
+                                    'click' => [
+                                        'actions' => [
+                                            [
+                                                'actionType' => 'custom',
+                                                'script' => '
+    // 1. 打开浏览器 F12 控制台，查看 event.data 和 context 的真实结构
+    console.log("当前事件数据:", event.data);
+    console.log("当前上下文:", event.context);
+
+    // 2. 获取当前行数据（优先取 item，兼容不同版本）
+    var currentRow = event.data.item || event.data;
+
+    // 3. 【关键】通过 event.context.scoped 获取父级数据域中的 child 数组
+    // 这种方式比直接用 event.data.child 更稳定，能跨作用域获取数据
+    var scoped = event.context.scoped;
+    var childList = [];
+
+    // 尝试从当前作用域获取 child
+    if (scoped && scoped.data && scoped.data.child) {
+        childList = scoped.data.child;
+    } else if (event.data && event.data.child) {
+        // 兜底：如果 scoped 拿不到，再从 event.data 拿
+        childList = event.data.child;
+    }
+
+    console.log("获取到的原始 childList:", childList);
+
+    // 4. 过滤掉当前点击的行
+    var newList = childList.filter(function(item) {
+        // 确保这里的字段路径与你实际的数据结构一致
+        return item.student_id !== currentRow.student_id;
+    });
+
+    console.log("过滤后的 newList:", newList);
+
+    // 5. 重新设置数据源
+    doAction({
+        actionType: "setValue",
+        componentId: "your_parent_component_id", // ✅ 关键：明确告诉 amis 更新哪个组件的数据
+        args: {
+            value: {
+                child: newList
+            }
+        }
+    });
+'
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ],
+                        ],
+                    ]),
 
             ]),
         ])->onEvent([
