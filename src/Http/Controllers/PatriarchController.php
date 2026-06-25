@@ -495,116 +495,124 @@ class PatriarchController extends AdminController
                                             ->clearable(),
                                     ]),
                                     amis()->Divider()->color('var(--colors-brand-6)'),
-                                    amis()->PaginationWrapper()->mode('horizontal')->perPage(1)->body([
-                                        amis()->CRUD2Cards()
-                                            ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
-                                            ->silentPolling()
-                                            ->columnsCount(2)
-                                            ->defaultParams([
-                                                'perPage' => 1,
-                                            ])
-                                            ->pagination(true)
-                                            ->autoFillHeight()
-                                            ->card([
-                                                'style' => [
-                                                    'border' => '1px solid var(--colors-brand-9)',
-                                                    'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
+                                    amis()->CRUD2Cards()
+                                        ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
+                                        ->columnsCount(2)
+                                        ->placeholder('请输入条件搜索学生')
+                                        ->card([
+                                            'style' => [
+                                                'border' => '1px solid var(--colors-brand-9)',
+                                                'boxShadow' => 'inset 0 0 10px 0 var(--colors-brand-10)',
+                                            ],
+                                            'header' => [
+                                                'title' => '${student.student_name}',
+                                                'subTitle' => '${student.sex_as} ${student.nation_as}',
+                                                'subTitlePlaceholder' => '暂无说明',
+                                                'avatar' => '${student.avatar}',
+                                                'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
+                                            ],
+                                            // ✅ 优化2: 使用 tpl 渲染变量，替代 name + label 的非标准表单写法
+                                            'body' => [
+                                                [
+                                                    'type' => 'tpl',
+                                                    'label' => '年级',
+                                                    'tpl' => '${grade.grade_name}',
                                                 ],
-                                                'header' => [
-                                                    'title' => '${student.student_name}',
-                                                    'subTitle' => '${student.sex_as}　${student.nation_as}',
-                                                    'subTitlePlaceholder' => '暂无说明',
-                                                    'avatar' => '${student.avatar}',
-                                                    'avatarClassName' => 'overflow-hidden w-12 h-12 thumb rounded-full b-3x m-l m-r',
+                                                [
+                                                    'type' => 'tpl',
+                                                    'label' => '班级',
+                                                    'tpl' => '${classes.classes_name}',
                                                 ],
-                                                'body' => [
-                                                    [
-                                                        'name' => '${grade.grade_name}',
-                                                        'label' => '年级',
-                                                    ],
-                                                    [
-                                                        'name' => '${classes.classes_name}',
-                                                        'label' => '班级',
-                                                    ],
-                                                ],
-                                                'actions' => [
-                                                    [
-                                                        'label' => '添加',
-                                                        'actionType' => 'button',
-                                                        'level' => 'link',
-                                                        'icon' => 'iconfont icon-edap-tool-btn-add',
-                                                        'confirmTitle' => '操作提示',
-                                                        'confirmText' => '是否添加<b class="text-danger"> ${student.student_name} </b>关联关系?',
-                                                        'onEvent' => [
-                                                            'click' => [
-                                                                'actions' => [
-                                                                    [
-                                                                        'actionType' => 'custom',
-                                                                        'script' => '
-                                                                            // ✅ 修复1: 安全获取上下文和数据
-            var data = context?.data || event?.data || {};
-            var currentItem = data.item || data;
+                                            ],
+                                            'actions' => [
+                                                [
+                                                    'label' => '添加',
+                                                    'actionType' => 'button',
+                                                    'level' => 'link',
+                                                    'icon' => 'iconfont icon-edap-tool-btn-add',
+                                                    'confirmTitle' => '操作提示',
+                                                    // ✅ 优化3: 确认文案中的变量渲染
+                                                    'confirmText' => '是否添加 <b class="text-danger">${student.student_name}</b> 的关联关系?',
+                                                    'onEvent' => [
+                                                        'click' => [
+                                                            'actions' => [
+                                                                [
+                                                                    'actionType' => 'custom',
+                                                                    // ✅ 优化4: 精简 script 逻辑，增加注释，确保数据流清晰
+                                                                    'script' => '
+                                                                        // 1. 安全获取上下文数据
+                                                                        let data = context?.data || event?.data || {};
+                                                                        let currentItem = data.item || data;
 
-            // ✅ 修复2: 如果依然取不到，尝试从事件目标获取
-            if (!currentItem || !currentItem.student) {
-                console.error("无法获取当前卡片数据，完整上下文:", JSON.parse(JSON.stringify(data)));
-                doAction({
-                    actionType: "toast",
-                    args: { msgType: "error", msg: "数据获取失败，请查看控制台" }
-                });
-                return;
-            }
+                                                                        // 2. 数据完整性校验
+                                                                        if (!currentItem || !currentItem.student_id) {
+                                                                            doAction({
+                                                                                actionType: "toast",
+                                                                                args: { msgType: "error", msg: "数据获取失败" }
+                                                                            });
+                                                                            return;
+                                                                        }
 
-            // 获取外层已有的关联列表（安全取值）
-            var currentList = data.childes || [];
+                                                                        // 3. 获取外层已有的关联列表（防止为空报错）
+                                                                        let currentList = Array.isArray(data.childes) ? data.childes : [];
 
-            // 【调试打印】
-            console.log("===== 纯前端添加调试信息 =====");
-            console.log("1. 当前卡片数据 (currentItem):", JSON.parse(JSON.stringify(currentItem)));
-            console.log("2. 外层已有列表 (currentList):", JSON.parse(JSON.stringify(currentList)));
-            console.log("=============================");
+                                                                        // 4. 防重复校验
+                                                                        let studentId = currentItem.student_id;
+                                                                        let exists = currentList.some(function(item) {
+                                                                            let id = item.student_id;
+                                                                            return id === studentId;
+                                                                        });
 
-            // 防重复校验
-            var exists = currentList.some(function(item) {
-                var id = item.student_id || (item.rel && item.student && item.student.student_id);
-                return id === currentItem.student.student_id;
-            });
+                                                                        if (exists) {
+                                                                            doAction({
+                                                                                actionType: "toast",
+                                                                                args: { msgType: "warning", msg: "该学生已在关联列表中" }
+                                                                            });
+                                                                            return;
+                                                                        }
 
-            if (exists) {
-                doAction({
-                    actionType: "toast",
-                    args: { msgType: "warning", msg: "该学生已在关联列表中" }
-                });
-                return;
-            }
+                                                                        // 5. 追加新数据并精准更新外层组件
+                                                                        //let newList = currentList.concat([currentItem]);
 
-            // 数据结构对齐（根据控制台打印结果调整）
-            var formattedItem = currentItem;
+                                                                        newList = JSON.parse(JSON.stringify(currentList));
+                                                                        newList.push(JSON.parse(JSON.stringify(currentItem)));
 
-            // 追加新数据
-            var newList = currentList.concat([formattedItem]);
+                                                                        // 6. 将拼接后的【完整新数组】赋值给目标组件
+                                                                        doAction({
+                                                                            actionType: "setValue",
+                                                                            componentId: "component_cards_child_id",
+                                                                            args: {
+                                                                                value: {
+                                                                                    childes: newList // 这里传入的是包含旧数据+新数据的完整数组
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                        // 6. ✅ 【核心】追加完成后，强制刷新该组件
+                                                                        doAction({
+                                                                            actionType: "reload",
+                                                                            componentId: "component_cards_child_id"
+                                                                        });
 
-            console.log("3. 即将写入的新列表:", JSON.parse(JSON.stringify(newList)));
-
-            // ✅ 通过 componentId 精准更新外层 Cards
-            doAction({
-                actionType: "setValue",
-                componentId: "component_cards_child_id",
-                args: {
-                    value: {
-                        childes: newList
-                    }
-                }
-            });
-                                                                        ',
-                                                                    ],
+                                                                        // 7. 同步更新另一个组件
+                                                                        doAction({
+                                                                            actionType: "setValue",
+                                                                            componentId: "component_child_id",
+                                                                            args: {
+                                                                                value: newList
+                                                                            }
+                                                                        });
+                                                                        doAction({
+                                                                            actionType: "reload",
+                                                                            componentId: "component_child_id"
+                                                                        });
+                                                                    ',
                                                                 ],
                                                             ],
                                                         ],
                                                     ],
                                                 ],
-                                            ]),
-                                    ]),
+                                            ],
+                                        ]),
                                 ]),
                             ],
                         ]),
@@ -655,9 +663,9 @@ class PatriarchController extends AdminController
                                             [
                                                 'actionType' => 'custom',
                                                 'script' => '
-                                                    const currentRow = event.data.item || event.data;
-                                                    const childList = event.data.childes || [];
-                                                    const newList = childList.filter(function(item) {
+                                                    let currentRow = event.data.item || event.data;
+                                                    let childList = event.data.childes || [];
+                                                    let newList = childList.filter(function(item) {
                                                         return item.student_id !== currentRow.student_id;
                                                     });
                                                     doAction({
