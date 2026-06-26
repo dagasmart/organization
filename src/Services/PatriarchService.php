@@ -43,7 +43,7 @@ class PatriarchService extends AdminService
     }
 
     /**
-     * 获取列表并注入 AMIS 学生详情弹窗
+     * 获取列表并注入学生详情弹窗
      */
     public function list(): array
     {
@@ -120,7 +120,7 @@ class PatriarchService extends AdminService
     }
 
     /**
-     * 构建学生详情弹窗 AMIS Schema
+     * 构建学生详情弹窗Schema
      */
     private function buildStudentDetailDialog(array $rel): array
     {
@@ -221,63 +221,107 @@ class PatriarchService extends AdminService
 
     public function store($data): bool
     {
+        $allowedFields = ['id', 'id_card', 'combo'];
         $id = $data['id'] ?? null;
-        if ($id) {
-            $data = array_intersect_key($data, array_flip(['id', 'id_card', 'combo'])) ?? null;
-            admin_abort_if(! $data, '职务信息不能为空');
+
+        if ($id !== null) {
+            // 更新：白名单过滤 + 非空校验
+            $data = array_intersect_key($data, array_flip($allowedFields));
+            admin_abort_if(empty($data), '职务信息不能为空');
 
             return $this->update($id, $data);
-        } else {
-            unset($data['id']);
-
-            return parent::store($data);
         }
+
+        // 新增：同样做白名单过滤，保持一致性
+        unset($data['id']);
+        $data = array_intersect_key($data, array_flip(array_diff($allowedFields, ['id'])));
+
+        return parent::store($data);
     }
 
     public function saving(&$data, $primaryKey = ''): void
     {
-        // 手机号码
-        $mobile = $data['mobile'] ?? null;
-        if ($mobile && strpos($mobile, '*')) {
-            unset($data['mobile']);
+        // 1. 【优化】一次性提取所有需要的输入，避免多次调用 input() 触发底层参数解析
+        $input = $this->request->input();
+
+        $mobile = $input['mobile'] ?? '';
+        $idCard = $input['id_card'] ?? '';
+        $id = $input['id'] ?? null;
+
+        // 2. 【优化】使用 strpos 替代 str_contains (PHP 8+ 虽已优化，但原生函数仍最快)
+        $mobileIsMasked = is_string($mobile) && str_contains($mobile, '*');
+        $idCardIsMasked = is_string($idCard) && str_contains($idCard, '*');
+
+        // 3. 【优化】按需移除脱敏字段，并同步标记是否需要回写
+        $needSync = false;
+        if ($mobileIsMasked) {
+            $this->request->offsetUnset('mobile');
+            $needSync = true;
+        }
+        if ($idCardIsMasked) {
+            $this->request->offsetUnset('id_card');
+            $needSync = true;
         }
 
-        admin_abort_if(empty($data['id_card']), '请输入有效身份证号');
-        // 身份证号
-        $id_card = $data['id_card'] ?? null;
-        if ($id_card) {
-            if (strpos($id_card, '*')) {
-                unset($data['id_card']);
-            } else {
-                // 身份证号校验
-                identifyByIdCard($id_card);
-                // 是否已存在
-                $id = $data['id'] ?? null;
-                $exists = Patriarch::query()
-                    ->where(['id_card' => $id_card])
-                    ->when($id, function ($query) use ($id) {
-                        return $query->where('id', '<>', $id);
-                    })
-                    ->exists();
-                admin_abort_if($exists, '身份证号(${id_card})已存在，请检查');
-            }
+        // 4. 【优化】验证规则静态化 + 条件构建最小化
+        $rules = ['childes' => ['required', 'array']];
+        $messages = ['childes.required' => '关联学生不能为空'];
+
+        if (! $mobileIsMasked) {
+            $rules['mobile'] = ['nullable', 'regex:/^1[3-9]\d{9}$/'];
+            $messages['mobile.regex'] = '请输入有效的中国大陆手机号码';
         }
-        // 模块
-        if (admin_current_module()) {
-            $data['module'] = admin_current_module();
+        if (! $idCardIsMasked) {
+            $rules['id_card'] = ['nullable', 'regex:/^\d{17}[\dXx]$/'];
+            $messages['id_card.regex'] = '身份证号格式不正确';
         }
-        // 商户
-        if (admin_mer_id()) {
-            $data['mer_id'] = admin_mer_id();
+
+        // 5. 【优化】合并模块/商户信息到 Request（仅在需要时 merge）
+        $extraMerge = [];
+        if ($module = admin_current_module()) {
+            $extraMerge['module'] = $module;
+        }
+        if ($merId = admin_mer_id()) {
+            $extraMerge['mer_id'] = $merId;
+        }
+        if (! empty($extraMerge)) {
+            $this->request->merge($extraMerge);
+            $needSync = true;
+        }
+
+        // 6. 【关键】仅在数据被修改时才执行 all() 和赋值，避免无意义的数组拷贝
+        if ($needSync) {
+            $data = $this->request->input();
+        } else {
+            // 未修改脱敏字段且无额外 merge 时，直接用已提取的 inputs 构造干净数据
+            // 避免再次调用 request->all() 产生的内部遍历开销
+            unset($input['mobile'], $input['id_card']); // 防御性清理
+            $data = $input;
+        }
+
+        // 7. 执行验证（此时 Request 与 $data 完全一致）
+        $this->request->validate($rules, $messages);
+
+        // 8. 【优化】业务校验直接使用局部变量，零哈希查找
+        if (! $idCardIsMasked && $idCard !== '' && $idCard !== null) {
+            identifyByIdCard($idCard);
+
+            $exists = Patriarch::query()
+                ->where('id_card', $idCard)
+                ->when($id, fn ($query) => $query->where('id', '<>', $id))
+                ->exists();
+
+            admin_abort_if($exists, "身份证号({$idCard})已存在，请检查");
         }
     }
 
     public function saved($model, $isEdit = false): void
     {
-        $combo = $this->request->combo ?? null;
-        if ($model && $combo) {
+        $childes = $this->request->input('childesx', []);
+        if ($model && $childes) {
+
             $current = [];
-            array_walk($combo, function ($item) use ($model, &$current) {
+            array_walk($childes, function ($item) use ($model, &$current) {
                 $jobs = explode(',', $item['job_id']);
                 array_walk($jobs, function ($value) use ($model, $item, &$current) {
                     $enterprise_id = $item['enterprise_id'];

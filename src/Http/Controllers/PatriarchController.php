@@ -387,7 +387,10 @@ class PatriarchController extends AdminController
                             ->value('${CONCATENATE("E", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
                             ->readOnly(),
                         amis()->TextControl('email', '常用邮箱'),
-                        amis()->TextControl('mobile', '手机号码')->required(),
+                        amis()->TextControl('mobile', '手机号码')
+                            ->validations(['matchRegexp' => '/^1[3-9][\\d|*]{9}$/'])
+                            ->validationErrors(['matchRegexp' => '请输入有效的中国大陆手机号码'])
+                            ->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->ImageControl('avatar')
@@ -578,30 +581,31 @@ class PatriarchController extends AdminController
                                                                         newList = JSON.parse(JSON.stringify(currentList));
                                                                         newList.push(JSON.parse(JSON.stringify(currentItem)));
 
-                                                                        // 6. 将拼接后的【完整新数组】赋值给目标组件
+                                                                        // 6. ✅ 将拼接后的【完整新数组】赋值给目标组件
                                                                         doAction({
                                                                             actionType: "setValue",
-                                                                            componentId: "component_cards_child_id",
+                                                                            componentId: "form_cards_child_id",
                                                                             args: {
                                                                                 value: {
                                                                                     childes: newList // 这里传入的是包含旧数据+新数据的完整数组
                                                                                 }
                                                                             }
                                                                         });
-                                                                        // 6. ✅ 【核心】追加完成后，强制刷新该组件
-                                                                        doAction({
-                                                                            actionType: "reload",
-                                                                            componentId: "component_cards_child_id"
-                                                                        });
+                                                                        // 6.1 ✅ 【核心】追加完成后，强制刷新该组件
+                                                                        //doAction({
+                                                                        //    actionType: "reload",
+                                                                        //    componentId: "form_cards_child_id"
+                                                                        //});
 
-                                                                        // 7. 同步更新另一个组件
+                                                                        // 7. ✅ 同步更新另一个组件
                                                                         doAction({
                                                                             actionType: "setValue",
-                                                                            componentId: "component_child_id",
+                                                                            componentId: "form_child_id",
                                                                             args: {
                                                                                 value: newList
                                                                             }
                                                                         });
+                                                                        // 8. ✅ 同步更新drawer另一个相同name组件
                                                                         doAction({
                                                                             actionType: "setValue",
                                                                             componentId: "drawer_child_id",
@@ -609,10 +613,14 @@ class PatriarchController extends AdminController
                                                                                 value: newList
                                                                             }
                                                                         });
-//                                                                        doAction({
-//                                                                            actionType: "reload",
-//                                                                            componentId: "component_child_id"
-//                                                                        });
+                                                                        doAction({
+                                                                            actionType: "toast",
+                                                                            args: { msgType: "success", msg: "已添加成功" }
+                                                                        });
+                                                                        //doAction({
+                                                                        //    actionType: "reload",
+                                                                        //    componentId: "form_child_id"
+                                                                        //});
                                                                     ',
                                                                 ],
                                                             ],
@@ -625,9 +633,9 @@ class PatriarchController extends AdminController
                             ],
                         ]),
                 ]),
-                amis()->HiddenControl('childes', '关联学生')->id('component_child_id')->required(),
+                amis()->HiddenControl('childes', '关联学生')->id('form_child_id')->required(),
                 amis()->Cards()
-                    ->id('component_cards_child_id')
+                    ->id('form_cards_child_id')
                     ->source('${childes}')
                     ->columnsCount(3)
                     ->placeholder('暂无关联学生')   // ✅ 空状态提示
@@ -678,7 +686,7 @@ class PatriarchController extends AdminController
                                                     });
                                                     doAction({
                                                         actionType: "setValue",
-                                                        componentId: "component_cards_child_id", // ✅ 关键：明确告诉 amis 更新哪个组件的数据
+                                                        componentId: "form_cards_child_id", // ✅ 关键：明确告诉 amis 更新哪个组件的数据
                                                         args: {
                                                             value: {
                                                                 childes: newList
@@ -687,7 +695,7 @@ class PatriarchController extends AdminController
                                                     });
                                                     doAction({
                                                         actionType: "setValue",
-                                                        componentId: "component_child_id",
+                                                        componentId: "form_child_id",
                                                         args: {
                                                             value: newList
                                                         }
