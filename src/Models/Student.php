@@ -115,7 +115,7 @@ class Student extends Model
 
     public function getAvatarAttribute($value): ?string
     {
-        return admin_image_url($value);
+        return admin_image_url($value) ?? admin_config('admin.default_avatar');
     }
 
     public function setAvatarAttribute($value): void
