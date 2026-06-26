@@ -227,7 +227,7 @@ class StudentController extends AdminController
                         ->required(),
                     amis()->SelectControl('state', '状态')
                         ->options(Enum::StudentState)
-                        ->value('${rel.state}')
+                        ->value('${rel.state||1}')
                         ->required(),
                 ]),
                 amis()->TextareaControl('remark', '备注'),
