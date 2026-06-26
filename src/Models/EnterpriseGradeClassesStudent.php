@@ -41,7 +41,7 @@ class EnterpriseGradeClassesStudent extends Model
     public function student(): HasOne
     {
         return $this->hasOne(Student::class, 'id', 'student_id')
-            ->select(['id', 'student_name', 'id_card', 'mobile', 'avatar', 'sex', 'nation']);
+            ->select(['id', 'student_name', 'student_code', 'id_card', 'mobile', 'avatar', 'sex', 'nation']);
     }
 
     /**

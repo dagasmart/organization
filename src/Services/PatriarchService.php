@@ -42,149 +42,181 @@ class PatriarchService extends AdminService
         }
     }
 
+    /**
+     * 获取列表并注入 AMIS 学生详情弹窗
+     */
     public function list(): array
     {
         $list = parent::list();
-        if ($list['items']) {
-            foreach ($list['items'] as &$item) {
-                $childes = [];
-                $property = [];
-                if ($item['child']) {
-                    foreach ($item['child'] as $child) {
-                        $rel = $child['rel'] ?? [];
-                        if ($rel) {
-                            $childes[] = $rel;
-                            $property[] = [
-                                'label' => [
-                                    'type' => 'avatar',
-                                    'src' => $rel['student']['avatar'],
-                                    'size' => 'small',
-                                    'onEvent' => [
-                                        'click' => [
-                                            'actions' => [
-                                                [
-                                                    'actionType' => 'dialog',
-                                                    'dialog' => [
-                                                        'title' => '关联学生信息',
-                                                        'actions' => [],
-                                                        'closeOnEsc' => true, // esc键关闭
-                                                        'closeOnOutside' => true, // 域外可关闭
-                                                        'showCloseButton' => true, // 显示关闭
-                                                        'body' => [
-                                                            'type' => 'page',
-                                                            'body' => [
-                                                                [
-                                                                    'type' => 'group',
-                                                                    'title' => false,
-                                                                    'mode' => 'horizontal',
-                                                                    'actions' => [],
-                                                                    'body' => [
-                                                                        [
-                                                                            'type' => 'group',
-                                                                            'title' => false,
-                                                                            'direction' => 'vertical',
-                                                                            'columnRatio' => 7,
-                                                                            'body' => [
-                                                                                [
-                                                                                    'type' => 'input-text',
-                                                                                    'label' => '学生姓名',
-                                                                                    'static' => true,
-                                                                                    'value' => $rel['student']['student_name'],
-                                                                                ],
-                                                                                [
-                                                                                    'type' => 'input-text',
-                                                                                    'label' => '身份证号',
-                                                                                    'static' => true,
-                                                                                    'value' => $rel['student']['id_card'],
-                                                                                ],
-                                                                                [
-                                                                                    'type' => 'input-text',
-                                                                                    'label' => '国网学籍',
-                                                                                    'static' => true,
-                                                                                    'value' => 'G'.$rel['student']['id_card'],
-                                                                                ],
-                                                                            ],
-                                                                        ],
-                                                                        [
-                                                                            'type' => 'group',
-                                                                            'title' => false,
-                                                                            'direction' => 'horizontal',
-                                                                            'columnRatio' => 5,
-                                                                            'body' => [
-                                                                                [
-                                                                                    'type' => 'static-image',
-                                                                                    'value' => $rel['student']['avatar'],
-                                                                                    'thumbRatio' => '1:1',
-                                                                                    'thumbMode' => 'cover h-full rounded-md overflow-hidden',
-                                                                                    'className' => 'h-full overflow-hidden',
-                                                                                    'imageClassName' => 'w-52 h-64 overflow-hidden',
-                                                                                    'fixedSizeClassName' => 'w-52 h-64 overflow-hidden',
-                                                                                    'fixedSize' => true,
-                                                                                    'crop' => ['aspectRatio' => '0.81'],
-                                                                                ],
-                                                                            ],
-                                                                        ],
-                                                                    ],
 
-                                                                ],
-                                                                ['type' => 'divider'],
-                                                                [
-                                                                    'type' => 'group',
-                                                                    'title' => false,
-                                                                    'mode' => 'horizontal',
-                                                                    'body' => [
-                                                                        [
-                                                                            'type' => 'input-text',
-                                                                            'label' => '就读学校',
-                                                                            'static' => true,
-                                                                            'value' => $rel['enterprise']['enterprise_name'].' / '.$rel['grade']['grade_name'].' / '.$rel['classes']['classes_name'],
-                                                                        ],
-                                                                    ],
-                                                                ],
-                                                                ['type' => 'divider'],
-                                                                [
-                                                                    'type' => 'group',
-                                                                    'title' => false,
-                                                                    'mode' => 'horizontal',
-                                                                    'body' => [
-                                                                        [
-                                                                            'type' => 'input-text',
-                                                                            'label' => '性别',
-                                                                            'value' => $rel['student']['sex_as'],
-                                                                            'static' => true,
-                                                                        ],
-                                                                        [
-                                                                            'type' => 'input-text',
-                                                                            'label' => '民族',
-                                                                            'value' => $rel['student']['nation_as'],
-                                                                            'static' => true,
-                                                                        ],
-                                                                        [
-                                                                            'type' => 'input-text',
-                                                                            'label' => '状态',
-                                                                            'static' => true,
-                                                                            'value' => $rel['state_as'],
-                                                                        ],
-                                                                    ],
-                                                                ],
-                                                            ],
-                                                        ],
-                                                    ],
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ];
-                        }
-                    }
-                }
-                $item['childes'] = $childes;
-                $item['property'] = $property;
-            }
+        if (empty($list['items'])) {
+            return $list;
         }
 
+        foreach ($list['items'] as &$item) {
+            $childes = [];
+            $property = [];
+
+            // 安全提取子级数据
+            $children = $item['child'] ?? [];
+            unset($item['child']);
+
+            foreach ($children as $child) {
+                $rel = $child['rel'] ?? null;
+                if (! $rel) {
+                    continue;
+                }
+
+                // 【核心修复】统一将 Model/Array 转为纯数组，避免后续类型错误
+                $relData = $this->normalizeRelData($rel);
+
+                if (empty($relData['student'])) {
+                    continue;
+                }
+
+                $childes[] = $relData;
+                $property[] = [
+                    'label' => [
+                        'type' => 'avatar',
+                        'src' => $relData['student']['avatar'] ?? '',
+                        'size' => 'small',
+                        'onEvent' => [
+                            'click' => [
+                                'actions' => [
+                                    [
+                                        'actionType' => 'dialog',
+                                        'dialog' => $this->buildStudentDetailDialog($relData),
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ];
+            }
+
+            $item['childes'] = $childes;
+            $item['property'] = $property;
+        }
+        unset($item); // 释放引用
+
         return $list;
+    }
+
+    /**
+     * 将 rel 数据统一标准化为数组
+     * 兼容 Eloquent Model、stdClass、普通数组
+     */
+    private function normalizeRelData(mixed $rel): array
+    {
+        if ($rel instanceof Collection) {
+            return $rel->toArray();
+        }
+
+        if (is_object($rel)) {
+            return json_decode(json_encode($rel), true);
+        }
+
+        return is_array($rel) ? $rel : [];
+    }
+
+    /**
+     * 构建学生详情弹窗 AMIS Schema
+     */
+    private function buildStudentDetailDialog(array $rel): array
+    {
+        $student = $rel['student'] ?? [];
+        $enterprise = $rel['enterprise'] ?? [];
+        $grade = $rel['grade'] ?? [];
+        $classes = $rel['classes'] ?? [];
+
+        $avatar = $student['avatar'] ?? null;
+        $id_card = $student['id_card'] ?? null;
+        $student_name = $student['student_name'] ?? null;
+        $student_code = $student['student_code'] ?? null;
+        $sex_as = $student['sex_as'] ?? null;
+        $nation_as = $student['nation_as'] ?? null;
+        $state_as = $rel['state_as'] ?? null;
+
+        // 拼接学校信息，自动过滤空段
+        $schoolInfo = implode(' / ', array_filter([
+            $enterprise['enterprise_name'] ?? null,
+            $grade['grade_name'] ?? null,
+            $classes['classes_name'] ?? null,
+        ]));
+
+        return [
+            'title' => '关联学生信息',
+            'actions' => [],
+            'closeOnEsc' => true,
+            'closeOnOutside' => true,
+            'showCloseButton' => true,
+            'body' => [
+                'type' => 'page',
+                'body' => [
+                    // === 基本信息 + 照片 ===
+                    [
+                        'type' => 'group',
+                        'title' => false,
+                        'mode' => 'horizontal',
+                        'body' => [
+                            [
+                                'type' => 'group',
+                                'title' => false,
+                                'direction' => 'vertical',
+                                'columnRatio' => 7,
+                                'body' => [
+                                    ['type' => 'input-text', 'label' => '学生姓名', 'static' => true, 'value' => $student_name],
+                                    // 直接使用原始身份证号，不做脱敏
+                                    ['type' => 'input-text', 'label' => '身份证号', 'static' => true, 'value' => $id_card],
+                                    ['type' => 'input-text', 'label' => '国网学籍', 'static' => true, 'value' => $student_code],
+                                ],
+                            ],
+                            [
+                                'type' => 'group',
+                                'title' => false,
+                                'direction' => 'horizontal',
+                                'columnRatio' => 5,
+                                'body' => [
+                                    [
+                                        'type' => 'static-image',
+                                        'value' => $avatar,
+                                        'thumbRatio' => '1:1',
+                                        'thumbMode' => 'cover h-full rounded-md overflow-hidden',
+                                        'className' => 'h-full overflow-hidden',
+                                        'imageClassName' => 'w-52 h-64 overflow-hidden',
+                                        'fixedSizeClassName' => 'w-52 h-64 overflow-hidden',
+                                        'fixedSize' => true,
+                                        'crop' => ['aspectRatio' => '0.81'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    ['type' => 'divider'],
+                    // === 就读学校 ===
+                    [
+                        'type' => 'group',
+                        'title' => false,
+                        'mode' => 'horizontal',
+                        'body' => [
+                            ['type' => 'input-text', 'label' => '就读学校', 'static' => true, 'value' => $schoolInfo],
+                        ],
+                    ],
+                    ['type' => 'divider'],
+                    // === 其他属性 ===
+                    [
+                        'type' => 'group',
+                        'title' => false,
+                        'mode' => 'horizontal',
+                        'body' => [
+                            ['type' => 'input-text', 'label' => '性别', 'static' => true, 'value' => $sex_as],
+                            ['type' => 'input-text', 'label' => '民族', 'static' => true, 'value' => $nation_as],
+                            ['type' => 'input-text', 'label' => '状态', 'static' => true, 'value' => $state_as],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function store($data): bool
