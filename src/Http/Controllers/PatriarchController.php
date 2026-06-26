@@ -625,7 +625,7 @@ class PatriarchController extends AdminController
                             ],
                         ]),
                 ]),
-                amis()->HiddenControl('childes', '关联学生')->id('component_child_id'),
+                amis()->HiddenControl('childes', '关联学生')->id('component_child_id')->required(),
                 amis()->Cards()
                     ->id('component_cards_child_id')
                     ->source('${childes}')
