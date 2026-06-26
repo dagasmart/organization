@@ -435,6 +435,7 @@ class PatriarchController extends AdminController
                             'actions' => [],
                             'body' => [
                                 amis()->Form()->mode('inline')->body([
+                                    amis()->TextareaControl('childes', false)->id('drawer_child_id'),
                                     amis()->SelectControl('search_enterprise_id', '机构')
                                         ->id('searchEnterpriseId')
                                         ->mode('horizontal')
@@ -602,9 +603,16 @@ class PatriarchController extends AdminController
                                                                             }
                                                                         });
                                                                         doAction({
-                                                                            actionType: "reload",
-                                                                            componentId: "component_child_id"
+                                                                            actionType: "setValue",
+                                                                            componentId: "drawer_child_id",
+                                                                            args: {
+                                                                                value: newList
+                                                                            }
                                                                         });
+//                                                                        doAction({
+//                                                                            actionType: "reload",
+//                                                                            componentId: "component_child_id"
+//                                                                        });
                                                                     ',
                                                                 ],
                                                             ],
