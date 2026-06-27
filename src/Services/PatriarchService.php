@@ -4,7 +4,6 @@ namespace DagaSmart\Organization\Services;
 
 use DagaSmart\Organization\Models\Department;
 use DagaSmart\Organization\Models\Enterprise;
-use DagaSmart\Organization\Models\EnterpriseDepartmentJobWorker;
 use DagaSmart\Organization\Models\Job;
 use DagaSmart\Organization\Models\Patriarch;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,7 +58,7 @@ class PatriarchService extends AdminService
 
             // 安全提取子级数据
             $children = $item['child'] ?? [];
-            unset($item['child']);
+            // unset($item['child']); // 模型中设置$hidden隐藏字段，此处可删
 
             foreach ($children as $child) {
                 $rel = $child['rel'] ?? null;
@@ -221,34 +220,20 @@ class PatriarchService extends AdminService
 
     public function store($data): bool
     {
-        $allowedFields = ['id', 'id_card', 'combo'];
-        $id = $data['id'] ?? null;
-
-        if ($id !== null) {
-            // 更新：白名单过滤 + 非空校验
-            $data = array_intersect_key($data, array_flip($allowedFields));
-            admin_abort_if(empty($data), '职务信息不能为空');
-
-            return $this->update($id, $data);
+        if (! empty($data['id'])) {
+            return $this->update($data['id'], $data);
         }
-
-        // 新增：同样做白名单过滤，保持一致性
-        unset($data['id']);
-        $data = array_intersect_key($data, array_flip(array_diff($allowedFields, ['id'])));
-
         return parent::store($data);
     }
 
-    public function saving(&$data, $primaryKey = ''): void
+    public function saving(&$data, $primaryKey = 'id'): void
     {
-        // 1. 【优化】一次性提取所有需要的输入，避免多次调用 input() 触发底层参数解析
-        $input = $this->request->input();
+        // 1. 【优化】参数解析
+        $mobile = $data['mobile'] ?? '';
+        $idCard = $data['id_card'] ?? '';
+        $id = $data['id'] ?? null;
 
-        $mobile = $input['mobile'] ?? '';
-        $idCard = $input['id_card'] ?? '';
-        $id = $input['id'] ?? null;
-
-        // 2. 【优化】使用 strpos 替代 str_contains (PHP 8+ 虽已优化，但原生函数仍最快)
+        // 2. 【优化】使用 str_contains (PHP 8+ 虽已优化，但原生函数仍最快)
         $mobileIsMasked = is_string($mobile) && str_contains($mobile, '*');
         $idCardIsMasked = is_string($idCard) && str_contains($idCard, '*');
 
@@ -289,17 +274,12 @@ class PatriarchService extends AdminService
             $needSync = true;
         }
 
-        // 6. 【关键】仅在数据被修改时才执行 all() 和赋值，避免无意义的数组拷贝
-        if ($needSync) {
-            $data = $this->request->input();
-        } else {
-            // 未修改脱敏字段且无额外 merge 时，直接用已提取的 inputs 构造干净数据
-            // 避免再次调用 request->all() 产生的内部遍历开销
-            unset($input['mobile'], $input['id_card']); // 防御性清理
-            $data = $input;
+        // 6. 【关键】仅在数据被修改时才执行和赋值，避免无意义的数组拷贝
+        if (! $needSync) {
+            unset($data['mobile'], $data['id_card']); // 防御性清理
         }
 
-        // 7. 执行验证（此时 Request 与 $data 完全一致）
+        // 7. 【关键】执行验证（此时 Request 与 $data 完全一致）
         $this->request->validate($rules, $messages);
 
         // 8. 【优化】业务校验直接使用局部变量，零哈希查找
@@ -317,32 +297,34 @@ class PatriarchService extends AdminService
 
     public function saved($model, $isEdit = false): void
     {
-        $childes = $this->request->input('childesx', []);
-        if ($model && $childes) {
+        $childes = $this->request->input('childes', []);
 
-            $current = [];
-            array_walk($childes, function ($item) use ($model, &$current) {
-                $jobs = explode(',', $item['job_id']);
-                array_walk($jobs, function ($value) use ($model, $item, &$current) {
-                    $enterprise_id = $item['enterprise_id'];
-                    $department_id = $item['department_id'];
-                    $worker_id = $model->id;
-                    $module = $item['module'] ?? admin_current_module();
-                    $mer_id = $item['mer_id'] ?? admin_mer_id();
-                    $row = [];
-                    $row['enterprise_id'] = $enterprise_id;
-                    $row['department_id'] = $department_id;
-                    $row['job_id'] = $value;
-                    $row['worker_id'] = $worker_id;
-                    $row['worker_sn'] = $enterprise_id.$worker_id;
-                    $row['module'] = $module;
-                    $row['mer_id'] = $mer_id;
-                    $current[] = $row;
-                    EnterpriseDepartmentJobWorker::query()->where($row)->forceDelete();
-                });
-            });
-            $model->enterpriseJobs()->sync($current);
+        // 防御性判断
+        if (! $model || empty($childes)) {
+            return;
         }
+
+        $data = [];
+        $module = admin_current_module();
+        $mer_id = admin_mer_id();
+
+        // 1. 仅做数据组装，绝对不要在循环中执行数据库操作
+        foreach ($childes as $item) {
+            $data[] = [
+                'enterprise_id' => $item['enterprise_id'],
+                'patriarch_id' => $model->id,
+                'student_id' => $item['student_id'],
+                'patriarch_sn' => $item['enterprise_id'].$model->id.$item['student_id'],
+                'module' => $item['module'] ?? $module,
+            ];
+        }
+
+        // 2. 使用事务保证数据一致性
+        admin_transaction(function () use ($model, $data) {
+            // 3. 直接调用 sync，Laravel 会自动比对差异并执行安全的增删操作
+            // 注意：如果中间表没有唯一索引，sync 可能会报重复插入错误，需确保表结构正确
+            $model->patriarchStudent()->sync($data);
+        });
     }
 
     /**
@@ -353,12 +335,22 @@ class PatriarchService extends AdminService
         return $this->getModel()->enterpriseData();
     }
 
-    public function EnterprisePatriarchCheck($id_card)
+    public function EnterprisePatriarchCheck($id_card): ?Patriarch
     {
-        return $this->query()
+        $patriarch = $this->query()
             ->with(['child'])
             ->where(['id_card' => $id_card])
             ->first();
+
+        if (! $patriarch) {
+            return null; // 显式返回 null，比返回 $patriarch 更清晰
+        }
+
+        // 在 Patriarch 模型中自动隐藏字段 child
+        // Collection 有 pluck 方法，安全可用
+        $patriarch->childes = $patriarch->child->pluck('rel');
+
+        return $patriarch;
     }
 
     /**

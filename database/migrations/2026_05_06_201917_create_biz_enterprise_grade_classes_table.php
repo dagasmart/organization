@@ -19,27 +19,42 @@ return new class extends Migration
         ! Schema::hasTable($this->name)
         && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-机构-年级-班级关联表');
-            $table->integer('enterprise_id')->comment('机构id');
-            $table->integer('grade_id')->comment('年级id');
-            $table->integer('classes_id')->comment('班级id');
-            $table->string('module', 32)->nullable();
-            $table->integer('mer_id')->nullable();
+            // ✅ 1. 字段精简与类型对齐（减少磁盘IO与内存占用）
+            $table->foreignId('enterprise_id')->comment('机构id');
+            $table->foreignId('grade_id')->comment('年级id');
+            $table->foreignId('classes_id')->comment('班级id');
+            $table->string('module', 32)->nullable()->comment('模块');
+            $table->unsignedBigInteger('mer_id')->nullable()->comment('商户');
 
-            $unique = ['enterprise_id', 'grade_id', 'classes_id', 'module', 'mer_id'];
-            $uni = $this->name.'_';
-            $uni .= implode('_', $unique);
-            $uni .= '_unique';
-            $unique_name = mb_strlen($uni) > 64 ? md5($uni) : $uni;
-            $table->unique($unique, $unique_name);
+            // ✅ 2. 仅为级联删除和外键查询创建【单列】索引
+            // 联合索引的最左前缀原则无法高效支持中间列的等值查询/级联删除
+            $table->index('enterprise_id');
+            $table->index('grade_id');
+            $table->index('classes_id');
+            $table->index('module');
+            $table->index('mer_id');
 
-            $index = ['enterprise_id', 'grade_id', 'classes_id', 'module', 'mer_id'];
-            $idx = $this->name.'_';
-            $idx .= implode('_', $index);
-            $idx .= '_idx';
-            $index_name = mb_strlen($idx) > 64 ? md5($idx) : $idx;
-            $table->index($index, $index_name);
+            // ✅ 3. 唯一约束即主查询索引，框架自动生成 ≤63 字节安全名称
+            $table->unique(['enterprise_id', 'grade_id', 'classes_id', 'module', 'mer_id']);
 
+            // ✅ 4. 外键约束（复用已存在的单列索引，零额外开销）
+            $table->foreignId('enterprise_id')
+                ->constrained('biz_enterprise')
+                ->cascadeOnDelete();
+
+            $table->foreignId('grade_id')
+                ->constrained('biz_grade')
+                ->cascadeOnDelete();
+
+            $table->foreignId('classes_id')
+                ->constrained('biz_classes')
+                ->cascadeOnDelete();
         });
+
+        // ✅ 5. 极致优化：设置填充因子（HOT Update 神器）
+        // 关联表极少UPDATE，但若有软删除或状态变更，90%填充因子可预留页内空间
+        // 避免行更新时触发页分裂，大幅提升写入与级联删除性能
+        DB::connection($this->connection)->statement("ALTER TABLE {$this->name} SET (fillfactor = 90);");
     }
 
     /**
@@ -57,4 +72,5 @@ return new class extends Migration
             }
         }
     }
+
 };

@@ -267,7 +267,7 @@ class PatriarchController extends AdminController
                                             'actionType' => 'setValue',
                                             'componentName' => 'sex',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.sex||null}',
+                                                'value' => '${event.data.responseResult.responseData.sex||3}',
                                             ],
                                         ],
                                         [
@@ -284,7 +284,7 @@ class PatriarchController extends AdminController
                                             'actionType' => 'setValue',
                                             'componentName' => 'nation',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.nation||null}',
+                                                'value' => '${event.data.responseResult.responseData.nation||1}',
                                             ],
                                         ],
                                         [
@@ -299,85 +299,10 @@ class PatriarchController extends AdminController
                                         ],
                                         [
                                             'actionType' => 'setValue',
-                                            'componentName' => 'combo',
+                                            'componentName' => 'childes',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.combo||null}',
+                                                'value' => '${event.data.responseResult.responseData.childes||[]}',
                                             ],
-                                        ],
-                                        //                                        [
-                                        //                                            'actionType' => 'disabled',
-                                        //                                            'componentName' => 'combo',
-                                        //                                            'expression' => '${!!event.data.responseResult.responseData.combo}'
-                                        //                                        ],
-                                        //                                        [
-                                        //                                            'actionType' => 'enabled',
-                                        //                                            'componentName' => 'combo',
-                                        //                                            'expression' => '${!event.data.responseResult.responseData.combo}'
-                                        //                                        ],
-                                        [
-                                            'actionType' => 'setValue',
-                                            'componentName' => 'region_id',
-                                            'args' => [
-                                                'value' => '${event.data.responseResult.responseData.region_id||null}',
-                                            ],
-                                        ],
-                                        [
-                                            'actionType' => 'disabled',
-                                            'componentName' => 'region_id',
-                                            'expression' => '${!!event.data.responseResult.responseData.region_id}',
-                                        ],
-                                        [
-                                            'actionType' => 'enabled',
-                                            'componentName' => 'region_id',
-                                            'expression' => '${!event.data.responseResult.responseData.region_id}',
-                                        ],
-                                        [
-                                            'actionType' => 'setValue',
-                                            'componentName' => 'address',
-                                            'args' => [
-                                                'value' => '${event.data.responseResult.responseData.address||null}',
-                                            ],
-                                        ],
-                                        [
-                                            'actionType' => 'disabled',
-                                            'componentName' => 'address',
-                                            'expression' => '${!!event.data.responseResult.responseData.address}',
-                                        ],
-                                        [
-                                            'actionType' => 'enabled',
-                                            'componentName' => 'address',
-                                            'expression' => '${!event.data.responseResult.responseData.address}',
-                                        ],
-                                        [
-                                            'actionType' => 'setValue',
-                                            'componentName' => 'region_info',
-                                            'args' => [
-                                                'value' => '${event.data.responseResult.responseData.region_info||null}',
-                                            ],
-                                        ],
-                                        [
-                                            'actionType' => 'setValue',
-                                            'componentName' => 'address_info',
-                                            'args' => [
-                                                'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}',
-                                            ],
-                                        ],
-                                        [
-                                            'actionType' => 'setValue',
-                                            'componentName' => 'family',
-                                            'args' => [
-                                                'value' => '${event.data.responseResult.responseData.family||null}',
-                                            ],
-                                        ],
-                                        [
-                                            'actionType' => 'disabled',
-                                            'componentName' => 'family',
-                                            'expression' => '${!!event.data.responseResult.responseData.family}',
-                                        ],
-                                        [
-                                            'actionType' => 'enabled',
-                                            'componentName' => 'family',
-                                            'expression' => '${!event.data.responseResult.responseData.family}',
                                         ],
                                     ],
                                 ],
@@ -415,7 +340,8 @@ class PatriarchController extends AdminController
                     amis()->SelectControl('sex', '性别')
                         ->options(Enum::sex())->value(3),
                     amis()->SelectControl('nation', '民族')
-                        ->options(Enum::nation()),
+                        ->options(Enum::nation())
+                        ->value(1),
                     amis()->SwitchControl('is_primary', '监护人')
                         ->onText('是')
                         ->offText('否')
@@ -615,7 +541,7 @@ class PatriarchController extends AdminController
                                                                         });
                                                                         doAction({
                                                                             actionType: "toast",
-                                                                            args: { msgType: "success", msg: "已添加成功" }
+                                                                            args: { msgType: "success", msg: "<b class=text-danger>" + currentItem.student.student_name + "</b> 添加成功" }
                                                                         });
                                                                         //doAction({
                                                                         //    actionType: "reload",
@@ -638,7 +564,7 @@ class PatriarchController extends AdminController
                     ->id('form_cards_child_id')
                     ->source('${childes}')
                     ->columnsCount(3)
-                    ->placeholder('暂无关联学生')   // ✅ 空状态提示
+                    ->placeholder('关联不能为空，至少添加一个学生')   // ✅ 空状态提示
                     ->card([
                         'style' => [
                             'border' => '1px solid var(--colors-brand-9)',

@@ -2,6 +2,8 @@
 
 namespace DagaSmart\Organization\Models;
 
+use DagaSmart\BizAdmin\Scopes\BaseScope;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,13 +19,26 @@ class Patriarch extends Model
     protected $primaryKey = 'id';
 
     protected $casts = [
-        //        'region_info' => 'array',
-        //        'family' => 'array',
+        'mobile' => 'int',
+        'id_card' => 'string',
     ];
 
     protected $appends = ['id_card_enc', 'mobile_enc'];
 
+    protected $hidden = ['child']; // 序列化时自动隐藏
+
     public $timestamps = true;
+
+    protected static function booted(): void
+    {
+        admin_transaction(function () {
+            static::deleting(function (Patriarch $patriarch) {
+                $patriarch->children()
+                    ->withoutGlobalScopes([BaseScope::class])
+                    ->delete();
+            });
+        });
+    }
 
     /**
      * 头像
@@ -99,6 +114,11 @@ class Patriarch extends Model
         return $this->hasMany(EnterprisePatriarchStudent::class, 'patriarch_id', 'id')->with('rel');
     }
 
+    public function children(): HasMany
+    {
+        return $this->hasMany(EnterprisePatriarchStudent::class, 'patriarch_id', 'id');
+    }
+
     //    public function enterprise(): HasOne
     //    {
     //        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
@@ -116,5 +136,16 @@ class Patriarch extends Model
     public function enterpriseData(): Collection
     {
         return Enterprise::query()->whereNull('deleted_at')->pluck('enterprise_name', 'id');
+    }
+
+    public function patriarchStudent(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Student::class,
+            EnterprisePatriarchStudent::class,
+            'patriarch_id',
+            'student_id'
+        )
+            ->wherePivot('mer_id', admin_mer_id());
     }
 }
