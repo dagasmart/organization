@@ -456,7 +456,7 @@ class WorkerController extends AdminController
                             ]),
                     ]),
                 ]),
-                amis()->Divider(),
+                amis()->Divider()->color('var(--colors-brand-6)'),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->SelectControl('sex', '性别')
                         ->options(Enum::sex())->value(3),

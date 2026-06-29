@@ -127,7 +127,7 @@ class StudentController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->Flex()->items([
-                        amis()->GroupControl()->direction('vertical')->body([
+                        amis()->GroupControl()->className('w-5/6')->direction('vertical')->body([
                             amis()->HiddenControl('id', 'ID')->disabled($isEdit),
                             amis()->TextControl('id_card', '身份证号')
                                 ->required()
@@ -434,7 +434,7 @@ class StudentController extends AdminController
                                 ->showInvalidMatch()
                                 ->required(),
                         ]),
-                        amis()->GroupControl()->direction('vertical')->className('ml-10')->body([
+                        amis()->GroupControl()->className('ml-5')->direction('vertical')->body([
                             amis()->ImageControl('avatar', false)
                                 ->thumbRatio('1:1')
                                 ->thumbMode('cover h-full rounded-md overflow-hidden')
@@ -451,12 +451,12 @@ class StudentController extends AdminController
                                     'overflow-hidden' => true,
                                 ])
                                 ->crop([
-                                    'aspectRatio' => '0.81',
+                                    'aspectRatio' => '0.75',
                                 ]),
                         ]),
                     ]),
                 ]),
-                amis()->Divider(),
+                amis()->Divider()->color('var(--colors-brand-6)'),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->SelectControl('sex', '性别')
                         ->options(Enum::sex())
@@ -484,6 +484,7 @@ class StudentController extends AdminController
                 amis()->InputCityControl('region_id', '所在地区')
                     ->searchable()
                     ->extractValue(false)
+                    ->value(admin_region_code())
                     ->onEvent([
                         'change' => [
                             'actions' => [
@@ -498,7 +499,7 @@ class StudentController extends AdminController
                         ],
                     ]),
                 amis()->HiddenControl('region_info', '地区信息')->id('form_region_info'),
-                amis()->TextControl('address', '家庭住址')->visibleOn('${region_info.code}')
+                amis()->TextControl('address', '家庭住址')->visibleOn('${!!region_info.code}')
                     ->desc('${region_info.province} ${region_info.city} ${region_info.district} ${address}'),
                 amis()->HiddenControl('address_info', '详细地址')
                     ->value('${region_info.province} ${region_info.city} ${region_info.district} ${address}')
