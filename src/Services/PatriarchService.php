@@ -67,7 +67,7 @@ class PatriarchService extends AdminService
                 }
 
                 // 【核心修复】统一将 Model/Array 转为纯数组，避免后续类型错误
-                $relData = $this->normalizeRelData($rel);
+                $relData = data2array($rel);
 
                 if (empty($relData['student'])) {
                     continue;
@@ -99,23 +99,6 @@ class PatriarchService extends AdminService
         unset($item); // 释放引用
 
         return $list;
-    }
-
-    /**
-     * 将 rel 数据统一标准化为数组
-     * 兼容 Eloquent Model、stdClass、普通数组
-     */
-    private function normalizeRelData(mixed $rel): array
-    {
-        if ($rel instanceof Collection) {
-            return $rel->toArray();
-        }
-
-        if (is_object($rel)) {
-            return json_decode(json_encode($rel), true);
-        }
-
-        return is_array($rel) ? $rel : [];
     }
 
     /**
@@ -337,20 +320,20 @@ class PatriarchService extends AdminService
 
     public function EnterprisePatriarchCheck($id_card): ?Patriarch
     {
-        $patriarch = $this->query()
+        $row = $this->query()
             ->with(['child'])
             ->where(['id_card' => $id_card])
             ->first();
 
-        if (! $patriarch) {
-            return null; // 显式返回 null，比返回 $patriarch 更清晰
+        if (! $row) {
+            return null; // 显式返回 null，比返回 $row 更清晰
         }
 
         // 在 Patriarch 模型中自动隐藏字段 child
         // Collection 有 pluck 方法，安全可用
-        $patriarch->childes = $patriarch->child->pluck('rel');
+        $row->childes = $row->child->pluck('rel');
 
-        return $patriarch;
+        return $row;
     }
 
     /**

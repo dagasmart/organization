@@ -120,8 +120,7 @@ class Student extends Model
 
     public function setAvatarAttribute($value): void
     {
-        $avatar = str_replace(Storage::url(''), '', $value);
-        $this->attributes['avatar'] = Storage::url($avatar);
+        $this->attributes['avatar'] = admin_image_path($value);
     }
 
     public function getSexAsAttribute(): ?string

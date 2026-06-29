@@ -70,7 +70,15 @@ class StudentService extends AdminService
         }
     }
 
-    public function saving(&$data, $primaryKey = ''): void
+    public function store($data): bool
+    {
+        if (! empty($data['id'])) {
+            return $this->update($data['id'], $data);
+        }
+        return parent::store($data);
+    }
+
+    public function saving(&$data, $primaryKey = 'id'): void
     {
         // 提取地区代码
         $region_id = $data['region_id'] ?? null;
@@ -217,4 +225,18 @@ class StudentService extends AdminService
             ->with(['enterprise', 'grade', 'classes', 'student'])
             ->paginate(4);
     }
+
+    public function EnterpriseStudentCheck($id_card): ?Student
+    {
+        $row = $this->query()
+            ->where(['id_card' => $id_card])
+            ->first();
+
+        if (! $row) {
+            return null; // 显式返回 null，比返回 $row 更清晰
+        }
+
+        return $row;
+    }
+
 }

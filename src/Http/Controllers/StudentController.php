@@ -121,98 +121,339 @@ class StudentController extends AdminController
 
     public function form($isEdit = false): Form
     {
-        return $this->baseForm()->id('student_form_id')->data(['student_code_param_number' => '${student_code_param.number}'])->mode('horizontal')->tabs([
+        return $this->baseForm()->id('student_form_id')->data(['isEdit' => $isEdit, 'student_code_param_number' => '${student_code_param.number}'])->mode('horizontal')->tabs([
 
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('id_card', '身份证号')
-                            ->validateOnChange()
-                            ->validations([
-                                'matchRegexp' => '/^[\\d|*]{17}[\\dXx]$/i',
-                            ])
-                            ->validationErrors([
-                                'matchRegexp' => '请输入有效的身份证号码',
-                            ])
-                            ->addOn($isEdit ?
-                                amis()->VanillaAction()->disabled()->icon('iconfont icon-cdnrefresh')->onEvent([
-                                    'click' => [
-                                        'actions' => [
-                                            [
-                                                'actionType' => 'reset',
-                                                'componentId' => 'student_form_id',
-                                            ],
-                                            [
-                                                'actionType' => 'setValue',
-                                                'componentName' => 'id_card',
-                                                'args' => [
-                                                    'value' => '${id_card_enc | base64Decode}',
+                    amis()->Flex()->items([
+                        amis()->GroupControl()->direction('vertical')->body([
+                            amis()->HiddenControl('id', 'ID')->disabled($isEdit),
+                            amis()->TextControl('id_card', '身份证号')
+                                ->required()
+                                ->validateOnChange()
+                                ->validations([
+                                    'matchRegexp' => '/^[\\d|*]{17}[\\dXx]$/i',
+                                ])
+                                ->validationErrors([
+                                    'matchRegexp' => '请输入有效的身份证号码',
+                                ])
+                                ->addOn($isEdit ?
+                                    amis()->VanillaAction()->disabled()->icon('iconfont icon-cdnrefresh')->onEvent([
+                                        'click' => [
+                                            'actions' => [
+                                                [
+                                                    'actionType' => 'reset',
+                                                    'componentId' => 'student_form_id',
+                                                ],
+                                                [
+                                                    'actionType' => 'setValue',
+                                                    'componentName' => 'id_card',
+                                                    'args' => [
+                                                        'value' => '${id_card_enc | base64Decode}',
+                                                    ],
                                                 ],
                                             ],
                                         ],
+                                    ]) : false
+                                )
+                                ->onEvent([
+                                    'blur' => [
+                                        'actions' => [
+                                            [
+                                                'actionType' => 'stopPropagation',
+                                                'expression' => '${isEdit}',
+                                            ],
+                                            [
+                                                'actionType' => 'ajax',
+                                                'api' => [
+                                                    'method' => 'GET',
+                                                    'url' => admin_url('biz/enterprise/student/${id_card||0}/check'),
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'id',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.id||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'id',
+                                                'expression' => '${!!event.data.responseResult.responseData.id}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'id',
+                                                'expression' => '${!event.data.responseResult.responseData.id}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'student_name',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.student_name||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'student_name',
+                                                'expression' => '${!!event.data.responseResult.responseData.student_name}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'student_name',
+                                                'expression' => '${!event.data.responseResult.responseData.student_name}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentId' => 'student_code_param_type',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.student_code_param.type}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentId' => 'student_code_param_type',
+                                                'expression' => '${!!event.data.responseResult.responseData.student_code_param.type}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentId' => 'student_code_param_type',
+                                                'expression' => '${!event.data.responseResult.responseData.student_code_param.type}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentId' => 'student_code_param_number',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.student_code_param.number}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentId' => 'student_code_param_number',
+                                                'expression' => '${!!event.data.responseResult.responseData.student_code_param.number}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentId' => 'student_code_param_number',
+                                                'expression' => '${!event.data.responseResult.responseData.student_code_param.number}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'avatar',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.avatar||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'avatar',
+                                                'expression' => '${!!event.data.responseResult.responseData.avatar}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'avatar',
+                                                'expression' => '${!event.data.responseResult.responseData.avatar}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'sex',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.sex||3}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'sex',
+                                                'expression' => '${!!event.data.responseResult.responseData.sex}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'sex',
+                                                'expression' => '${!event.data.responseResult.responseData.sex}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'nation',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.nation||1}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'nation',
+                                                'expression' => '${!!event.data.responseResult.responseData.nation}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'nation',
+                                                'expression' => '${!event.data.responseResult.responseData.nation}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'email',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.email||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'email',
+                                                'expression' => '${!!event.data.responseResult.responseData.email}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'email',
+                                                'expression' => '${!event.data.responseResult.responseData.email}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'mobile',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.mobile||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'mobile',
+                                                'expression' => '${!!event.data.responseResult.responseData.mobile}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'mobile',
+                                                'expression' => '${!event.data.responseResult.responseData.mobile}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'region_id',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.region_id||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'region_id',
+                                                'expression' => '${!!event.data.responseResult.responseData.region_id}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'region_id',
+                                                'expression' => '${!event.data.responseResult.responseData.region_id}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'address',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.address||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'address',
+                                                'expression' => '${!!event.data.responseResult.responseData.address}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'address',
+                                                'expression' => '${!event.data.responseResult.responseData.address}',
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'region_info',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.region_info||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'address_info',
+                                                'args' => [
+                                                    'value' => '${region_info.province} ${region_info.city} ${region_info.district} ${address}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'setValue',
+                                                'componentName' => 'family',
+                                                'args' => [
+                                                    'value' => '${event.data.responseResult.responseData.family||null}',
+                                                ],
+                                            ],
+                                            [
+                                                'actionType' => 'disabled',
+                                                'componentName' => 'family',
+                                                'expression' => '${!!event.data.responseResult.responseData.family}',
+                                            ],
+                                            [
+                                                'actionType' => 'enabled',
+                                                'componentName' => 'family',
+                                                'expression' => '${!event.data.responseResult.responseData.family}',
+                                            ],
+                                        ],
                                     ],
-                                ]) : false
-                            )
-                            ->required(),
-                        amis()->TextControl('student_name', '姓名')->required(),
-                        amis()->InputGroupControl(false, '国网学籍')->mode('horizontal')->body([
-                            amis()->SelectControl('student_code_param.type', '类型')->options([
-                                ['label' => 'G', 'value' => 'G'],
-                                ['label' => 'J', 'value' => 'J'],
-                                ['label' => 'L', 'value' => 'L'],
-                            ])->value('G'),
-                            amis()->TextControl('student_code_param.number', '学籍号')
-                                ->disabledOn('${student_code_param.type === "G"}')
-                                ->value('${student_code_param.type === "G" ? id_card : student_code_param_number}'),
-                        ]),
-                        amis()->HiddenControl('student_code', '国网学籍')
-                            ->value('${student_code_param.type}${student_code_param.number}'),
-                        amis()->SelectControl('enterprise_id', '机构')
-                            ->options($this->service->getEnterpriseAll())
-                            ->value('${rel.enterprise.id}')
-                            ->searchable()
-                            ->clearable()
-                            ->required(),
-                        amis()->SelectControl('grade_id', '年级')
-                            // ->options($this->service->getGradeAll())
-                            ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
-                            ->selectMode('group')
-                            ->value('${rel.grade.id}')
-                            ->searchable()
-                            ->clearable()
-                            ->disabledOn('${!enterprise_id}')
-                            ->required(),
-                        amis()->SelectControl('classes_id', '班级')
-                            // ->options($this->service->getClassesAll())
-                            ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
-                            ->selectMode('group')
-                            ->value('${rel.classes.id}')
-                            ->searchable()
-                            ->clearable()
-                            ->disabledOn('${!grade_id}')
-                            ->showInvalidMatch()
-                            ->required(),
-                    ]),
-                    amis()->GroupControl()->direction('vertical')->body([
-                        amis()->ImageControl('avatar')
-                            ->thumbRatio('1:1')
-                            ->thumbMode('cover h-full rounded-md overflow-hidden')
-                            ->className(['overflow-hidden' => true, 'h-full' => true])
-                            ->imageClassName([
-                                'w-52' => true,
-                                'h-64' => true,
-                                'overflow-hidden' => true,
-                            ])
-                            ->fixedSize()
-                            ->fixedSizeClassName([
-                                'w-52' => true,
-                                'h-64' => true,
-                                'overflow-hidden' => true,
-                            ])
-                            ->crop([
-                                'aspectRatio' => '0.81',
+                                ]),
+                            amis()->TextControl('student_name', '姓名')->required(),
+                            amis()->InputGroupControl(false, '国网学籍')->mode('horizontal')->body([
+                                amis()->SelectControl('student_code_param.type', '类型')
+                                    ->id('student_code_param_type')
+                                    ->options([
+                                        ['label' => 'G', 'value' => 'G'],
+                                        ['label' => 'J', 'value' => 'J'],
+                                        ['label' => 'L', 'value' => 'L'],
+                                    ])->value('G'),
+                                amis()->TextControl('student_code_param.number', '学籍号')
+                                    ->id('student_code_param_number')
+                                    ->disabledOn('${student_code_param.type === "G"}')
+                                    ->value('${student_code_param.type === "G" ? id_card : student_code_param.number ?? student_code_param_number}'),
                             ]),
+                            amis()->HiddenControl('student_code', '国网学籍')
+                                ->value('${student_code_param.type}${student_code_param.number}'),
+                            amis()->SelectControl('enterprise_id', '机构')
+                                ->options($this->service->getEnterpriseAll())
+                                ->value('${rel.enterprise.id}')
+                                ->searchable()
+                                ->clearable()
+                                ->required(),
+                            amis()->SelectControl('grade_id', '年级')
+                                // ->options($this->service->getGradeAll())
+                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                                ->selectMode('group')
+                                ->value('${rel.grade.id}')
+                                ->searchable()
+                                ->clearable()
+                                ->disabledOn('${!enterprise_id}')
+                                ->required(),
+                            amis()->SelectControl('classes_id', '班级')
+                                // ->options($this->service->getClassesAll())
+                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
+                                ->selectMode('group')
+                                ->value('${rel.classes.id}')
+                                ->searchable()
+                                ->clearable()
+                                ->disabledOn('${!grade_id}')
+                                ->showInvalidMatch()
+                                ->required(),
+                        ]),
+                        amis()->GroupControl()->direction('vertical')->className('ml-10')->body([
+                            amis()->ImageControl('avatar', false)
+                                ->thumbRatio('1:1')
+                                ->thumbMode('cover h-full rounded-md overflow-hidden')
+                                ->className(['overflow-hidden' => true, 'h-full' => true])
+                                ->imageClassName([
+                                    'w-60' => true,
+                                    'h-80' => true,
+                                    'overflow-hidden' => true,
+                                ])
+                                ->fixedSize()
+                                ->fixedSizeClassName([
+                                    'w-60' => true,
+                                    'h-80' => true,
+                                    'overflow-hidden' => true,
+                                ])
+                                ->crop([
+                                    'aspectRatio' => '0.81',
+                                ]),
+                        ]),
                     ]),
                 ]),
                 amis()->Divider(),
@@ -227,7 +468,8 @@ class StudentController extends AdminController
                         ->required(),
                     amis()->SelectControl('state', '状态')
                         ->options(Enum::StudentState)
-                        ->value('${rel.state||1}')
+                        ->value('${rel.state || (enterprise_id ? 1 : null)}')
+                        ->disabledOn('${!enterprise_id}')
                         ->required(),
                 ]),
                 amis()->TextareaControl('remark', '备注'),
@@ -627,4 +869,17 @@ class StudentController extends AdminController
         return $this->service->search();
     }
 
+    /**
+     * 检查身份证并获取学生信息
+     */
+    public function EnterpriseStudentCheck(): JsonResponse|JsonResource
+    {
+        $id_card = request()->id_card ?? null;
+
+        identifyByIdCard($id_card);
+
+        $res = $this->service->EnterpriseStudentCheck($id_card);
+
+        return $this->response()->success($res);
+    }
 }

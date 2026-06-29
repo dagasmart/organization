@@ -40,6 +40,7 @@ Route::group([
     $router->get('enterprise/device/{type}/brand/options', [Controllers\DeviceController::class, 'brandOptions']);
 
     $router->get('enterprise/student/search', [Controllers\StudentController::class, 'search']);
+    $router->get('enterprise/student/{id_card}/check', [Controllers\StudentController::class, 'EnterpriseStudentCheck']);
 
     $router->resource('enterprise/index', Controllers\EnterpriseController::class);
     $router->resource('enterprise/worker', Controllers\WorkerController::class);
