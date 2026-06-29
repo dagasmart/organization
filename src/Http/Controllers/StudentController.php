@@ -486,6 +486,21 @@ class StudentController extends AdminController
                     ->extractValue(false)
                     ->value(admin_region_code())
                     ->onEvent([
+                        'init' => [
+                            'actions' => [
+                                [
+                                    'actionType' => 'setValue',
+                                    'componentId' => 'form_region_info',
+                                    'args' => [
+                                        'city' => [
+                                            'province' => '${region_id.province}',
+                                            'city' => '${region_id.city}',
+                                            'district' => '${region_id.district}',
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ],
                         'change' => [
                             'actions' => [
                                 [
