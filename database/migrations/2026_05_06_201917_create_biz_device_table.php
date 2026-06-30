@@ -32,6 +32,16 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
             $table->softDeletes();
+
+            // ✅ 2. 仅为级联删除和外键查询创建【单列】索引
+            // 联合索引的最左前缀原则无法高效支持中间列的等值查询/级联删除
+            $table->index('device_type');
+            $table->index('device_sn');
+            $table->index('state');
+
+            // ✅ 3. 唯一约束即主查询索引，框架自动生成 ≤63 字节安全名称
+            $table->unique(['device_type', 'device_sn']);
+
         });
     }
 

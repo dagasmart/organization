@@ -27,8 +27,6 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
             $table->softDeletes();
-
-            $table->index(['id']);
         });
 
         $driver = config('database.connections.'.$this->connection.'.driver');

@@ -17,28 +17,45 @@ return new class extends Migration
         !Schema::hasTable($this->name)
         && Schema::create($this->name, function (Blueprint $table) {
             $table->comment('数智校园-机构-部门-职务-员工关联表');
-            $table->integer('enterprise_id')->comment('机构id');
-            $table->integer('department_id')->comment('部门id');
-            $table->integer('job_id')->comment('职务id');
-            $table->integer('worker_id')->comment('员工id');
+            $table->foreignId('enterprise_id')->comment('机构id');
+            $table->foreignId('department_id')->comment('部门id');
+            $table->foreignId('job_id')->comment('职务id');
+            $table->foreignId('worker_id')->comment('员工id');
             $table->string('worker_sn', 32)->nullable()->comment('工号');
-            $table->string('module', 32)->nullable();
-            $table->integer('mer_id')->nullable();
+            $table->string('module', 32)->nullable()->comment('模块');
+            $table->unsignedBigInteger('mer_id')->nullable()->comment('商户');
 
-            $unique = ['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id'];
-            $uni = $this->name . '_';
-            $uni .= implode('_', $unique);
-            $uni .= '_unique';
-            $unique_name = mb_strlen($uni) > 64 ? md5($uni) : $uni;
-            $table->unique($unique, $unique_name);
+            // ✅ 2. 仅为级联删除和外键查询创建【单列】索引
+            // 联合索引的最左前缀原则无法高效支持中间列的等值查询/级联删除
+            $table->index('enterprise_id');
+            $table->index('department_id');
+            $table->index('job_id');
+            $table->index('worker_id');
+            $table->index('module');
+            $table->index('mer_id');
 
-            $index = ['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id'];
-            $idx = $this->name . '_';
-            $idx .= implode('_', $index);
-            $idx .= '_idx';
-            $index_name = mb_strlen($idx) > 64 ? md5($idx) : $idx;
-            $table->index($index, $index_name);
+            // ✅ 3. 唯一约束即主查询索引，框架自动生成 ≤63 字节安全名称
+            $table->unique(['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id']);
+
+            // ✅ 4. 外键约束（复用已存在的单列索引，零额外开销）
+            $table->foreignId('enterprise_id')
+                ->constrained('biz_enterprise')
+                ->cascadeOnDelete();
+
+            $table->foreignId('department_id')
+                ->constrained('biz_enterprise_department')
+                ->cascadeOnDelete();
+
+            $table->foreignId('job_id')
+                ->constrained('biz_enterprise_department_job')
+                ->cascadeOnDelete();
+
+            $table->foreignId('worker_id')
+                ->constrained('biz_worker')
+                ->cascadeOnDelete();
         });
+        // ✅ PostgreSQL HOT Update 优化（仍需原生 SQL）
+        DB::connection($this->connection)->statement("ALTER TABLE $this->name SET (fillfactor = 90)");
     }
 
     /**

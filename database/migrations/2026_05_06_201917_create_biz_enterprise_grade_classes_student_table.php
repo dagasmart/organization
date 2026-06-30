@@ -77,7 +77,7 @@ return new class extends Migration
         ");
 
         // ✅ PostgreSQL HOT Update 优化（仍需原生 SQL）
-        DB::connection($this->connection)->statement('ALTER TABLE biz_enterprise_grade SET (fillfactor = 90)');
+        DB::connection($this->connection)->statement("ALTER TABLE $this->name SET (fillfactor = 90)");
     }
 
     /**

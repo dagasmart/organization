@@ -6,7 +6,6 @@ use DagaSmart\Organization\Enums\Enum;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * 基础-学生表模型
@@ -94,7 +93,11 @@ class Student extends Model
      */
     public function getStudentCodeEncAttribute(): false|string
     {
-        return base64_encode($this->student_code);
+        // 原始值，两种方式获取
+        $original = $this->attributes['student_code'];
+        // $original = $this->getRawOriginal('student_code');
+
+        return base64_encode($original);
     }
 
     /**
@@ -102,7 +105,7 @@ class Student extends Model
      */
     public function getIdCardEncAttribute(): false|string
     {
-        return base64_encode($this->id_card);
+        return base64_encode($this->attributes['id_card']);
     }
 
     /**
@@ -110,7 +113,7 @@ class Student extends Model
      */
     public function getMobileEncAttribute(): false|string
     {
-        return base64_encode($this->mobile);
+        return base64_encode($this->attributes['mobile']);
     }
 
     public function getAvatarAttribute($value): ?string

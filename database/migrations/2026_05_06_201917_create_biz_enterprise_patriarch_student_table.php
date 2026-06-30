@@ -56,7 +56,7 @@ return new class extends Migration
         // ✅ 5. 极致优化：设置填充因子（HOT Update 神器）
         // 关联表极少UPDATE，但若有软删除或状态变更，90%填充因子可预留页内空间
         // 避免行更新时触发页分裂，大幅提升写入与级联删除性能
-        DB::connection($this->connection)->statement("ALTER TABLE {$this->name} SET (fillfactor = 90);");
+        DB::connection($this->connection)->statement("ALTER TABLE $this->name SET (fillfactor = 90);");
     }
 
     /**

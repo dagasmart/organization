@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * 基础-老师模型类
@@ -26,18 +25,14 @@ class Worker extends Model
 
     public $timestamps = true;
 
-    /**
-     * 头像
-     */
     public function getAvatarAttribute($value): ?string
     {
-        return admin_image_url($value);
+        return admin_image_url($value) ?? admin_config('admin.default_avatar');
     }
 
     public function setAvatarAttribute($value): void
     {
-        $avatar = str_replace(env('APP_URL').Storage::url(''), '', $value);
-        $this->attributes['avatar'] = $value ? Storage::url($avatar) : null;
+        $this->attributes['avatar'] = admin_image_path($value);
     }
 
     /**
@@ -53,7 +48,7 @@ class Worker extends Model
      */
     public function getMobileEncAttribute(): false|string
     {
-        return base64_encode($this->mobile);
+        return base64_encode($this->attributes['mobile']);
     }
 
     /**
@@ -122,7 +117,7 @@ class Worker extends Model
             'worker_id',
             'id'
         )
-            //->withoutGlobalScope('ActiveScope')
+            // ->withoutGlobalScope('ActiveScope')
             ->select(admin_raw('enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id'));
     }
 
