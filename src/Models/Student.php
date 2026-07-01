@@ -75,13 +75,14 @@ class Student extends Model
     public function getStudentCodeParamAttribute(): array
     {
         $data = ['type' => null, 'number' => null];
-
+        $original = $this->attributes['student_code'];
         // 增加类型和空值判断，防止传入 null 导致报错
-        if (is_string($this->student_code) &&
-            preg_match('/^([GJL])(.+)$/', $this->student_code, $matches)) {
+        if (is_string($original) &&
+            preg_match('/^([GJL])(.+)$/', $original, $res)) {
             $data = [
-                'type' => $matches[1] ?? null,
-                'number' => $matches[2] ?? null,
+                'type' => $res[1] ?? null,
+                'number' => $res[1] == 'G' ? admin_sensitive($res[2], 6, 8) : $res[2] ?? null,
+                'enc' => $res[2] ? base64_encode($res[2]) : null,
             ];
         }
 

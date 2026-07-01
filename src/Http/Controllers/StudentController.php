@@ -129,7 +129,7 @@ class StudentController extends AdminController
                     amis()->Flex()->items([
                         amis()->GroupControl()->className('w-5/6')->direction('vertical')->body([
                             amis()->HiddenControl('id', 'ID')->disabled($isEdit),
-                            amis()->InputGroupControl(false, '身份证号')->body([
+                            amis()->InputGroupControl('id_card', '身份证号')->required()->body([
                                 amis()->TextControl('id_card', '身份证号')
                                     ->disabled($isEdit)
                                     ->required()
@@ -413,6 +413,27 @@ class StudentController extends AdminController
                                                         'value' => '${id_card_enc | base64Decode}',
                                                     ],
                                                 ],
+                                                [
+                                                    'actionType' => 'enabled',
+                                                    'componentName' => 'student_code_param.type',
+                                                    'args' => [
+                                                        'disabledOn' => false,
+                                                    ],
+                                                ],
+                                                [
+                                                    'actionType' => 'enabled',
+                                                    'componentName' => 'student_code_param.number',
+                                                    'args' => [
+                                                        'disabledOn' => false,
+                                                    ],
+                                                ],
+                                                [
+                                                    'actionType' => 'setValue',
+                                                    'componentName' => 'student_code_param.number',
+                                                    'args' => [
+                                                        'value' => '${student_code_param.enc | base64Decode}',
+                                                    ],
+                                                ],
                                             ],
                                         ],
                                     ]),
@@ -425,11 +446,12 @@ class StudentController extends AdminController
                                         ['label' => 'G', 'value' => 'G'],
                                         ['label' => 'J', 'value' => 'J'],
                                         ['label' => 'L', 'value' => 'L'],
-                                    ])->value('G'),
+                                    ])->value('G')
+                                    ->disabled($isEdit),
                                 amis()->TextControl('student_code_param.number', '学籍号')
                                     ->id('student_code_param_number')
-                                    ->disabledOn('${!isEdit && student_code_param.type === "G"}')
-                                    ->value('${(id_card_enc|base64Decode)}'),
+                                    ->disabledOn('${isEdit && student_code_param.type === "G"}')
+                                    ->value('${student_code_param.enc|base64Decode}'),
                             ]),
                             amis()->HiddenControl('student_code', '国网学籍')
                                 ->value('${student_code_param.type}${student_code_param.number}'),
