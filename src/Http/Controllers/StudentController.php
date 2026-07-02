@@ -145,15 +145,15 @@ class StudentController extends AdminController
                                             // ✅ 新增：防抖，避免输入过程中频繁请求
                                             'debounce' => 300,
                                             'actions' => [
+                                                // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
+                                                [
+                                                    'actionType' => 'validate', // validate天然具有校验失败，阻断后续动作的功能
+                                                    'componentName' => 'id_card',
+                                                ],
                                                 // ✅ 新增：编辑模式下直接跳过（保留原有逻辑）
                                                 [
                                                     'actionType' => 'stopPropagation',
                                                     'expression' => '${isEdit}',
-                                                ],
-                                                // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
-                                                [
-                                                    'actionType' => 'validate',
-                                                    'componentName' => 'id_card',
                                                 ],
                                                 // ✅ 新增：额外判断长度，防止正则通过但值不完整的情况
                                                 [
@@ -161,207 +161,228 @@ class StudentController extends AdminController
                                                     'expression' => '${!id_card || id_card.length !== 18}',
                                                 ],
                                                 [
+                                                    'actionType' => 'loading',
+                                                    'args' => [
+                                                        'isLoading' => true,
+                                                    ],
+                                                ],
+                                                [
                                                     'actionType' => 'ajax',
                                                     'api' => [
                                                         'method' => 'GET',
                                                         'url' => admin_url('biz/enterprise/student/${id_card||0}/check'),
                                                     ],
-                                                    'options' => [
-                                                        'loading' => true,
-                                                    ],
+                                                    'loading' => true,
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'id',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.id||null}',
+                                                        'value' => '${event.data.responseData.id||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'id',
-                                                    'expression' => '${!!event.data.responseResult.responseData.id}',
+                                                    'expression' => '${!!event.data.responseData.id}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'id',
-                                                    'expression' => '${!event.data.responseResult.responseData.id}',
+                                                    'expression' => '${!event.data.responseData.id}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'student_name',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.student_name||null}',
+                                                        'value' => '${event.data.responseData.student_name||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'student_name',
-                                                    'expression' => '${!!event.data.responseResult.responseData.student_name}',
+                                                    'expression' => '${!!event.data.responseData.student_name}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'student_name',
-                                                    'expression' => '${!event.data.responseResult.responseData.student_name}',
+                                                    'expression' => '${!event.data.responseData.student_name}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
-                                                    'componentId' => 'student_code_param_type',
+                                                    'componentName' => 'student_code_param_type',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.student_code_param.type}',
+                                                        'value' => '${event.data.responseData.student_code_param.type||"G"}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
-                                                    'componentId' => 'student_code_param_type',
-                                                    'expression' => '${!!event.data.responseResult.responseData.student_code_param.type}',
+                                                    'componentName' => 'student_code_param_type',
+                                                    'expression' => '${!!event.data.responseData.student_code_param.type}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
-                                                    'componentId' => 'student_code_param_type',
-                                                    'expression' => '${!event.data.responseResult.responseData.student_code_param.type}',
+                                                    'componentName' => 'student_code_param_type',
+                                                    'expression' => '${!event.data.responseData.student_code_param.type}',
                                                 ],
+                                                // 情况1：接口返回了 enc → 直接解码
                                                 [
                                                     'actionType' => 'setValue',
-                                                    'componentId' => 'student_code_param_number',
+                                                    'componentName' => 'student_code_param_number',
+                                                    'expression' => '${!!event.data.responseData.student_code_param}',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.student_code_param.number}',
+                                                        'value' => '${event.data.responseData.student_code_param.enc | base64Decode}',
+                                                    ],
+                                                ],
+                                                // 情况2：接口没返回 enc → 用 id_card 编码后再解码（等价于直接用 id_card）
+                                                [
+                                                    'actionType' => 'setValue',
+                                                    'componentName' => 'student_code_param_number',
+                                                    'expression' => '${!event.data.responseData.student_code_param && !!id_card}',
+                                                    'args' => [
+                                                        // 💡 base64Encode 再 base64Decode = 原值，直接用 id_card 即可
+                                                        'value' => '${id_card}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
-                                                    'componentId' => 'student_code_param_number',
-                                                    'expression' => '${!!event.data.responseResult.responseData.student_code_param.number}',
+                                                    'componentName' => 'student_code_param_number',
+                                                    'expression' => '${!!event.data.responseData.student_code_param.number}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
-                                                    'componentId' => 'student_code_param_number',
-                                                    'expression' => '${!event.data.responseResult.responseData.student_code_param.number}',
+                                                    'componentName' => 'student_code_param_number',
+                                                    'expression' => '${!event.data.responseData.student_code_param.number}',
+                                                ],
+                                                [
+                                                    'actionType' => 'disabled',
+                                                    'componentId' => 'form_student_code_random',
+                                                    'expression' => '${!!event.data.responseData.student_code_param  && !!id_card}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'avatar',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.avatar||null}',
+                                                        'value' => '${event.data.responseData.avatar||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'avatar',
-                                                    'expression' => '${!!event.data.responseResult.responseData.avatar}',
+                                                    'expression' => '${!!event.data.responseData.avatar}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'avatar',
-                                                    'expression' => '${!event.data.responseResult.responseData.avatar}',
+                                                    'expression' => '${!event.data.responseData.avatar}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'sex',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.sex||3}',
+                                                        'value' => '${event.data.responseData.sex||3}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'sex',
-                                                    'expression' => '${!!event.data.responseResult.responseData.sex}',
+                                                    'expression' => '${!!event.data.responseData.sex}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'sex',
-                                                    'expression' => '${!event.data.responseResult.responseData.sex}',
+                                                    'expression' => '${!event.data.responseData.sex}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'nation',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.nation||1}',
+                                                        'value' => '${event.data.responseData.nation||1}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'nation',
-                                                    'expression' => '${!!event.data.responseResult.responseData.nation}',
+                                                    'expression' => '${!!event.data.responseData.nation}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'nation',
-                                                    'expression' => '${!event.data.responseResult.responseData.nation}',
+                                                    'expression' => '${!event.data.responseData.nation}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'email',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.email||null}',
+                                                        'value' => '${event.data.responseData.email||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'email',
-                                                    'expression' => '${!!event.data.responseResult.responseData.email}',
+                                                    'expression' => '${!!event.data.responseData.email}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'email',
-                                                    'expression' => '${!event.data.responseResult.responseData.email}',
+                                                    'expression' => '${!event.data.responseData.email}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'mobile',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.mobile||null}',
+                                                        'value' => '${event.data.responseData.mobile||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'mobile',
-                                                    'expression' => '${!!event.data.responseResult.responseData.mobile}',
+                                                    'expression' => '${!!event.data.responseData.mobile}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'mobile',
-                                                    'expression' => '${!event.data.responseResult.responseData.mobile}',
+                                                    'expression' => '${!event.data.responseData.mobile}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'region_id',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.region_id||null}',
+                                                        'value' => '${event.data.responseData.region_id||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'region_id',
-                                                    'expression' => '${!!event.data.responseResult.responseData.region_id}',
+                                                    'expression' => '${!!event.data.responseData.region_id}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'region_id',
-                                                    'expression' => '${!event.data.responseResult.responseData.region_id}',
+                                                    'expression' => '${!event.data.responseData.region_id}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'address',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.address||null}',
+                                                        'value' => '${event.data.responseData.address||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'address',
-                                                    'expression' => '${!!event.data.responseResult.responseData.address}',
+                                                    'expression' => '${!!event.data.responseData.address}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'address',
-                                                    'expression' => '${!event.data.responseResult.responseData.address}',
+                                                    'expression' => '${!event.data.responseData.address}',
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'region_info',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.region_info||null}',
+                                                        'value' => '${event.data.responseData.region_info||null}',
                                                     ],
                                                 ],
                                                 [
@@ -375,18 +396,18 @@ class StudentController extends AdminController
                                                     'actionType' => 'setValue',
                                                     'componentName' => 'family',
                                                     'args' => [
-                                                        'value' => '${event.data.responseResult.responseData.family||null}',
+                                                        'value' => '${event.data.responseData.family||null}',
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'disabled',
                                                     'componentName' => 'family',
-                                                    'expression' => '${!!event.data.responseResult.responseData.family}',
+                                                    'expression' => '${!!event.data.responseData.family}',
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
                                                     'componentName' => 'family',
-                                                    'expression' => '${!event.data.responseResult.responseData.family}',
+                                                    'expression' => '${!event.data.responseData.family}',
                                                 ],
                                             ],
                                         ],
@@ -415,21 +436,21 @@ class StudentController extends AdminController
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
-                                                    'componentName' => 'student_code_param.type',
+                                                    'componentName' => 'student_code_param_type',
                                                     'args' => [
                                                         'disabledOn' => false,
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'enabled',
-                                                    'componentName' => 'student_code_param.number',
+                                                    'componentName' => 'student_code_param_number',
                                                     'args' => [
                                                         'disabledOn' => false,
                                                     ],
                                                 ],
                                                 [
                                                     'actionType' => 'setValue',
-                                                    'componentName' => 'student_code_param.number',
+                                                    'componentName' => 'student_code_param_number',
                                                     'args' => [
                                                         'value' => '${student_code_param.enc | base64Decode}',
                                                     ],
@@ -439,22 +460,48 @@ class StudentController extends AdminController
                                     ]),
                             ]),
                             amis()->TextControl('student_name', '姓名')->required(),
-                            amis()->InputGroupControl(false, '国网学籍')->mode('horizontal')->body([
-                                amis()->SelectControl('student_code_param.type', '类型')
-                                    ->id('student_code_param_type')
+                            amis()->InputGroupControl('student_code_param', '国网学籍')->mode('horizontal')->body([
+                                amis()->SelectControl('student_code_param_type', '类型')
                                     ->options([
                                         ['label' => 'G', 'value' => 'G'],
                                         ['label' => 'J', 'value' => 'J'],
                                         ['label' => 'L', 'value' => 'L'],
-                                    ])->value('G')
+                                    ])->value('${student_code_param.type || "G"}')
                                     ->disabled($isEdit),
-                                amis()->TextControl('student_code_param.number', '学籍号')
-                                    ->id('student_code_param_number')
-                                    ->disabledOn('${isEdit && student_code_param.type === "G"}')
-                                    ->value('${student_code_param.enc|base64Decode}'),
+                                amis()->TextControl('student_code_param_number', '学籍号')
+                                    ->validations([
+                                        'isRequired' => '${student_code_param_type !=== "G"}',
+                                        'matchRegexp' => '/^\d{18}$/',
+                                    ])
+                                    ->validationErrors([
+                                        'isRequired' => '学籍号为必填项',
+                                        'matchRegexp' => '格式错误：必须为18位数字',
+                                    ])
+                                    ->validateOnChange()
+                                    ->disabledOn('${isEdit || student_code_param_type === "G"}')
+                                    ->value('${student_code_param_type === "G" ? id_card : (student_code_param_number ?? null)}'),
+                                amis()->VanillaAction()
+                                    ->id('form_student_code_random')
+                                    ->icon('iconfont icon-cdnrefresh')
+                                    ->hiddenOn('${student_code_param_type === "G"}')
+                                    ->tooltip('随机生成')
+                                    ->tooltipPlacement('right')
+                                    ->onEvent([
+                                        'click' => [
+                                            'actions' => [
+                                                [
+                                                    'actionType' => 'setValue',
+                                                    'componentName' => 'student_code_param_number',
+                                                    'args' => [
+                                                        'value' => '${CONCATENATE("", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*10000), 4, "0"))}',
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ]),
                             ]),
-                            amis()->HiddenControl('student_code', '国网学籍')
-                                ->value('${student_code_param.type}${student_code_param.number}'),
+                            amis()->TextControl('student_code', '国网学籍')
+                                ->value('${student_code_param_type}${student_code_param_number}'),
                             amis()->SelectControl('enterprise_id', '机构')
                                 ->options($this->service->getEnterpriseAll())
                                 ->value('${rel.enterprise.id}')

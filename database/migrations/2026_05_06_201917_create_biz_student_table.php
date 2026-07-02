@@ -33,6 +33,7 @@ return new class extends Migration
             $table->jsonb('region_info')->nullable()->comment('地区信息');
             $table->string('address')->nullable()->comment('家庭地址');
             $table->jsonb('family')->nullable()->comment('家庭成员');
+            $table->integer('creator_id')->nullable()->comment('主创商户id');
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
             $table->softDeletes();
