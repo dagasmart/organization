@@ -461,4 +461,17 @@ class EnterpriseService extends AdminService
 
         return $data->load('children.children.children');
     }
+
+    public function enterpriseCheck($credit_code): ?Enterprise
+    {
+        $row = $this->query()
+            ->where(['credit_code' => $credit_code])
+            ->first();
+
+        if (! $row) {
+            return null; // 显式返回 null，比返回 $row 更清晰
+        }
+
+        return $row;
+    }
 }

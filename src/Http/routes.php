@@ -11,6 +11,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('enterprise/chart/data', [Controllers\EnterpriseController::class, 'chartData']);
+    $router->get('enterprise/{credit_code}/check', [Controllers\EnterpriseController::class, 'enterpriseCheck']);
 
     $router->delete('enterprise/job/{id}/delete', [Controllers\EnterpriseController::class, 'jobDelete']);
     $router->delete('enterprise/department/{id}/delete', [Controllers\EnterpriseController::class, 'departmentDelete']);
@@ -40,7 +41,7 @@ Route::group([
     $router->get('enterprise/device/{type}/brand/options', [Controllers\DeviceController::class, 'brandOptions']);
 
     $router->get('enterprise/student/search', [Controllers\StudentController::class, 'search']);
-    $router->get('enterprise/student/{id_card}/check', [Controllers\StudentController::class, 'EnterpriseStudentCheck']);
+    $router->get('enterprise/student/{id_card}/check', [Controllers\StudentController::class, 'enterpriseStudentCheck']);
 
     $router->resource('enterprise/index', Controllers\EnterpriseController::class);
     $router->resource('enterprise/worker', Controllers\WorkerController::class);

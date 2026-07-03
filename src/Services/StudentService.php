@@ -56,7 +56,7 @@ class StudentService extends AdminService
                 if (! is_array($classes_id)) {
                     $classes_id = explode(',', $classes_id);
                 }
-                $builder->whereIn('job_id', $classes_id);
+                $builder->whereIn('classes_id', $classes_id);
             });
         });
     }
@@ -226,7 +226,7 @@ class StudentService extends AdminService
             ->paginate(4);
     }
 
-    public function EnterpriseStudentCheck($id_card): ?Student
+    public function enterpriseStudentCheck($id_card): ?Student
     {
         $row = $this->query()
             ->where(['id_card' => $id_card])

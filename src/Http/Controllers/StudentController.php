@@ -32,13 +32,21 @@ class StudentController extends AdminController
                 $this->classesAction(),
             ])
             ->filter($this->baseFilter()->body([
-                amis()->SelectControl('enterprise_id', '机构')
-                    ->multiple()
-                    ->searchable()
+                amis()->SelectControl('enterprise_id', module_enterprise_alias())
                     ->options($this->service->getEnterpriseAll())
-                    ->clearable()
                     ->placeholder('请选择机构...')
-                    ->size('lg'),
+                    ->searchable()
+                    ->clearable(),
+                amis()->SelectControl('grade_id', '年级')
+                    ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                    ->selectMode('group')
+                    ->searchable()
+                    ->clearable(),
+                amis()->SelectControl('classes_id', '班级')
+                    ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
+                    ->selectMode('group')
+                    ->searchable()
+                    ->clearable(),
                 amis()->Divider(),
                 amis()->TextControl('student_name', '学生姓名')
                     ->clearable()
@@ -54,17 +62,31 @@ class StudentController extends AdminController
                 amis()->TableColumn('id', 'ID')->sortable()->fixed('left'),
                 amis()->TableColumn('student_name', '姓名')->searchable()->fixed('left'),
                 amis()->TableColumn('student_code', '国网学籍')->searchable(),
-                amis()->TableColumn('rel.enterprise.enterprise_name', '机构')
-                    ->searchable([
-                        'name' => 'enterprise_id',
-                        'type' => 'select',
-                        'multiple' => true,
-                        'searchable' => true,
-                        'options' => $this->service->getEnterpriseAll(),
-                    ])
+                amis()->TableColumn('rel.enterprise.enterprise_name', module_enterprise_alias())
+                    ->searchable(
+                        amis()->FormControl()->body([
+                            amis()->SelectControl('enterprise_id', module_enterprise_alias())
+                                ->options($this->service->getEnterpriseAll())
+                                ->searchable()
+                                ->clearable(),
+                            amis()->SelectControl('grade_id', '年级')
+                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                                ->selectMode('group')
+                                ->searchable()
+                                ->clearable(),
+                            amis()->SelectControl('classes_id', '班级')
+                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
+                                ->selectMode('group')
+                                ->searchable()
+                                ->clearable(),
+                        ])
+                    )
                     ->width(200),
-                amis()->TableColumn('rel.grade.grade_name', '年级')->width(100),
-                amis()->TableColumn('rel.classes.classes_name', '班级')->width(100),
+                amis()->TableColumn('grade_classes', '年级/班级')
+                    ->tpl('${rel.grade.grade_name} / ${rel.classes.classes_name}')
+                    ->width(150),
+                // amis()->TableColumn('rel.grade.grade_name', '年级')->width(100),
+                // amis()->TableColumn('rel.classes.classes_name', '班级')->width(100),
                 amis()->TableColumn('avatar', '学生照片')
                     ->set('src', '${avatar}')
                     ->set('type', 'avatar')
@@ -967,13 +989,13 @@ class StudentController extends AdminController
     /**
      * 检查身份证并获取学生信息
      */
-    public function EnterpriseStudentCheck(): JsonResponse|JsonResource
+    public function enterpriseStudentCheck(): JsonResponse|JsonResource
     {
         $id_card = request()->id_card ?? null;
 
         identifyByIdCard($id_card);
 
-        $res = $this->service->EnterpriseStudentCheck($id_card);
+        $res = $this->service->enterpriseStudentCheck($id_card);
 
         return $this->response()->success($res);
     }

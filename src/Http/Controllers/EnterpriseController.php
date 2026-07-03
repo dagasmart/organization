@@ -411,8 +411,78 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
+                        amis()->TextControl('credit_code', '统一信用代码')
+                            ->required()
+                            ->validateOnChange()
+                            ->validationDebounce(300)
+                            ->validations([
+                                'matchRegexp' => '/^[0-9A-HJ-NPQRTUWXY]{2}\\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/',
+                            ])
+                            ->validationErrors([
+                                'matchRegexp' => '格式不对，应为18位字母数字组合',
+                            ])
+                            ->onEvent([
+                                'change' => [
+                                    // ✅ 新增：防抖，避免输入过程中频繁请求
+                                    'debounce' => 300,
+                                    'actions' => [
+                                        // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
+                                        [
+                                            'actionType' => 'validate', // validate天然具有校验失败，阻断后续动作的功能
+                                            'componentName' => 'credit_code',
+                                        ],
+                                        // ✅ 新增：编辑模式下直接跳过（保留原有逻辑）
+                                        [
+                                            'actionType' => 'stopPropagation',
+                                            'expression' => '${isEdit}',
+                                        ],
+                                        // ✅ 新增：额外判断长度，防止正则通过但值不完整的情况
+                                        [
+                                            'actionType' => 'stopPropagation',
+                                            'expression' => '${!credit_code || credit_code.length !== 18}',
+                                        ],
+                                        [
+                                            'actionType' => 'loading',
+                                            'args' => [
+                                                'isLoading' => true,
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'ajax',
+                                            'api' => [
+                                                'method' => 'GET',
+                                                'url' => admin_url('biz/enterprise/${credit_code||0}/check'),
+                                            ],
+                                            'loading' => true,
+                                        ],
+                                        [
+                                            'actionType' => 'toast',
+                                            'args' => [
+                                                'msgType' => 'info',
+                                                'msg' => '${event.data | json:0}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'id',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.id||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'id',
+                                            'expression' => '${!!event.data.responseData.id}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'id',
+                                            'expression' => '${!event.data.responseData.id}',
+                                        ],
+                                    ],
+                                ],
+                            ]),
                         amis()->TextControl('enterprise_name', '机构名称')->required(),
-                        amis()->TextControl('enterprise_code', '机构代码'),
                         amis()->SelectControl('enterprise_nature', '机构性质')
                             ->options($this->service->natureOption())
                             ->value('${enterprise_nature}')
@@ -451,7 +521,7 @@ class EnterpriseController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->direction('horizontal')->body([
-                    amis()->TextControl('credit_code', '信用代码')
+                    amis()->TextControl('enterprise_code', is_school_module() ? '学校编码' : '单位编码')
                         ->required(),
                     amis()->TextControl('legal_person', '机构法人'),
                 ]),
@@ -963,4 +1033,17 @@ class EnterpriseController extends AdminController
 
         return $this->response()->success($res);
     }
+
+    public function enterpriseCheck(): JsonResponse|JsonResource
+    {
+        $credit_code = request()->credit_code ?? null;
+
+        usccByCode($credit_code);
+
+        $res = $this->service->enterpriseCheck($credit_code);
+
+        return $this->response()->success($res);
+    }
+
+
 }
