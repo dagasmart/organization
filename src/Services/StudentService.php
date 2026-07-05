@@ -170,7 +170,7 @@ class StudentService extends AdminService
      */
     public function getEnterpriseAll(): array
     {
-        return Enterprise::query()->whereNull('deleted_at')->get(['id as value', 'enterprise_name as label'])->toArray();
+        return Enterprise::whereHas('bind')->whereNull('deleted_at')->get(['id as value', 'enterprise_name as label'])->toArray();
     }
 
     /**

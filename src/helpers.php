@@ -2,10 +2,22 @@
 
 // 自定义辅助函数
 
+use DagaSmart\Organization\OrganizationServiceProvider;
+
 if (! function_exists('test')) {
     function test(): bool
     {
         return true;
+    }
+}
+
+if (! function_exists('extend_trans')) {
+    /**
+     * 语言包
+     */
+    function extend_trans($key): array|string|null
+    {
+        return OrganizationServiceProvider::trans($key) ?? null;
     }
 }
 
@@ -37,6 +49,6 @@ if (! function_exists('is_school_module')) {
      */
     function module_enterprise_alias(): string
     {
-        return is_school_module() ? '机构学校' : '机构单位';
+        return is_school_module() ? '学校' : '单位';
     }
 }

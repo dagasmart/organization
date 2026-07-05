@@ -121,7 +121,7 @@ class EnterpriseController extends AdminController
             ->autoFillHeight(true)
             ->columns([
                 amis()->TableColumn('id', 'ID')->sortable()->set('fixed', 'left'),
-                amis()->TableColumn('enterprise_name', '机构名称')
+                amis()->TableColumn('enterprise_name', extend_trans('organization.enterprise_name'))
                     ->searchable()
                     ->width(200),
                 amis()->TableColumn('enterprise_code', '机构代码')->searchable(),
@@ -203,7 +203,7 @@ class EnterpriseController extends AdminController
                         amis()->DateRangeControl('register_time'),
                     )
                     ->sortable(),
-                amis()->TableColumn('credit_code', '信用代码')->copyable(),
+                amis()->TableColumn('social_credit_code', '信用代码')->copyable(),
                 amis()->TableColumn('legal_person', '机构法人'),
                 amis()->TableColumn('contacts_mobile', '联系电话')->searchable(),
                 amis()->TableColumn('contacts_email', '联系邮件')->searchable(),
@@ -411,7 +411,7 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('credit_code', '统一信用代码')
+                        amis()->TextControl('social_credit_code', '统一信用代码')
                             ->required()
                             ->validateOnChange()
                             ->validationDebounce(300)
@@ -429,7 +429,7 @@ class EnterpriseController extends AdminController
                                         // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
                                         [
                                             'actionType' => 'validate', // validate天然具有校验失败，阻断后续动作的功能
-                                            'componentName' => 'credit_code',
+                                            'componentName' => 'social_credit_code',
                                         ],
                                         // ✅ 新增：编辑模式下直接跳过（保留原有逻辑）
                                         [
@@ -439,7 +439,7 @@ class EnterpriseController extends AdminController
                                         // ✅ 新增：额外判断长度，防止正则通过但值不完整的情况
                                         [
                                             'actionType' => 'stopPropagation',
-                                            'expression' => '${!credit_code || credit_code.length !== 18}',
+                                            'expression' => '${!social_credit_code || social_credit_code.length !== 18}',
                                         ],
                                         [
                                             'actionType' => 'loading',
@@ -451,7 +451,7 @@ class EnterpriseController extends AdminController
                                             'actionType' => 'ajax',
                                             'api' => [
                                                 'method' => 'GET',
-                                                'url' => admin_url('biz/enterprise/${credit_code||0}/check'),
+                                                'url' => admin_url('biz/enterprise/${social_credit_code||0}/check'),
                                             ],
                                             'loading' => true,
                                         ],
@@ -620,7 +620,7 @@ class EnterpriseController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->direction('horizontal')->body([
-                    amis()->TextControl('credit_code', '信用代码'),
+                    amis()->TextControl('social_credit_code', '信用代码'),
                     amis()->TextControl('legal_person', '机构法人'),
                 ]),
                 amis()->Divider(),
@@ -1036,11 +1036,11 @@ class EnterpriseController extends AdminController
 
     public function enterpriseCheck(): JsonResponse|JsonResource
     {
-        $credit_code = request()->credit_code ?? null;
+        $social_credit_code = request()->social_credit_code ?? null;
 
-        usccByCode($credit_code);
+        usccByCode($social_credit_code);
 
-        $res = $this->service->enterpriseCheck($credit_code);
+        $res = $this->service->enterpriseCheck($social_credit_code);
 
         return $this->response()->success($res);
     }

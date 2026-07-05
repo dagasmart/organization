@@ -4,6 +4,7 @@ namespace DagaSmart\Organization\Services;
 
 use DagaSmart\BizAdmin\Models\BasicRegion;
 use DagaSmart\Organization\Models\Enterprise;
+use DagaSmart\Organization\Models\EnterpriseBind;
 use DagaSmart\Organization\Models\EnterpriseDepartment;
 use DagaSmart\Organization\Models\EnterpriseDepartmentJob;
 use DagaSmart\Organization\Models\Grade;
@@ -24,7 +25,7 @@ class EnterpriseService extends AdminService
 
     public function addRelations($query, string $scene = 'list'): void
     {
-        // $query->with('authorize');
+        $query->whereHas('bind');
     }
 
     public function searchable($query): void
@@ -101,10 +102,10 @@ class EnterpriseService extends AdminService
                 admin_abort('当前机构名称已存在，请检查重试');
             }
         }
-        $credit_code = $data['credit_code'] ?? null;
-        if ($credit_code) {
+        $social_credit_code = $data['social_credit_code'] ?? null;
+        if ($social_credit_code) {
             $exists = $this->getModel()->query()
-                ->where('credit_code', $credit_code)
+                ->where('social_credit_code', $social_credit_code)
                 ->when($id, function ($builder) use ($id) {
                     return $builder->where('id', '!=', $id);
                 })
@@ -166,6 +167,117 @@ class EnterpriseService extends AdminService
             $model->enterpriseGrade()->sync($data);
         });
 
+    }
+
+    /**
+     * 批量删除企业（解绑优先，按需删主）
+     *
+     * @param  string  $ids  逗号分隔的企业ID字符串
+     */
+    public function delete(string $ids): array
+    {
+        // 1. 安全解析ID
+        $ids = array_values(array_unique(array_filter(
+            explode(',', $ids),
+            fn ($v) => ctype_digit($v) && $v > 0 && strlen($v) <= 19
+        )));
+
+        if (empty($ids)) {
+            admin_abort('删除机构ID不允许为空');
+        }
+
+        if (count($ids) > 200) {
+            admin_abort('单次最多支持处理200条记录');
+        }
+
+        $mer_id = admin_mer_id();
+        $module = admin_current_module();
+        $isModuleAdmin = is_module_administrator();
+
+        $deletedMainCount = 0;
+        $deletedBindCount = 0;
+
+        // 2. 事务内原子校验+删除（合并为单次查询，消除TOCTOU）
+        admin_transaction(function () use ($ids, $module, $mer_id, $isModuleAdmin, &$deletedMainCount, &$deletedBindCount) {
+
+            $bindModel = new EnterpriseBind;
+
+            $externalQuery = $bindModel->query()->withoutGlobalScopes()->whereIn('enterprise_id', $ids);
+
+            if ($isModuleAdmin) {
+                // 【核心修复】模块管理员视角的外部关联：
+                // ✅ 其他模块的任何绑定
+                // ✅ 当前模块下 mer_id IS NOT NULL 的绑定（有明确商户归属 = 其他商户）
+                // ✅ 当前模块下 mer_id IS NULL 的绑定 → 视为自身关联，不阻断
+                $blockedIds = $externalQuery
+                    ->where(function (Builder $q) use ($module) {
+                        $q->whereNot('module', $module)
+                            ->orWhere(function (Builder $sub) use ($module) {
+                                $sub->where('module', $module)
+                                    ->whereNotNull('mer_id');
+                            });
+                    })
+                    ->lockForUpdate()
+                    ->pluck('enterprise_id')
+                    ->unique()
+                    ->values()
+                    ->all();
+            } else {
+                // 普通商户视角：其他模块 + 同模块非当前商户
+                $blockedIds = $externalQuery
+                    ->where(function (Builder $q) use ($module, $mer_id) {
+                        $q->whereNot('module', $module)
+                            ->orWhere(fn (Builder $sub) => $sub
+                                ->where('module', $module)
+                                ->where('mer_id', '!=', $mer_id)
+                            );
+                    })
+                    ->lockForUpdate()
+                    ->pluck('enterprise_id')
+                    ->unique()
+                    ->values()
+                    ->all();
+            }
+
+            // 快速失败
+            if (! empty($blockedIds) && $isModuleAdmin) {
+                $sample = implode(', ', array_slice($blockedIds, 0, 5));
+                $suffix = count($blockedIds) > 5 ? ' 等'.count($blockedIds).'家' : '';
+                admin_abort("以下企业存在外部关联无法删除：{$sample}{$suffix}");
+            }
+
+            // ✅ 校验通过，执行删除
+            // 构建当前操作者的绑定删除条件
+            $deleteQuery = $bindModel->newQuery()
+                ->whereIn('enterprise_id', $ids)
+                ->where('module', $module);
+
+            if ($isModuleAdmin) {
+                // 模块管理员：仅删除 mer_id IS NULL 的自身关联
+                // （mer_id IS NOT NULL 的记录已被上方校验确认为不存在，但显式限定更安全）
+                $deleteQuery->whereNull('mer_id');
+            } else {
+                $deleteQuery->where('mer_id', $mer_id);
+            }
+
+            $deletedBindCount = $deleteQuery->delete();
+
+            // 删除主表
+            if ($isModuleAdmin || $mer_id) {
+                $deletedMainCount = $this->query()
+                    ->whereIn('id', $ids)
+                    ->when(
+                        $mer_id,
+                        fn ($q) => $q->where('creator_id', $mer_id)
+                    )
+                    ->delete();
+            }
+        });
+
+        return [
+            'success' => true,
+            'message' => "删除成功：解绑 {$deletedBindCount} 条，删除企业 {$deletedMainCount} 家",
+        ];
     }
 
     /**
@@ -462,10 +574,10 @@ class EnterpriseService extends AdminService
         return $data->load('children.children.children');
     }
 
-    public function enterpriseCheck($credit_code): ?Enterprise
+    public function enterpriseCheck($social_credit_code): ?Enterprise
     {
         $row = $this->query()
-            ->where(['credit_code' => $credit_code])
+            ->where(['social_credit_code' => $social_credit_code])
             ->first();
 
         if (! $row) {

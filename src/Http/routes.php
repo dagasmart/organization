@@ -11,7 +11,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('enterprise/chart/data', [Controllers\EnterpriseController::class, 'chartData']);
-    $router->get('enterprise/{credit_code}/check', [Controllers\EnterpriseController::class, 'enterpriseCheck']);
+    $router->get('enterprise/{social_credit_code}/check', [Controllers\EnterpriseController::class, 'enterpriseCheck']);
 
     $router->delete('enterprise/job/{id}/delete', [Controllers\EnterpriseController::class, 'jobDelete']);
     $router->delete('enterprise/department/{id}/delete', [Controllers\EnterpriseController::class, 'departmentDelete']);

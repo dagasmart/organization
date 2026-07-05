@@ -227,6 +227,7 @@ class WorkerService extends AdminService
         $model = new Enterprise;
 
         return $model->query()
+            ->whereHas('bind')
             ->whereNull('deleted_at')
             ->get(['id as value', 'enterprise_name as label'])
             ->toArray();

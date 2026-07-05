@@ -20,7 +20,7 @@ class OrganizationServiceProvider extends ServiceProvider
             'url' => '/biz/enterprise',
             'url_type' => 1,
             'icon' => 'carbon:calendar-settings',
-            ];
+        ];
         $menu[] = [
             'parent' => '基础维护',
             'title' => '机构管理',
@@ -67,11 +67,11 @@ class OrganizationServiceProvider extends ServiceProvider
             'icon' => 'heroicons:building-office-2',
         ];
         $menu[] = [
-                'parent' => '基础维护',
-                'title' => '设备管理',
-                'url' => '/biz/enterprise/device',
-                'url_type' => 1,
-                'icon' => 'ph:devices-light',
+            'parent' => '基础维护',
+            'title' => '设备管理',
+            'url' => '/biz/enterprise/device',
+            'url_type' => 1,
+            'icon' => 'ph:devices-light',
         ];
 
         return $this->menu = $menu;
