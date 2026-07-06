@@ -243,7 +243,7 @@ class EnterpriseService extends AdminService
             if (! empty($blockedIds) && $isModuleAdmin) {
                 $sample = implode(', ', array_slice($blockedIds, 0, 5));
                 $suffix = count($blockedIds) > 5 ? ' 等'.count($blockedIds).'家' : '';
-                admin_abort("以下企业存在外部关联无法删除：{$sample}{$suffix}");
+                admin_abort("以下企业存在多个商户关联，无法直接删除：{$sample}{$suffix}");
             }
 
             // ✅ 校验通过，执行删除
