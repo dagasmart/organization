@@ -184,6 +184,7 @@ class EnterpriseController extends AdminController
 //                            ],
 //                        ],
 //                    ])
+                    ->set('width', 120)
                     ->set('static', true),
                 amis()->TableColumn('region', '所属地区')
                     ->searchable(['name' => 'region', 'type' => 'input-city'])
@@ -407,7 +408,7 @@ class EnterpriseController extends AdminController
             amis()->Page()->data([
                 'items' => [
                     [
-                        'icon' => 'https://aisuda-public-images.bj.bcebos.com/amis/icon-2.png',
+                        'icon' => '/extensions/biz/organization/icon/teacher.svg',
                         'text' => '老师管理',
                         'link' => '/biz/enterprise/worker',
                         'blank' => true,
@@ -417,7 +418,7 @@ class EnterpriseController extends AdminController
                         ],
                     ],
                     [
-                        'icon' => 'https://aisuda-public-images.bj.bcebos.com/amis/icon-1.png',
+                        'icon' => '/extensions/biz/organization/icon/student.svg',
                         'text' => '学生管理',
                         'link' => '/biz/enterprise/student',
                         'blank' => true,
@@ -426,14 +427,14 @@ class EnterpriseController extends AdminController
                         ],
                     ],
                     [
-                        'icon' => 'https://aisuda-public-images.bj.bcebos.com/amis/icon-5.png',
+                        'icon' => '/extensions/biz/organization/icon/patriarch.svg',
                         'text' => '家长管理',
                         'link' => '/biz/enterprise/patriarch',
                         'blank' => true,
                     ],
                 ],
             ])->body([
-                amis()->GridNav()->source('${items}')->columnNum(3)->square()->border(true),
+                amis()->GridNav()->source('${items}')->itemClassName('follow')->columnNum(3)->square()->border(true),
             ]),
         ]);
     }
