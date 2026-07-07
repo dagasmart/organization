@@ -38,15 +38,15 @@ class EnterpriseController extends AdminController
                     // $this->region(),
                     $this->nature(),
                     $this->stage(),
-                ])->direction('column')->set('md', 3),
+                ])->direction('column')->set('md', 2),
 
                 $this->list()->set('md', 7),
 
                 amis()->Flex()->className('h-full')->items([
-                    $this->chart(),
+                    $this->nav()->className('h-1/5'),
                     $this->chart(),
                     $this->region(),
-                ])->direction('column')->set('md', 2),
+                ])->direction('column')->set('md', 3),
                 // $this->relevance()->set('md', 2),
                 // amis()->Flex()->className('h-full')->items([
                 //     $this->relevance(),
@@ -397,6 +397,43 @@ class EnterpriseController extends AdminController
                             ],
                         ]),
                 ]),
+            ]),
+        ]);
+    }
+
+    public function nav()
+    {
+        return amis()->Card()->className('w-full h-full')->body([
+            amis()->Page()->data([
+                'items' => [
+                    [
+                        'icon' => 'https://aisuda-public-images.bj.bcebos.com/amis/icon-2.png',
+                        'text' => '老师管理',
+                        'link' => '/biz/enterprise/worker',
+                        'blank' => true,
+                        'badge' => [
+                            'mode' => 'text',
+                            'text' => '10',
+                        ],
+                    ],
+                    [
+                        'icon' => 'https://aisuda-public-images.bj.bcebos.com/amis/icon-1.png',
+                        'text' => '学生管理',
+                        'link' => '/biz/enterprise/student',
+                        'blank' => true,
+                        'badge' => [
+                            'mode' => 'dot',
+                        ],
+                    ],
+                    [
+                        'icon' => 'https://aisuda-public-images.bj.bcebos.com/amis/icon-5.png',
+                        'text' => '家长管理',
+                        'link' => '/biz/enterprise/patriarch',
+                        'blank' => true,
+                    ],
+                ],
+            ])->body([
+                amis()->GridNav()->source('${items}')->columnNum(3)->square()->border(true),
             ]),
         ]);
     }
@@ -1044,6 +1081,4 @@ class EnterpriseController extends AdminController
 
         return $this->response()->success($res);
     }
-
-
 }

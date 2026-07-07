@@ -183,37 +183,37 @@ class EnterpriseService extends AdminService
         )));
 
         if (empty($ids)) {
-            admin_abort('删除机构ID不允许为空');
+            admin_abort('机构ID不允许为空');
         }
 
-        if (count($ids) > 200) {
-            admin_abort('单次最多支持处理200条记录');
+        if (count($ids) > 100) {
+            admin_abort('单次最多支持处理100条记录');
         }
 
         $mer_id = admin_mer_id();
         $module = admin_current_module();
         $isModuleAdmin = is_module_administrator();
 
-        $deletedMainCount = 0;
-        $deletedBindCount = 0;
+        $deletedMainCount = 0; // 删除的主表记录数量
+        $deletedBindCount = 0; // 删除的关联记录数量
+        $skippedCount = 0; // 【新增】跟踪被跳过的共享记录数量
 
-        // 2. 事务内原子校验+删除（合并为单次查询，消除TOCTOU）
-        admin_transaction(function () use ($ids, $module, $mer_id, $isModuleAdmin, &$deletedMainCount, &$deletedBindCount) {
+        // 2. 事务内原子操作（消除TOCTOU锁间隙）
+        admin_transaction(function () use ($ids, $module, $mer_id, $isModuleAdmin, &$deletedMainCount, &$deletedBindCount, &$skippedCount) {
 
             $bindModel = new EnterpriseBind;
 
-            $externalQuery = $bindModel->query()->withoutGlobalScopes()->whereIn('enterprise_id', $ids);
+            // ========== 阶段1: 校验 + 加锁（锁持有至事务结束）==========
+            $externalQuery = $bindModel->query()
+                ->withoutGlobalScopes()
+                ->whereIn('enterprise_id', $ids);
 
             if ($isModuleAdmin) {
-                // 【核心修复】模块管理员视角的外部关联：
-                // ✅ 其他模块的任何绑定
-                // ✅ 当前模块下 mer_id IS NOT NULL 的绑定（有明确商户归属 = 其他商户）
-                // ✅ 当前模块下 mer_id IS NULL 的绑定 → 视为自身关联，不阻断
                 $blockedIds = $externalQuery
-                    ->where(function (Builder $q) use ($module) {
-                        $q->whereNot('module', $module)
-                            ->orWhere(function (Builder $sub) use ($module) {
-                                $sub->where('module', $module)
+                    ->where(function (Builder $builder) use ($module) {
+                        $builder->whereNot('module', $module)
+                            ->orWhere(function (Builder $query) use ($module) {
+                                $query->where('module', $module)
                                     ->whereNotNull('mer_id');
                             });
                     })
@@ -223,11 +223,10 @@ class EnterpriseService extends AdminService
                     ->values()
                     ->all();
             } else {
-                // 普通商户视角：其他模块 + 同模块非当前商户
                 $blockedIds = $externalQuery
-                    ->where(function (Builder $q) use ($module, $mer_id) {
-                        $q->whereNot('module', $module)
-                            ->orWhere(fn (Builder $sub) => $sub
+                    ->where(function (Builder $builder) use ($module, $mer_id) {
+                        $builder->whereNot('module', $module)
+                            ->orWhere(fn (Builder $query) => $query
                                 ->where('module', $module)
                                 ->where('mer_id', '!=', $mer_id)
                             );
@@ -243,40 +242,79 @@ class EnterpriseService extends AdminService
             if (! empty($blockedIds) && $isModuleAdmin) {
                 $sample = implode(', ', array_slice($blockedIds, 0, 5));
                 $suffix = count($blockedIds) > 5 ? ' 等'.count($blockedIds).'家' : '';
-                admin_abort("以下企业存在多个商户关联，无法直接删除：{$sample}{$suffix}");
+                admin_abort("以下企业存在其他商户/模块关联，无法删除：{$sample}{$suffix}");
             }
 
-            // ✅ 校验通过，执行删除
-            // 构建当前操作者的绑定删除条件
+            // ========== 阶段2: 构建删除条件（仅构建查询，不执行）==========
             $deleteQuery = $bindModel->newQuery()
                 ->whereIn('enterprise_id', $ids)
                 ->where('module', $module);
 
             if ($isModuleAdmin) {
-                // 模块管理员：仅删除 mer_id IS NULL 的自身关联
-                // （mer_id IS NOT NULL 的记录已被上方校验确认为不存在，但显式限定更安全）
                 $deleteQuery->whereNull('mer_id');
             } else {
                 $deleteQuery->where('mer_id', $mer_id);
             }
 
+            // ========== 阶段3: 在锁保护下统计并决策 ==========
+            // 统计当前绑定数（锁仍有效）
+            $currentBinds = $bindModel->query()
+                ->withoutGlobalScopes()
+                ->whereIn('enterprise_id', $ids)
+                ->selectRaw('enterprise_id, COUNT(*) as bind_count')
+                ->groupBy('enterprise_id')
+                ->pluck('bind_count', 'enterprise_id');
+
+            // 统计本次将要删除的绑定数
+            $willDeleteBinds = $deleteQuery->toBase()
+                ->selectRaw('enterprise_id, COUNT(*) as count')
+                ->groupBy('enterprise_id')
+                ->pluck('count', 'enterprise_id');
+
+            // 基于"当前数量 - 即将删除数量"做决策
+            $toDeleteIds = [];
+            $toNullifyIds = [];
+
+            foreach ($ids as $id) {
+                $remaining = ($currentBinds[$id] ?? 0) - ($willDeleteBinds[$id] ?? 0);
+                if ($remaining > 0) {
+                    $toNullifyIds[] = $id;
+                } else {
+                    $toDeleteIds[] = $id;
+                }
+            }
+
+            // ========== 阶段4: 在同一把锁保护下依次执行物理操作 ==========
             $deletedBindCount = $deleteQuery->delete();
 
-            // 删除主表
-            if ($isModuleAdmin || $mer_id) {
+            if (! empty($toNullifyIds)) {
+                $this->query()
+                    ->whereIn('id', $toNullifyIds)
+                    ->where('creator_id', $mer_id)
+                    ->update(['creator_id' => null]);
+
+                $skippedCount = count($toNullifyIds);
+            }
+
+            if (! empty($toDeleteIds)) {
                 $deletedMainCount = $this->query()
-                    ->whereIn('id', $ids)
-                    ->when(
-                        $mer_id,
-                        fn ($q) => $q->where('creator_id', $mer_id)
-                    )
+                    ->whereIn('id', $toDeleteIds)
                     ->delete();
             }
         });
 
+        // 构建准确的返回消息
+        $message = "解绑 {$deletedBindCount} 条";
+        if ($deletedMainCount > 0) {
+            $message .= "，删除企业 {$deletedMainCount} 家";
+        }
+        if ($skippedCount > 0) {
+            $message .= "，保留 {$skippedCount} 家（仍存在其他关联）";
+        }
+
         return [
             'success' => true,
-            'message' => "删除成功：解绑 {$deletedBindCount} 条，删除企业 {$deletedMainCount} 家",
+            'message' => $message,
         ];
     }
 
