@@ -92,7 +92,7 @@ class EnterpriseService extends AdminService
         $id = $data['id'] ?? null;
         $enterprise_name = $data['enterprise_name'] ?? null;
         if ($enterprise_name) {
-            $exists = $this->getModel()->query()
+            $exists = $this->query()
                 ->where('enterprise_name', $enterprise_name)
                 ->when($id, function ($builder) use ($id) {
                     return $builder->where('id', '!=', $id);
@@ -104,14 +104,15 @@ class EnterpriseService extends AdminService
         }
         $social_credit_code = $data['social_credit_code'] ?? null;
         if ($social_credit_code) {
-            $exists = $this->getModel()->query()
+            $exists = $this->query()
                 ->where('social_credit_code', $social_credit_code)
                 ->when($id, function ($builder) use ($id) {
                     return $builder->where('id', '!=', $id);
                 })
                 ->exists();
             if ($exists) {
-                admin_abort('当前机构信用代码已被占用，请检查重试');
+                admin_abort_if(admin_current_module() == 'school', '社会信用代码已被非教育机构占用，请检查重试');
+                admin_abort('社会信用代码已被占用，请检查重试');
             }
         }
         // 地区代码
@@ -615,6 +616,7 @@ class EnterpriseService extends AdminService
     public function enterpriseCheck($social_credit_code): ?Enterprise
     {
         $row = $this->query()
+            ->whereHas('bind')
             ->where(['social_credit_code' => $social_credit_code])
             ->first();
 

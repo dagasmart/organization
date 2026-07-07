@@ -27,6 +27,8 @@ class Enterprise extends Model
     // 排除字段
     public $hidden = [];
 
+    public $appends = ['is_creator'];
+
 
     public function getEnterpriseLogoAttribute($value): ?string
     {
@@ -36,6 +38,11 @@ class Enterprise extends Model
     public function setEnterpriseLogoAttribute($value): void
     {
         $this->attributes['enterprise_logo'] = admin_image_path($value);
+    }
+
+    public function getIsCreatorAttribute(): bool
+    {
+        return $this->creator_id == admin_mer_id();
     }
 
     public function sexOption(): array

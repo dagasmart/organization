@@ -46,7 +46,7 @@ class EnterpriseController extends AdminController
                     $this->nav()->className('h-1/5'),
                     $this->chart(),
                     $this->chart(),
-                    //$this->region(),
+                    // $this->region(),
                 ])->direction('column')->set('md', 3),
                 // $this->relevance()->set('md', 2),
                 // amis()->Flex()->className('h-full')->items([
@@ -450,10 +450,10 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
+                        amis()->TextControl('id', 'ID')->disabledOn('${!!id}'),
                         amis()->TextControl('social_credit_code', '统一信用代码')
                             ->required()
                             ->validateOnChange()
-                            ->validationDebounce(300)
                             ->validations([
                                 'matchRegexp' => '/^[0-9A-HJ-NPQRTUWXY]{2}\\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/',
                             ])
@@ -465,26 +465,23 @@ class EnterpriseController extends AdminController
                                     // ✅ 新增：防抖，避免输入过程中频繁请求
                                     'debounce' => 300,
                                     'actions' => [
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'social_credit_code',
+                                            'args' => [
+                                                'value' => '${social_credit_code | upperCase}',
+                                            ],
+                                        ],
                                         // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
                                         [
                                             'actionType' => 'validate', // validate天然具有校验失败，阻断后续动作的功能
                                             'componentName' => 'social_credit_code',
                                         ],
                                         // ✅ 新增：编辑模式下直接跳过（保留原有逻辑）
-                                        [
-                                            'actionType' => 'stopPropagation',
-                                            'expression' => '${isEdit}',
-                                        ],
                                         // ✅ 新增：额外判断长度，防止正则通过但值不完整的情况
                                         [
                                             'actionType' => 'stopPropagation',
-                                            'expression' => '${!social_credit_code || social_credit_code.length !== 18}',
-                                        ],
-                                        [
-                                            'actionType' => 'loading',
-                                            'args' => [
-                                                'isLoading' => true,
-                                            ],
+                                            'expression' => '${isEdit || !social_credit_code || social_credit_code.length !== 18}',
                                         ],
                                         [
                                             'actionType' => 'ajax',
@@ -495,13 +492,6 @@ class EnterpriseController extends AdminController
                                             'loading' => true,
                                         ],
                                         [
-                                            'actionType' => 'toast',
-                                            'args' => [
-                                                'msgType' => 'info',
-                                                'msg' => '${event.data | json:0}',
-                                            ],
-                                        ],
-                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'id',
                                             'args' => [
@@ -509,36 +499,129 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
-                                            'actionType' => 'disabled',
-                                            'componentName' => 'id',
-                                            'expression' => '${!!event.data.responseData.id}',
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_name',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_name||null}',
+                                            ],
                                         ],
                                         [
-                                            'actionType' => 'enabled',
-                                            'componentName' => 'id',
-                                            'expression' => '${!event.data.responseData.id}',
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_nature',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_nature||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_mode',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_mode||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'register_time',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.register_time||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_logo',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_logo||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_code',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_code||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'legal_person',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.legal_person||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'contacts_mobile',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.contacts_mobile||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'contacts_email',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.contacts_email||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'region',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.region||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'region_info',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.region_info||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_address',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_address||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_address_info',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_address_info||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'enterprise_grade',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.enterprise_grade||null}',
+                                            ],
                                         ],
                                     ],
                                 ],
                             ]),
-                        amis()->TextControl('enterprise_name', '机构名称')->required(),
+                        amis()->TextControl('enterprise_name', '机构名称')->disabledOn('${!!enterprise_name}')->required(),
                         amis()->SelectControl('enterprise_nature', '机构性质')
                             ->options($this->service->natureOption())
                             ->value('${enterprise_nature}')
+                            ->disabledOn('${!!enterprise_nature}')
                             ->clearable()
                             ->required(),
                         amis()->SelectControl('enterprise_mode', '开办模式')
                             ->options($this->service->stageOption())
                             ->source(admin_url('biz/enterprise/stage/${enterprise_nature||0}/option'))
-                            ->disabledOn('${!enterprise_nature||null}')
                             ->value('${enterprise_mode}')
+                            ->disabledOn('${!!enterprise_mode && !enterprise_nature || null}')
                             ->clearable()
                             ->required(),
                         amis()->DateControl('register_time', '注册日期')
+                            ->disabledOn('${!!register_time}')
+                            ->value('${register_time}')
+                            ->clearable()
                             ->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->ImageControl('enterprise_logo', false)
+                            ->disabledOn('${!!enterprise_logo}')
                             ->thumbRatio('4:3')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
                             ->className(['overflow-hidden' => true, 'h-full' => true])
@@ -561,20 +644,23 @@ class EnterpriseController extends AdminController
                 amis()->Divider(),
                 amis()->GroupControl()->direction('horizontal')->body([
                     amis()->TextControl('enterprise_code', is_school_module() ? '学校编码' : '单位编码')
+                        ->disabledOn('${!!enterprise_code}')
                         ->required(),
-                    amis()->TextControl('legal_person', '机构法人'),
+                    amis()->TextControl('legal_person', '机构法人')->disabledOn('${!!legal_person}'),
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->TextControl('contacts_mobile', '联系电话')
+                        ->disabledOn('${!!contacts_mobile}')
                         ->required(),
-                    amis()->TextControl('contacts_email', '联系邮件'),
+                    amis()->TextControl('contacts_email', '联系邮件')->disabledOn('${!!contacts_email}'),
                 ]),
                 amis()->Divider(),
                 amis()->InputCityControl('region', '所在地区')
                     ->searchable()
                     ->extractValue(false)
                     ->value(admin_region_code())
+                    ->disabledOn('${!!region}')
                     ->required()
                     ->onEvent([
                         'change' => [
@@ -590,9 +676,10 @@ class EnterpriseController extends AdminController
                         ],
                     ]),
                 amis()->HiddenControl('region_info', '地区信息')->id('form_region_info'),
-                amis()->TextControl('enterprise_address', '机构地址'),
+                amis()->TextControl('enterprise_address', '机构地址')->disabledOn('${!!enterprise_address}'),
                 amis()->TextControl('enterprise_address_info', '详细地址')
                     ->value('${region_info.province} ${region_info.city} ${region_info.district} ${enterprise_address}')
+                    ->disabledOn('${!!enterprise_address_info}')
                     ->static(),
             ]),
             // 学段管理
@@ -604,7 +691,7 @@ class EnterpriseController extends AdminController
                         ->options($this->service->getGradeAll())
                         ->checkAll()
                         ->columnsCount(1)
-                        ->disabledOn('${!enterprise_mode}')
+                        ->disabledOn('${!enterprise_mode || !!enterprise_grade}')
                         ->required(),
                 ]),
             ])->visible(is_school_module()),
