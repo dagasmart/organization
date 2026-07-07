@@ -45,7 +45,8 @@ class EnterpriseController extends AdminController
                 amis()->Flex()->className('h-full')->items([
                     $this->nav()->className('h-1/5'),
                     $this->chart(),
-                    $this->region(),
+                    $this->chart(),
+                    //$this->region(),
                 ])->direction('column')->set('md', 3),
                 // $this->relevance()->set('md', 2),
                 // amis()->Flex()->className('h-full')->items([

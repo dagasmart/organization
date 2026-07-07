@@ -18,7 +18,7 @@ class EnterpriseGradeClasses extends Model
     public $timestamps = false;
 
     // 按需开启,模型表没有标记为空数组,默认开启
-    protected $activeScopeFields = ['module', 'mer_id'];
+    protected $activeScopeFields = [];
 
 
     /**
