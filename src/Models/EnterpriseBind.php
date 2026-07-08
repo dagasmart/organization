@@ -3,12 +3,10 @@
 namespace DagaSmart\Organization\Models;
 
 use DagaSmart\BizAdmin\Traits\ModuleMerIdTrait;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 基础-机构-商户模型类
+ * 基础-机构-商户关联模型类
  */
 class EnterpriseBind extends Model
 {
@@ -18,6 +16,13 @@ class EnterpriseBind extends Model
     protected $table = 'biz_enterprise_bind';
 
     public $timestamps = false;
+
+    // ✅ 关键：告诉 Eloquent 此表没有自增 id
+    public $incrementing = false;
+    // ✅ 指定实际的主键字段
+    protected $primaryKey = 'enterprise_id';
+    // 允许批量赋值的字段
+    protected $fillable = ['enterprise_id', 'module', 'mer_id'];
 
     // 按需开启,模型表没有标记为空数组
     protected $activeScopeFields = ['module', 'mer_id'];
@@ -29,7 +34,4 @@ class EnterpriseBind extends Model
     {
         return $this->belongsTo(Enterprise::class, 'enterprise_id', 'id');
     }
-
-
-
 }

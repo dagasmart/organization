@@ -46,6 +46,11 @@ class EnterpriseService extends AdminService
             request()->merge(['region' => implode(',', $code)]);
         }
 
+        $creator = stringToBool(request()?->creator);
+        if ($creator) {
+            request()->merge(['creator_id' => admin_mer_id()]);
+        }
+
         parent::searchable($query);
 
     }
@@ -73,12 +78,21 @@ class EnterpriseService extends AdminService
         }
     }
 
+    public function store($data): bool
+    {
+        if (! empty($data['id'])) {
+            return $this->update($data['id'], $data);
+        }
+
+        return parent::store($data);
+    }
+
     public function saving(&$data, $primaryKey = ''): void
     {
         $data = clear_array_trim($data);
-        if (! empty($data['enterprise_grade'])) {
+        if (! empty($data['grade_id'])) {
             // 学段年级
-            $enterprise_grade = explode(',', $data['enterprise_grade']);
+            $enterprise_grade = explode(',', $data['grade_id']);
             // 获取年级学段
             $parent = Grade::query()
                 ->whereIn('id', $enterprise_grade)
@@ -87,7 +101,7 @@ class EnterpriseService extends AdminService
                 ->filter()
                 ->unique()
                 ->toArray();
-            $data['enterprise_grade'] = admin_sort(array_unique(array_merge($parent, $enterprise_grade)), 'desc');
+            $data['grade_id'] = admin_sort(array_unique(array_merge($parent, $enterprise_grade)), 'desc');
         }
         $id = $data['id'] ?? null;
         $enterprise_name = $data['enterprise_name'] ?? null;
@@ -136,7 +150,7 @@ class EnterpriseService extends AdminService
     public function saved($model, $isEdit = false): void
     {
 
-        $grade = $model->enterprise_grade ?? null;
+        $grade = $model->grade_id ?? null;
 
         // 防御性判断
         if (! $model || empty($grade)) {
@@ -162,10 +176,18 @@ class EnterpriseService extends AdminService
         }
 
         // 2. 使用事务保证数据一致性
-        admin_transaction(function () use ($model, $data) {
+        admin_transaction(function () use ($model, $data, $module, $mer_id) {
             // 3. 直接调用 sync，Laravel 会自动比对差异并执行安全的增删操作
             // 注意：如果中间表没有唯一索引，sync 可能会报重复插入错误，需确保表结构正确
+            // sync 会自动处理增删改，只影响当前 enterprise_id 的记录
             $model->enterpriseGrade()->sync($data);
+
+            // 4. updateOrCreate 必须明确指定 enterprise_id 作为匹配条件
+            // 目标字段必须在关联模型的 $fillable 属性中显式声明
+            $model->enterpriseBind()->updateOrCreate(
+                ['enterprise_id' => $model->id], // ← 匹配条件
+                ['module' => $module, 'mer_id' => $mer_id] // ← 更新/创建的值
+            );
         });
 
     }
@@ -625,7 +647,7 @@ class EnterpriseService extends AdminService
             return null; // 显式返回 null，比返回 $row 更清晰
         }
 
-        if ($row->nature?->type == 'school') {
+        if ($row->nature?->type == 'school' && admin_current_module() !== 'school') {
             admin_abort('社会信用代码已被教育机构占用，请检查重试', 400);
         }
 

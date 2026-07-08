@@ -69,4 +69,10 @@ class Enterprise extends Model
     {
         return $this->belongsToMany(Grade::class, EnterpriseGrade::class, 'enterprise_id', 'grade_id');
     }
+
+    public function enterpriseBind(): HasOne
+    {
+        return $this->hasOne(EnterpriseBind::class, 'enterprise_id', 'id');
+    }
+
 }

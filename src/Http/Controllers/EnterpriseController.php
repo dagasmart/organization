@@ -60,7 +60,7 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
-            ->api($this->getListGetDataPath().'&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&nature_id=${nature_id}&stage_id=${stage_id}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
+            ->api($this->getListGetDataPath().'&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&nature_id=${nature_id}&stage_id=${stage_id}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}&creator=${creator}')
             ->id('crud_record')
             ->filterTogglable()
             ->headerToolbar([
@@ -69,10 +69,13 @@ class EnterpriseController extends AdminController
             ])
             ->filter($this->baseFilter()->body([
                 amis()->Flex()->items([
-                    amis()->TextControl('enterprise_name', '机构名称')
-                        ->size('md')
-                        ->clearable()
-                        ->placeholder('机构名称'),
+                    amis()->GroupControl()->body([
+                        amis()->TextControl('enterprise_name', '机构名称')
+                            ->size('md')
+                            ->clearable()
+                            ->placeholder('机构名称'),
+                        amis()->SwitchControl('creator')->onText('我是')->option('创建者'),
+                    ]),
                     amis()->InputCityControl('region', '地区城市')
                         ->placeholder('请选择地区城市'),
                     amis()->DateRangeControl('register_time', '注册登记')
@@ -732,20 +735,20 @@ class EnterpriseController extends AdminController
                                         ],
                                         [
                                             'actionType' => 'setValue',
-                                            'componentName' => 'enterprise_grade',
+                                            'componentName' => 'grade_id',
                                             'args' => [
-                                                'value' => '${event.data.responseData.enterprise_grade||null}',
+                                                'value' => '${event.data.responseData.grade_id||null}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
-                                            'componentName' => 'enterprise_grade',
-                                            'expression' => '${!!event.data.responseData.enterprise_grade}',
+                                            'componentName' => 'grade_id',
+                                            'expression' => '${!!event.data.responseData.grade_id}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
-                                            'componentName' => 'enterprise_grade',
-                                            'expression' => '${!event.data.responseData.enterprise_grade}',
+                                            'componentName' => 'grade_id',
+                                            'expression' => '${!event.data.responseData.grade_id}',
                                         ],
                                     ],
                                 ],
@@ -838,7 +841,7 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('学段年级')->body([
                 amis()->Alert()->showCloseButton()->body('请在【基本信息】选择‹开办模式›后，再选择学段年级。'),
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->CheckboxesControl('enterprise_grade', null)
+                    amis()->CheckboxesControl('grade_id', null)
                         ->source(admin_url('biz/enterprise/stage/${stage_id||0}/grade/all'))
                         ->options($this->service->getGradeAll())
                         ->disabledOn('${!!isEdit && !is_creator}')
@@ -933,13 +936,15 @@ class EnterpriseController extends AdminController
             // 学段管理
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
-                    amis()->CheckboxesControl('enterprise_grade', null)
+                    amis()->CheckboxesControl('grade_id', null)
+                        ->source(admin_url('biz/enterprise/stage/${stage_id||0}/grade/all'))
+                        ->options($this->service->getGradeAll())
+                        ->disabledOn('${!!isEdit && !is_creator}')
                         ->checkAll()
                         ->columnsCount(1)
-                        ->options($this->service->getGradeAll()),
-                ])
-                    ->disabled()
-                    ->static(false),
+                        ->disabled()
+                        ->static(false),
+                ]),
             ])->visible(is_school_module()),
         ])->static();
     }
