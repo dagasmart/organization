@@ -616,12 +616,17 @@ class EnterpriseService extends AdminService
     public function enterpriseCheck($social_credit_code): ?Enterprise
     {
         $row = $this->query()
-            ->whereHas('bind')
+            // ->whereHas('bind')
+            ->with('nature')
             ->where(['social_credit_code' => $social_credit_code])
-            ->first();
+            ->firstOrFail();
 
         if (! $row) {
             return null; // 显式返回 null，比返回 $row 更清晰
+        }
+
+        if ($row->nature?->type == 'school') {
+            admin_abort('社会信用代码已被教育机构占用，请检查重试', 400);
         }
 
         return $row;

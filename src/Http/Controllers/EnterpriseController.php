@@ -60,7 +60,7 @@ class EnterpriseController extends AdminController
     public function list(): Page
     {
         $crud = $this->baseCRUD()
-            ->api($this->getListGetDataPath().'&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&enterprise_nature=${enterprise_nature}&enterprise_mode=${enterprise_mode}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
+            ->api($this->getListGetDataPath().'&enterprise_name=${enterprise_name}&enterprise_code=${enterprise_code}&nature_id=${nature_id}&stage_id=${stage_id}&enterprise_address=${enterprise_address}&register_time=${register_time}&contacts_mobile=${contacts_mobile}&contacts_email=${contacts_email}&region=${region}')
             ->id('crud_record')
             ->filterTogglable()
             ->headerToolbar([
@@ -126,7 +126,7 @@ class EnterpriseController extends AdminController
                     ->searchable()
                     ->width(200),
                 amis()->TableColumn('enterprise_code', '机构代码')->searchable(),
-                amis()->TableColumn('enterprise_nature', '机构性质')
+                amis()->TableColumn('nature_id', '机构性质')
                     ->set('type', 'select')
                     ->set('options', $this->service->natureOption())
 //                    ->filterable([
@@ -136,7 +136,7 @@ class EnterpriseController extends AdminController
 //                        'submitOnChange' => true,
 //                    ])
 //                    ->searchable([
-//                        'name' => 'enterprise_nature',
+//                        'name' => 'nature_id',
 //                        'type' => 'select',
 //                        'options' => $this->service->natureOption(),
 //                        'clearable' => true,
@@ -146,7 +146,7 @@ class EnterpriseController extends AdminController
 //                                'actions' => [
 //                                    [
 //                                        'actionType' => 'setValue',
-//                                        'componentId' => 'enterpriseNature',
+//                                        'componentId' => 'enterpriseNatureId',
 //                                        'args' => [
 //                                            'value' => '${event.data.value | number:0}',
 //                                        ],
@@ -156,7 +156,7 @@ class EnterpriseController extends AdminController
 //                        ],
 //                    ])
                     ->set('static', true),
-                amis()->TableColumn('enterprise_mode', '开办模式')
+                amis()->TableColumn('stage_id', '开办模式')
                     ->set('type', 'select')
                     ->set('options', $this->service->getStageAll())
 //                    ->filterable([
@@ -166,7 +166,7 @@ class EnterpriseController extends AdminController
 //                        'submitOnChange' => true,
 //                    ])
 //                    ->searchable([
-//                        'name' => 'enterprise_mode',
+//                        'name' => 'stage_id',
 //                        'type' => 'select',
 //                        'options' => $this->service->getStageAll(),
 //                        'clearable' => true,
@@ -176,7 +176,7 @@ class EnterpriseController extends AdminController
 //                                'actions' => [
 //                                    [
 //                                        'actionType' => 'setValue',
-//                                        'componentId' => 'enterpriseMode',
+//                                        'componentId' => 'enterpriseStageId',
 //                                        'args' => [
 //                                            'value' => '${event.data.value | number:0}',
 //                                        ],
@@ -218,8 +218,8 @@ class EnterpriseController extends AdminController
                     $this->rowJobButton('drawer', 'md', '职务'),
                     $this->rowAuthButton('drawer', 'md', '授权'),
                     $this->rowShowButton(true),
-                    $this->rowEditButton(true),
-                    $this->rowDeleteButton(),
+                    $this->rowEditButton(true, 'md', '${!is_creator ? "更正" : "编辑"}')->disabledOn('${!is_creator}'),
+                    $this->rowDeleteButton('${!is_creator ? "解绑" : "删除"}'),
                 ])
                     ->set('width', 150)
                     ->set('align', 'center')
@@ -257,10 +257,10 @@ class EnterpriseController extends AdminController
     public function nature()
     {
         return amis()->Card()->className('w-full h-full')->body([
-            amis()->TreeControl('enterprise_nature', false)
-                ->id('enterpriseNature')
+            amis()->TreeControl('nature_id', false)
+                ->id('enterpriseNatureId')
                 // ->deferApi('basic/region/${value||0}/children')
-                ->source(admin_url('biz/enterprise/nature/${enterprise_mode||0}/option'))
+                ->source(admin_url('biz/enterprise/nature/${stage_id||0}/option'))
                 ->options($this->service->getNatureAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
@@ -279,10 +279,10 @@ class EnterpriseController extends AdminController
     public function stage()
     {
         return amis()->Card()->className('w-full h-full')->body([
-            amis()->TreeControl('enterprise_mode', false)
-                ->id('enterpriseMode')
+            amis()->TreeControl('stage_id', false)
+                ->id('enterpriseStageId')
                 // ->deferApi('basic/region/${value||0}/children')
-                ->source(admin_url('biz/enterprise/stage/${enterprise_nature||0}/option'))
+                ->source(admin_url('biz/enterprise/stage/${nature_id||0}/option'))
                 ->options($this->service->getStageAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
@@ -443,14 +443,15 @@ class EnterpriseController extends AdminController
     public function form($isEdit = false): Form
     {
         return $this->baseForm()->mode('horizontal')->data([
-            'enterprise_nature' => '${enterprise_nature}',
-            'enterprise_mode' => '${enterprise_mode}',
+            'isEdit' => $isEdit,
+            'nature_id' => '${nature_id}',
+            'stage_id' => '${stage_id}',
         ])->tabs([
             // 基本信息
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
-                        amis()->TextControl('id', 'ID')->disabledOn('${!!id}'),
+                        amis()->HiddenControl('id', 'ID')->disabled(),
                         amis()->TextControl('social_credit_code', '统一信用代码')
                             ->required()
                             ->validateOnChange()
@@ -499,6 +500,16 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'id',
+                                            'expression' => '${!!event.data.responseData.id}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'id',
+                                            'expression' => '${!event.data.responseData.id}',
+                                        ],
+                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'enterprise_name',
                                             'args' => [
@@ -506,25 +517,65 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
-                                            'actionType' => 'setValue',
-                                            'componentName' => 'enterprise_nature',
-                                            'args' => [
-                                                'value' => '${event.data.responseData.enterprise_nature||null}',
-                                            ],
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'enterprise_name',
+                                            'expression' => '${!!event.data.responseData.enterprise_name}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'enterprise_name',
+                                            'expression' => '${!event.data.responseData.enterprise_name}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
-                                            'componentName' => 'enterprise_mode',
+                                            'componentName' => 'nature_id',
                                             'args' => [
-                                                'value' => '${event.data.responseData.enterprise_mode||null}',
+                                                'value' => '${event.data.responseData.nature_id||null}',
                                             ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'nature_id',
+                                            'expression' => '${!!event.data.responseData.nature_id}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'nature_id',
+                                            'expression' => '${!event.data.responseData.nature_id}',
+                                        ],
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'stage_id',
+                                            'args' => [
+                                                'value' => '${event.data.responseData.stage_id||null}',
+                                            ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'stage_id',
+                                            'expression' => '${!!event.data.responseData.stage_id}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'stage_id',
+                                            'expression' => '${!event.data.responseData.stage_id}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
                                             'componentName' => 'register_time',
                                             'args' => [
-                                                'value' => '${event.data.responseData.register_time||null}',
+                                                'value' => '${event.data.responseData.register_time|toDate:YYYY-MM-DD}',
                                             ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'register_time',
+                                            'expression' => '${!!event.data.responseData.register_time}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'register_time',
+                                            'expression' => '${!event.data.responseData.register_time}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -534,11 +585,31 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'enterprise_logo',
+                                            'expression' => '${!!event.data.responseData.enterprise_logo}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'enterprise_logo',
+                                            'expression' => '${!event.data.responseData.enterprise_logo}',
+                                        ],
+                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'enterprise_code',
                                             'args' => [
                                                 'value' => '${event.data.responseData.enterprise_code||null}',
                                             ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'enterprise_code',
+                                            'expression' => '${!!event.data.responseData.enterprise_code}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'enterprise_code',
+                                            'expression' => '${!event.data.responseData.enterprise_code}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -548,11 +619,31 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'legal_person',
+                                            'expression' => '${!!event.data.responseData.legal_person || false}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'legal_person',
+                                            'expression' => '${!event.data.responseData.legal_person || true}',
+                                        ],
+                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'contacts_mobile',
                                             'args' => [
                                                 'value' => '${event.data.responseData.contacts_mobile||null}',
                                             ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'contacts_mobile',
+                                            'expression' => '${!!event.data.responseData.contacts_mobile}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'contacts_mobile',
+                                            'expression' => '${!event.data.responseData.contacts_mobile}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -562,11 +653,31 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'contacts_email',
+                                            'expression' => '${!!event.data.responseData.contacts_email}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'contacts_email',
+                                            'expression' => '${!event.data.responseData.contacts_email}',
+                                        ],
+                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'region',
                                             'args' => [
                                                 'value' => '${event.data.responseData.region||null}',
                                             ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'region',
+                                            'expression' => '${!!event.data.responseData.region}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'region',
+                                            'expression' => '${!event.data.responseData.region}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -576,11 +687,31 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'region_info',
+                                            'expression' => '${!!event.data.responseData.region_info}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'region_info',
+                                            'expression' => '${!event.data.responseData.region_info}',
+                                        ],
+                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'enterprise_address',
                                             'args' => [
                                                 'value' => '${event.data.responseData.enterprise_address||null}',
                                             ],
+                                        ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'enterprise_address',
+                                            'expression' => '${!!event.data.responseData.enterprise_address}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'enterprise_address',
+                                            'expression' => '${!event.data.responseData.enterprise_address}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -590,38 +721,57 @@ class EnterpriseController extends AdminController
                                             ],
                                         ],
                                         [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'enterprise_address_info',
+                                            'expression' => '${!!event.data.responseData.enterprise_address_info}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'enterprise_address_info',
+                                            'expression' => '${!event.data.responseData.enterprise_address_info}',
+                                        ],
+                                        [
                                             'actionType' => 'setValue',
                                             'componentName' => 'enterprise_grade',
                                             'args' => [
                                                 'value' => '${event.data.responseData.enterprise_grade||null}',
                                             ],
                                         ],
+                                        [
+                                            'actionType' => 'disabled',
+                                            'componentName' => 'enterprise_grade',
+                                            'expression' => '${!!event.data.responseData.enterprise_grade}',
+                                        ],
+                                        [
+                                            'actionType' => 'enabled',
+                                            'componentName' => 'enterprise_grade',
+                                            'expression' => '${!event.data.responseData.enterprise_grade}',
+                                        ],
                                     ],
                                 ],
                             ]),
-                        amis()->TextControl('enterprise_name', '机构名称')->disabledOn('${!!enterprise_name}')->required(),
-                        amis()->SelectControl('enterprise_nature', '机构性质')
+                        amis()->TextControl('enterprise_name', '机构名称')
+                            ->disabledOn('${!!isEdit && !is_creator}')
+                            ->required(),
+                        amis()->SelectControl('nature_id', '机构性质')
                             ->options($this->service->natureOption())
-                            ->value('${enterprise_nature}')
-                            ->disabledOn('${!!enterprise_nature}')
+                            ->disabledOn('${!!isEdit && !is_creator}')
                             ->clearable()
                             ->required(),
-                        amis()->SelectControl('enterprise_mode', '开办模式')
+                        amis()->SelectControl('stage_id', '开办模式')
+                            ->source(admin_url('biz/enterprise/stage/${nature_id||0}/option'))
                             ->options($this->service->stageOption())
-                            ->source(admin_url('biz/enterprise/stage/${enterprise_nature||0}/option'))
-                            ->value('${enterprise_mode}')
-                            ->disabledOn('${!!enterprise_mode && !enterprise_nature || null}')
+                            ->disabledOn('${!!isEdit && !is_creator}')
                             ->clearable()
                             ->required(),
                         amis()->DateControl('register_time', '注册日期')
-                            ->disabledOn('${!!register_time}')
-                            ->value('${register_time}')
+                            ->format('YYYY-MM-DD')
                             ->clearable()
                             ->required(),
                     ]),
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->ImageControl('enterprise_logo', false)
-                            ->disabledOn('${!!enterprise_logo}')
+                            ->disabledOn('${!!isEdit && !is_creator}')
                             ->thumbRatio('4:3')
                             ->thumbMode('cover h-full rounded-md overflow-hidden')
                             ->className(['overflow-hidden' => true, 'h-full' => true])
@@ -644,23 +794,25 @@ class EnterpriseController extends AdminController
                 amis()->Divider(),
                 amis()->GroupControl()->direction('horizontal')->body([
                     amis()->TextControl('enterprise_code', is_school_module() ? '学校编码' : '单位编码')
-                        ->disabledOn('${!!enterprise_code}')
+                        ->disabledOn('${!!isEdit && !is_creator}')
                         ->required(),
-                    amis()->TextControl('legal_person', '机构法人')->disabledOn('${!!legal_person}'),
+                    amis()->TextControl('legal_person', '机构法人')
+                        ->disabledOn('${!!isEdit && !is_creator}'),
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->TextControl('contacts_mobile', '联系电话')
-                        ->disabledOn('${!!contacts_mobile}')
+                        ->disabledOn('${!!isEdit && !is_creator}')
                         ->required(),
-                    amis()->TextControl('contacts_email', '联系邮件')->disabledOn('${!!contacts_email}'),
+                    amis()->TextControl('contacts_email', '联系邮件')
+                        ->disabledOn('${!!isEdit && !is_creator}'),
                 ]),
                 amis()->Divider(),
                 amis()->InputCityControl('region', '所在地区')
                     ->searchable()
                     ->extractValue(false)
                     ->value(admin_region_code())
-                    ->disabledOn('${!!region}')
+                    ->disabledOn('${!!isEdit && !is_creator}')
                     ->required()
                     ->onEvent([
                         'change' => [
@@ -676,10 +828,10 @@ class EnterpriseController extends AdminController
                         ],
                     ]),
                 amis()->HiddenControl('region_info', '地区信息')->id('form_region_info'),
-                amis()->TextControl('enterprise_address', '机构地址')->disabledOn('${!!enterprise_address}'),
+                amis()->TextControl('enterprise_address', '机构地址')->disabledOn('${!!isEdit && !is_creator}'),
                 amis()->TextControl('enterprise_address_info', '详细地址')
                     ->value('${region_info.province} ${region_info.city} ${region_info.district} ${enterprise_address}')
-                    ->disabledOn('${!!enterprise_address_info}')
+                    ->disabledOn('${!!isEdit && !is_creator}')
                     ->static(),
             ]),
             // 学段管理
@@ -687,11 +839,11 @@ class EnterpriseController extends AdminController
                 amis()->Alert()->showCloseButton()->body('请在【基本信息】选择‹开办模式›后，再选择学段年级。'),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->CheckboxesControl('enterprise_grade', null)
-                        ->source(admin_url('biz/enterprise/stage/${enterprise_mode||0}/grade/all'))
+                        ->source(admin_url('biz/enterprise/stage/${stage_id||0}/grade/all'))
                         ->options($this->service->getGradeAll())
+                        ->disabledOn('${!!isEdit && !is_creator}')
                         ->checkAll()
                         ->columnsCount(1)
-                        ->disabledOn('${!enterprise_mode || !!enterprise_grade}')
                         ->required(),
                 ]),
             ])->visible(is_school_module()),
@@ -728,11 +880,11 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('基本信息')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
+                        amis()->TextControl('social_credit_code', '社会信用代码'),
                         amis()->TextControl('enterprise_name', '机构名称'),
-                        amis()->TextControl('enterprise_code', '机构代码'),
-                        amis()->SelectControl('enterprise_nature', '机构性质')
+                        amis()->SelectControl('nature_id', '机构性质')
                             ->options($this->service->natureOption()),
-                        amis()->SelectControl('enterprise_mode', '开办模式')
+                        amis()->SelectControl('stage_id', '开办模式')
                             ->options($this->service->getStageAll()),
                         amis()->DateControl('register_time', '注册日期'),
                     ]),
@@ -746,7 +898,7 @@ class EnterpriseController extends AdminController
                 ]),
                 amis()->Divider(),
                 amis()->GroupControl()->direction('horizontal')->body([
-                    amis()->TextControl('social_credit_code', '信用代码'),
+                    amis()->TextControl('enterprise_code', '机构编码'),
                     amis()->TextControl('legal_person', '机构法人'),
                 ]),
                 amis()->Divider(),
@@ -872,7 +1024,7 @@ class EnterpriseController extends AdminController
     }
 
     /**
-     * 授权按钮
+     * 部门按钮
      */
     protected function rowDepartmentButton(bool|string $dialog = false, string $dialogSize = 'md', string $title = ''): mixed
     {
@@ -915,6 +1067,7 @@ class EnterpriseController extends AdminController
                 ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
                 ->heightAuto()
                 ->creatable()
+                ->creatableOn('${!!is_creator}')
                 ->addControls([
                     amis()->HiddenControl('enterprise_id')->value('${id}'),
                     amis()->TextControl('department_name', '部门名称')->required(),
@@ -937,6 +1090,7 @@ class EnterpriseController extends AdminController
                 ])
                 ->addApi(admin_url('biz/enterprise/department/save'))
                 ->editable()
+                ->editableOn('${!!is_creator}')
                 ->editControls([
                     amis()->HiddenControl('id'),
                     amis()->HiddenControl('enterprise_id')->value('${id}'),
@@ -958,6 +1112,7 @@ class EnterpriseController extends AdminController
                 ])
                 ->editApi(admin_url('biz/enterprise/department/save'))
                 ->removable()
+                ->removableOn('${!!is_creator}')
                 ->deleteApi(admin_url('biz/enterprise/department/${id}/delete'))
                 ->showOutline()
                 ->searchable()

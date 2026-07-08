@@ -19,7 +19,7 @@ class Enterprise extends Model
 
     protected $casts = [
         'region_info' => 'array',
-        'register_time' => 'date',
+        //'register_time' => 'date',
     ];
 
     public $timestamps = false;
@@ -42,7 +42,7 @@ class Enterprise extends Model
 
     public function getIsCreatorAttribute(): bool
     {
-        return $this->creator_id == admin_mer_id();
+        return empty(admin_mer_id()) || $this->creator_id === admin_mer_id();
     }
 
     public function sexOption(): array
@@ -53,6 +53,11 @@ class Enterprise extends Model
     public function bind(): HasMany
     {
         return $this->hasMany(EnterpriseBind::class, 'enterprise_id', 'id');
+    }
+
+    public function nature(): HasOne
+    {
+        return $this->hasOne(Nature::class, 'id', 'nature_id');
     }
 
     public function enterprise(): HasOne

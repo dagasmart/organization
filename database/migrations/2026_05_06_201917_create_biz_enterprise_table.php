@@ -23,9 +23,9 @@ return new class extends Migration
             $table->string('enterprise_code', 32)->comment('单位代码');
             $table->string('enterprise_name', 32)->comment('单位名称');
             $table->string('enterprise_logo')->nullable()->comment('单位标志');
-            $table->tinyInteger('enterprise_nature')->nullable()->comment('单位性质');
-            $table->tinyInteger('enterprise_mode')->nullable()->comment('单位模式');
-            $table->string('enterprise_grade', 200)->nullable()->comment('学段年级');
+            $table->tinyInteger('nature_id')->nullable()->comment('单位性质');
+            $table->tinyInteger('stage_id')->nullable()->comment('单位模式');
+            $table->string('enterprise_grade', 100)->nullable()->comment('学段年级');
             $table->date('register_time')->nullable()->comment('注册日期');
             $table->integer('region')->nullable()->comment('所属地区');
             $table->json('region_info')->nullable()->comment('地区信息');
