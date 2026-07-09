@@ -6,20 +6,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-
 /**
  * 基础-机构模型类
  */
 class Enterprise extends Model
 {
-
     protected $table = 'biz_enterprise';
 
     protected $primaryKey = 'id';
 
     protected $casts = [
         'region_info' => 'array',
-        //'register_time' => 'date',
+        // 'register_time' => 'date',
     ];
 
     public $timestamps = false;
@@ -28,7 +26,6 @@ class Enterprise extends Model
     public $hidden = [];
 
     public $appends = ['is_creator'];
-
 
     public function getEnterpriseLogoAttribute($value): ?string
     {
@@ -74,5 +71,4 @@ class Enterprise extends Model
     {
         return $this->hasOne(EnterpriseBind::class, 'enterprise_id', 'id');
     }
-
 }

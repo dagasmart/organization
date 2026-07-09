@@ -409,35 +409,7 @@ class EnterpriseController extends AdminController
     public function nav()
     {
         return amis()->Card()->className('w-full h-full')->body([
-            amis()->Page()->data([
-                'items' => [
-                    [
-                        'icon' => '/extensions/biz/organization/icon/teacher.svg',
-                        'text' => '老师管理',
-                        'link' => '/biz/enterprise/worker',
-                        'blank' => true,
-                        'badge' => [
-                            'mode' => 'text',
-                            'text' => '10',
-                        ],
-                    ],
-                    [
-                        'icon' => '/extensions/biz/organization/icon/student.svg',
-                        'text' => '学生管理',
-                        'link' => '/biz/enterprise/student',
-                        'blank' => true,
-                        'badge' => [
-                            'mode' => 'dot',
-                        ],
-                    ],
-                    [
-                        'icon' => '/extensions/biz/organization/icon/patriarch.svg',
-                        'text' => '家长管理',
-                        'link' => '/biz/enterprise/patriarch',
-                        'blank' => true,
-                    ],
-                ],
-            ])->body([
+            amis()->Page()->data(['items' => $this->service->navQuick()])->body([
                 amis()->GridNav()->source('${items}')->itemClassName('follow')->columnNum(3)->square()->border(true),
             ]),
         ]);

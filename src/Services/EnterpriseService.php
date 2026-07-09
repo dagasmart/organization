@@ -125,7 +125,7 @@ class EnterpriseService extends AdminService
                 })
                 ->exists();
             if ($exists) {
-                admin_abort_if(admin_current_module() == 'school', '社会信用代码已被非教育机构占用，请检查重试');
+                admin_abort_if(! is_school_module(), '社会信用代码已被非教育机构占用，请检查重试');
                 admin_abort('社会信用代码已被占用，请检查重试');
             }
         }
@@ -339,6 +339,18 @@ class EnterpriseService extends AdminService
             'success' => true,
             'message' => $message,
         ];
+    }
+
+    /**
+     * 机构(全部)列表
+     */
+    public function getEnterpriseAll(): array
+    {
+        return $this->query()
+            ->whereHas('bind')
+            ->select(['id as value', 'enterprise_name as label', 'id'])
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -635,11 +647,67 @@ class EnterpriseService extends AdminService
         return $data->load('children.children.children');
     }
 
+    public function navQuick(): array
+    {
+        $data = [];
+        if (is_school_module()) {
+            $data[] = [
+                'icon' => '/extensions/biz/organization/icon/teacher.svg',
+                'text' => '老师管理',
+                'link' => '/biz/enterprise/worker',
+                'blank' => false,
+                'badge' => [
+                    'mode' => 'text',
+                    'text' => '10',
+                ],
+            ];
+            $data[] = [
+                'icon' => '/extensions/biz/organization/icon/student.svg',
+                'text' => '学生管理',
+                'link' => '/biz/enterprise/student',
+                'blank' => false,
+                'badge' => [
+                    'mode' => 'dot',
+                ],
+            ];
+            $data[] = [
+                'icon' => '/extensions/biz/organization/icon/patriarch.svg',
+                'text' => '家长管理',
+                'link' => '/biz/enterprise/patriarch',
+                'blank' => true,
+            ];
+        } else {
+            $data[] = [
+                'icon' => '/extensions/biz/organization/icon/worker.svg',
+                'text' => '员工管理',
+                'link' => '/biz/enterprise/worker',
+                'blank' => true,
+                'badge' => [
+                    'mode' => 'dot',
+                ],
+            ];
+            $data[] = [
+                'icon' => '/extensions/biz/organization/icon/facility.svg',
+                'text' => '设施管理',
+                'link' => '/biz/enterprise/facility',
+                'blank' => true,
+            ];
+            $data[] = [
+                'icon' => '/extensions/biz/organization/icon/device.svg',
+                'text' => '设备管理',
+                'link' => '/biz/enterprise/device',
+                'blank' => true,
+            ];
+        }
+
+        return $data;
+    }
+
     public function enterpriseCheck($social_credit_code): ?Enterprise
     {
         $row = $this->query()
             // ->whereHas('bind')
-            ->with('nature')
+            ->whereHas('nature')
             ->where(['social_credit_code' => $social_credit_code])
             ->firstOrFail();
 
@@ -647,8 +715,8 @@ class EnterpriseService extends AdminService
             return null; // 显式返回 null，比返回 $row 更清晰
         }
 
-        if ($row->nature?->type == 'school' && admin_current_module() !== 'school') {
-            admin_abort('社会信用代码已被教育机构占用，请检查重试', 400);
+        if ($row->nature?->type == 'school' && ! is_school_module()) {
+            admin_abort('社会信用代码已在教育机构使用，请检查重试');
         }
 
         return $row;

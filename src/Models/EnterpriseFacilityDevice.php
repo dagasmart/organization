@@ -17,6 +17,13 @@ class EnterpriseFacilityDevice extends Model
 
     public $timestamps = false;
 
+    // ✅ 关键：告诉 Eloquent 此表没有自增 id
+    public $incrementing = false;
+    // ✅ 指定实际的主键字段
+    protected $primaryKey = 'device_id';
+    // 允许批量赋值的字段
+    protected $fillable = ['enterprise_id', 'facility_id', 'device_id', 'module', 'mer_id'];
+
     // 按需开启,模型表没有标记为空数组
     protected $activeScopeFields = ['module', 'mer_id'];
 
