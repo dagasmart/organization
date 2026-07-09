@@ -522,7 +522,7 @@ class StudentController extends AdminController
                                         ],
                                     ]),
                             ]),
-                            amis()->TextControl('student_code', '国网学籍')
+                            amis()->HiddenControl('student_code', '国网学籍')
                                 ->value('${student_code_param_type}${student_code_param_number}'),
                             amis()->SelectControl('enterprise_id', '机构')
                                 ->options($this->service->getEnterpriseAll())

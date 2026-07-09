@@ -287,9 +287,10 @@ class PatriarchService extends AdminService
             return;
         }
 
-        $data = [];
         $module = admin_current_module();
         $mer_id = admin_mer_id();
+
+        $data = [];
 
         // 1. 仅做数据组装，绝对不要在循环中执行数据库操作
         foreach ($childes as $item) {
@@ -299,6 +300,7 @@ class PatriarchService extends AdminService
                 'student_id' => $item['student_id'],
                 'patriarch_sn' => $item['enterprise_id'].$model->id.$item['student_id'],
                 'module' => $item['module'] ?? $module,
+                'mer_id' => $item['mer_id'] ?? $mer_id,
             ];
         }
 
