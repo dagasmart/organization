@@ -38,6 +38,7 @@ class DeviceController extends AdminController
                         'name' => 'enterprise_id',
                         'type' => 'select',
                         'multiple' => false,
+                        'clearable' => true,
                         'searchable' => true,
                         'options' => $this->service->getEnterpriseAll(),
                     ])
@@ -47,6 +48,7 @@ class DeviceController extends AdminController
                         'name' => 'device_type',
                         'type' => 'select',
                         'multiple' => false,
+                        'clearable' => true,
                         'searchable' => true,
                         'options' => Enum::DeviceType,
                     ])
@@ -54,12 +56,20 @@ class DeviceController extends AdminController
                     ->set('options', Enum::DeviceType)
                     ->set('static', true),
                 amis()->TableColumn('device_name', '设备名称')->width(200),
-                amis()->TableColumn('rel.facility.level_name', '设施主体')
+                amis()->TableColumn('rel.facility.level_name', '设施主体${enterprise_id}')
                     ->searchable([
                         'name' => 'facility_id',
                         'type' => 'tree-select',
                         'multiple' => true,
+                        'clearable' => true,
+                        'disabledOn' => '${!enterprise_id}',
                         'options' => $this->service->options(),
+                        'validations' => [
+                            'isRequired' => '${!enterprise_id}',
+                        ],
+                        'validationErrors' => [
+                            'isRequired' => '请先搜索机构单位',
+                        ],
                     ])
                     ->width(200),
                 amis()->TableColumn('device_sn', '设备编号')

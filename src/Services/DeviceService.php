@@ -86,12 +86,12 @@ class DeviceService extends AdminService
     public function options(): array
     {
         $id = request()->id;
-        $school_id = request()->enterprise_id;
+        $enterprise_id = request()->enterprise_id;
         $data = $this->query()->from('biz_facility', 'a')
             ->join('biz_enterprise_facility as b', 'a.id', '=', 'b.facility_id')
             ->select(['a.id as value', 'a.facility_name as label', 'a.id', 'a.parent_id'])
-            ->when($school_id, function ($query) use ($school_id) {
-                $query->where('b.enterprise_id', $school_id);
+            ->when($enterprise_id, function ($query) use ($enterprise_id) {
+                $query->where('b.enterprise_id', $enterprise_id);
             })
             ->when($id, function ($query) use ($id) {
                 $query->where('b.facility_id', '<>', $id);
