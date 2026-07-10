@@ -13,7 +13,7 @@ class OrganizationServiceProvider extends ServiceProvider
 
     protected function menu(): array
     {
-        $menu = [];
+        $menu = []; 
         $menu[] = [
             'parent' => null,
             'title' => '基础维护',
