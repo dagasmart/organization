@@ -1,9 +1,5 @@
 <?php
 
 return [
-    'master'    => 'Master',
-    'school'    => 'School',
-    'bbs'       => 'BBS',
-    'web'       => 'Web',
-    'blog'      => 'Blog',
+    'enterprise_name' => (is_school_module() ? 'School' : 'Org').' Name',
 ];

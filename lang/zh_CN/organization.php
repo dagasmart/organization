@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'enterprise_name' => module_enterprise_alias().'名称',
+    'enterprise_name' => (is_school_module() ? '学校' : '单位').'名称',
 ];

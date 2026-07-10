@@ -128,6 +128,7 @@ class DeviceService extends AdminService
             ->when($device_brand, function ($query) use ($device_brand) {
                 $query->where('a.device_brand', $device_brand);
             })
+            ->distinct()
             ->get()
             ->toArray();
     }

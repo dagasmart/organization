@@ -24,11 +24,12 @@ return new class extends Migration
             $table->string('device_brand', 16)->nullable()->comment('设备品牌');
             $table->string('device_type', 20)->nullable()->comment('设备类型');
             $table->string('device_pos', 16)->nullable()->comment('安装位置');
-            $table->decimal('market_price', 10)->nullable()->default(0)->comment('零售价');
-            $table->tinyInteger('sort')->nullable()->default(10)->comment('排序');
-            $table->tinyInteger('state')->nullable()->default(1)->comment('状态');
+            $table->decimal('market_price', 10)->default(0)->comment('零售价');
+            $table->tinyInteger('sort')->default(10)->comment('排序');
+            $table->tinyInteger('state')->default(1)->comment('状态');
             $table->string('device_desc')->nullable()->comment('设备描述');
-            $table->tinyInteger('online')->nullable()->default(0)->comment('设备状态');
+            $table->tinyInteger('online')->default(0)->comment('设备状态');
+            $table->text('images')->nullable()->comment('设备图片');
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
             $table->softDeletes();
