@@ -197,20 +197,20 @@ class PatriarchController extends AdminController
                                         ],
                                         [
                                             'actionType' => 'setValue',
-                                            'componentName' => 'patriarch_sn',
+                                            'componentName' => 'patriarch_no',
                                             'args' => [
-                                                'value' => '${event.data.responseResult.responseData.patriarch_sn||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}',
+                                                'value' => '${event.data.responseResult.responseData.patriarch_no||CONCATENATE("S", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}',
                                             ],
                                         ],
                                         [
                                             'actionType' => 'disabled',
-                                            'componentName' => 'patriarch_sn',
-                                            'expression' => '${!!event.data.responseResult.responseData.patriarch_sn}',
+                                            'componentName' => 'patriarch_no',
+                                            'expression' => '${!!event.data.responseResult.responseData.patriarch_no}',
                                         ],
                                         [
                                             'actionType' => 'enabled',
-                                            'componentName' => 'patriarch_sn',
-                                            'expression' => '${!event.data.responseResult.responseData.patriarch_sn}',
+                                            'componentName' => 'patriarch_no',
+                                            'expression' => '${!event.data.responseResult.responseData.patriarch_no}',
                                         ],
                                         [
                                             'actionType' => 'setValue',
@@ -308,7 +308,7 @@ class PatriarchController extends AdminController
                                 ],
                             ]),
                         amis()->TextControl('patriarch_name', '真实姓名')->id('patriarch_name')->required(),
-                        amis()->TextControl('patriarch_sn', '系统编号')
+                        amis()->TextControl('patriarch_no', '系统编号')
                             ->value('${CONCATENATE("E", DATETOSTR(TODAY(), "YYYYMMDDHHmmss"),PADSTART(INT(RAND()*1000000000), 9, "0"))}')
                             ->readOnly(),
                         amis()->TextControl('email', '常用邮箱'),
@@ -656,7 +656,7 @@ class PatriarchController extends AdminController
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->GroupControl()->direction('vertical')->body([
                         amis()->TextControl('patriarch_name', '真实姓名'),
-                        amis()->TextControl('patriarch_sn', '家长编号'),
+                        amis()->TextControl('patriarch_no', '家长编号'),
                         amis()->TextControl('id_card', '身份证号'),
                         amis()->TextControl('email', '常用邮箱'),
                         amis()->TextControl('mobile', '手机号码')->required(),

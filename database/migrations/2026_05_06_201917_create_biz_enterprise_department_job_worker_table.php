@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('department_id')->comment('部门id');
             $table->foreignId('job_id')->comment('职务id');
             $table->foreignId('worker_id')->comment('员工id');
-            $table->string('worker_sn', 32)->nullable()->comment('工号');
+            $table->string('worker_no', 32)->nullable()->comment('工号');
             $table->string('module', 32)->nullable()->comment('模块');
             $table->unsignedBigInteger('mer_id')->nullable()->comment('商户');
 

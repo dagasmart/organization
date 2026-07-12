@@ -99,10 +99,8 @@ class Worker extends Model
 
     public function enterprise(): HasOne
     {
-        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'id'
-        )->select(admin_raw("
+        return $this->hasOne(EnterpriseDepartmentJobWorker::class, 'worker_id', 'id')
+            ->select(admin_raw("
                 worker_id
                 ,string_agg (DISTINCT enterprise_id::VARCHAR, ',' ) as enterprise_id
                 ,string_agg (DISTINCT department_id::VARCHAR, ',' ) as department_id
@@ -113,20 +111,13 @@ class Worker extends Model
 
     public function combo(): HasMany
     {
-        return $this->hasMany(EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'id'
-        )
-            // ->withoutGlobalScope('ActiveScope')
-            ->select(admin_raw('enterprise_id,department_id,job_id,worker_id,worker_sn,module,mer_id'));
+        return $this->hasMany(EnterpriseDepartmentJobWorker::class, 'worker_id', 'id')
+            ->select(admin_raw('enterprise_id,department_id,job_id,worker_id,worker_no,state,module,mer_id'));
     }
 
     public function job(): HasOne
     {
-        return $this->hasOne(EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'id'
-        )
+        return $this->hasOne(EnterpriseDepartmentJobWorker::class, 'worker_id', 'id')
             ->select(admin_raw("worker_id,string_agg(job_id::varchar, ',') job_id"))
             ->orderBy('job_id')
             ->groupBy(['worker_id']);
@@ -139,12 +130,7 @@ class Worker extends Model
 
     public function enterpriseJobs(): BelongsToMany
     {
-        return $this->belongsToMany(
-            Job::class,
-            EnterpriseDepartmentJobWorker::class,
-            'worker_id',
-            'job_id'
-        )
+        return $this->belongsToMany(Job::class, EnterpriseDepartmentJobWorker::class, 'worker_id', 'job_id')
             ->wherePivot('mer_id', admin_mer_id());
     }
 }

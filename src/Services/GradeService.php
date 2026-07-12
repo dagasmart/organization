@@ -19,15 +19,15 @@ class GradeService extends AdminService
     /**
      * 机构年级列表
      */
-    public function EnterpriseGrade(int $school_id = 0): array
+    public function EnterpriseGrade(?int $enterprise_id = null): array
     {
         // 1. 如果未传入有效的机构ID，直接返回空数组
-        if (! $school_id) {
+        if (empty($enterprise_id)) {
             return [];
         }
 
         // 2. 获取机构配置的年级ID字符串并转换为数组
-        $enterprise_grade = Enterprise::query()->where('id', $school_id)->value('grade_id');
+        $enterprise_grade = Enterprise::query()->whereHas('bind')->where('id', $enterprise_id)->value('grade_id');
         // 过滤掉空字符串或无效值
         $schoolGrade = array_filter(explode(',', (string) $enterprise_grade));
 

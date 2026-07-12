@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('patriarch_id')->comment('家长id');
             $table->unsignedBigInteger('student_id')->comment('学生id');
             $table->unsignedTinyInteger('relationship_id')->default(1)->comment('关系id');
-            $table->char('patriarch_sn', 32)->nullable()->comment('家长编号'); // char比varchar省1字节开销
+            $table->char('patriarch_no', 32)->nullable()->comment('家长编号'); // char比varchar省1字节开销
             $table->string('module', 32)->nullable()->comment('模块');
             $table->unsignedBigInteger('mer_id')->nullable()->comment('商户');
 

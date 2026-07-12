@@ -49,6 +49,6 @@ if (! function_exists('is_school_module')) {
      */
     function module_enterprise_alias(): string
     {
-        return is_school_module() ? '学校' : '单位';
+        return is_school_module() ? '学校' : '机构';
     }
 }

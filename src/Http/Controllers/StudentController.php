@@ -493,7 +493,7 @@ class StudentController extends AdminController
                                 amis()->TextControl('student_code_param_number', '学籍号')
                                     ->validations([
                                         'isRequired' => '${student_code_param_type !=== "G"}',
-                                        'matchRegexp' => '/^\d{18}$/',
+                                        'matchRegexp' => '/^[\\d|*]{17}[\\dXx]$/i',
                                     ])
                                     ->validationErrors([
                                         'isRequired' => '学籍号为必填项',

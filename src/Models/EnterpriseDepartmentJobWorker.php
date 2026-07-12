@@ -43,4 +43,13 @@ class EnterpriseDepartmentJobWorker extends Model
     {
         return $this->hasOne(EnterpriseDepartmentJob::class, 'id', 'job_id')->select(['id', 'job_name']);
     }
+
+    /**
+     * 员工
+     */
+    public function worker(): HasOne
+    {
+        return $this->hasOne(Worker::class, 'id', 'worker_id')->select(['id', 'worker_name', 'id_card', 'mobile']);
+    }
+
 }

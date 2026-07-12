@@ -298,7 +298,7 @@ class PatriarchService extends AdminService
                 'enterprise_id' => $item['enterprise_id'],
                 'patriarch_id' => $model->id,
                 'student_id' => $item['student_id'],
-                'patriarch_sn' => $item['enterprise_id'].$model->id.$item['student_id'],
+                'patriarch_no' => $item['enterprise_id'].$model->id.$item['student_id'],
                 'module' => $item['module'] ?? $module,
                 'mer_id' => $item['mer_id'] ?? $mer_id,
             ];

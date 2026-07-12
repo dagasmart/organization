@@ -19,13 +19,7 @@ class EnterprisePatriarchStudent extends Model
 
     // 按需开启,模型表没有标记为空数组
     protected $activeScopeFields = ['module', 'mer_id'];
-
-    protected $appends = ['code'];
-
-    public function getCodeAttribute(): string
-    {
-        return $this->enterprise_id.$this->patriarch_id.$this->student_id;
-    }
+    protected $hidden = ['module', 'mer_id'];
 
     /**
      * 机构
@@ -33,6 +27,22 @@ class EnterprisePatriarchStudent extends Model
     public function enterprise(): HasOne
     {
         return $this->hasOne(Enterprise::class, 'id', 'enterprise_id')->select(['id', 'enterprise_name']);
+    }
+
+    /**
+     * 家长
+     */
+    public function patriarch(): HasOne
+    {
+        return $this->hasOne(Patriarch::class, 'id', 'patriarch_id')->select(['id', 'patriarch_name', 'id_card', 'mobile']);
+    }
+
+    /**
+     * 学生
+     */
+    public function student(): HasOne
+    {
+        return $this->hasOne(Student::class, 'id', 'student_id')->select(['id', 'student_name', 'id_card', 'mobile']);
     }
 
     /**

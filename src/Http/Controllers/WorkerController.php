@@ -45,7 +45,7 @@ class WorkerController extends AdminController
                 amis()->TableColumn('rel', '机构/部门/职务')
                     ->searchable(
                         amis()->FormControl()->body([
-                            amis()->SelectControl('enterprise_id', false)
+                            amis()->SelectControl('enterprise_id', '机构')
                                 ->options($this->service->getEnterpriseAll())
                                 ->placeholder('请选择机构')
                                 ->searchable()
@@ -462,16 +462,12 @@ class WorkerController extends AdminController
                         ->options(Enum::sex())->value(3),
                     amis()->SelectControl('nation', '民族')
                         ->options(Enum::nation()),
-                    amis()->SelectControl('work_status', '状态')
-                        ->options(Enum::WorkStatus)
-                        ->value(1)
-                        ->required(),
                 ]),
             ]),
             // 机构单位信息
             amis()->Tab()->title('职务信息')->body([
                 amis()->ComboControl('combo', false)->items([
-                    amis()->SelectControl('enterprise_id', '机构单位${index+1}')
+                    amis()->SelectControl('enterprise_id', module_enterprise_alias().'${index+1}')
                         ->options($this->service->getEnterpriseAll())
                         ->searchable()
                         ->required(),
@@ -502,6 +498,10 @@ class WorkerController extends AdminController
                         ->hideNodePathLabel()
                         ->resetValue()
                         ->searchable()
+                        ->required(),
+                    amis()->SelectControl('state', '状态')
+                        ->options(Enum::WorkStatus)
+                        ->value(1)
                         ->required(),
                     amis()->HiddenControl('worker_id')->value('${id}'),
                     amis()->HiddenControl('module')->value(admin_current_module()),
@@ -615,7 +615,7 @@ class WorkerController extends AdminController
                         ->options(Enum::sex()),
                     amis()->SelectControl('nation_id', '民族')
                         ->options(Enum::nation()),
-                    amis()->SelectControl('work_status', '工作状态')
+                    amis()->SelectControl('state', '工作状态')
                         ->options(Enum::WorkStatus),
                 ]),
             ]),
@@ -640,7 +640,7 @@ class WorkerController extends AdminController
                         ->onlyChildren()
                         ->searchable()
                         ->required(),
-                    amis()->TagControl('worker_sn', '工号'),
+                    amis()->TagControl('worker_no', '工号'),
                 ])
                     ->className('border-gray-100 border-dashed')
                     ->mode('horizontal')

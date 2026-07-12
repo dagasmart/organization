@@ -187,7 +187,8 @@ class WorkerService extends AdminService
                     'department_id' => $item['department_id'],
                     'job_id' => $jobId,
                     'worker_id' => $model->id,
-                    'worker_sn' => $item['enterprise_id'].$model->id,
+                    'worker_no' => $item['enterprise_id'].$model->id,
+                    'state' => $item['state'] ?? 0,
                     'module' => $item['module'] ?? $module,
                     'mer_id' => $item['mer_id'] ?? $mer_id,
                 ];
