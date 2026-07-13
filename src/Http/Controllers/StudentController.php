@@ -788,7 +788,7 @@ class StudentController extends AdminController
                     ->icon('iconfont icon-doc')
                     ->className('float-right')
                     ->actionType('saveAs')
-                    ->api(Storage::url('template/student.csv')),
+                    ->api(storage_url('template/student.csv')),
                 amis()->Divider()->color('transparent'),
                 amis()->Form()->mode('normal')->api($api)->body([
                     amis()->FileControl()

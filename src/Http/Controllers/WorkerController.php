@@ -748,7 +748,7 @@ class WorkerController extends AdminController
                     ->icon('iconfont icon-doc')
                     ->className('float-right')
                     ->actionType('saveAs')
-                    ->api(Storage::url('template/worker.csv')),
+                    ->api(storage_url('template/worker.csv')),
                 amis()->Divider()->color('transparent'),
                 amis()->Form()->mode('normal')->api($api)->body([
                     amis()->FileControl()
