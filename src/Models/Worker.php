@@ -36,29 +36,48 @@ class Worker extends Model
     }
 
     /**
+     * 身份证号脱敏
+     */
+    public function getIdCardAttribute($value): false|string
+    {
+        return admin_sensitive(strtoupper($value), 6, 8);
+    }
+
+    /**
+     * 身份证号设置
+     * @param $value
+     * @return void
+     */
+    public function setIdCardAttribute($value): void
+    {
+        if ($value && ! strpos($value, '*')) {
+            $this->attributes['id_card'] = strtoupper($value);
+        }
+    }
+
+    /**
      * 身份证号加密
      */
     public function getIdCardEncAttribute(): false|string
     {
-        return base64_encode($this->attributes['id_card']);
-    }
-
-    /**
-     * 手机号加密
-     */
-    public function getMobileEncAttribute(): false|string
-    {
-        return base64_encode($this->attributes['mobile']);
+        return base64_encode(strtoupper($this->attributes['id_card']));
     }
 
     /**
      * 手机号脱敏
+     * @param $value
+     * @return false|string
      */
     public function getMobileAttribute($value): false|string
     {
         return admin_sensitive($value, 3, 5);
     }
 
+    /**
+     * 手机号设置
+     * @param $value
+     * @return void
+     */
     public function setMobileAttribute($value): void
     {
         if ($value && ! strpos($value, '*')) {
@@ -67,18 +86,11 @@ class Worker extends Model
     }
 
     /**
-     * 身份证号脱敏
+     * 手机号加密
      */
-    public function getIdCardAttribute($value): false|string
+    public function getMobileEncAttribute(): false|string
     {
-        return admin_sensitive($value, 6, 8);
-    }
-
-    public function setIdCardAttribute($value): void
-    {
-        if ($value && ! strpos($value, '*')) {
-            $this->attributes['id_card'] = $value;
-        }
+        return base64_encode($this->attributes['mobile']);
     }
 
     //    public function enterpriseThrough(): HasManyThrough

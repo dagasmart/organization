@@ -27,13 +27,13 @@ class Student extends Model
 
     public function getIdCardAttribute($value): string
     {
-        return admin_sensitive($value, 6, 8);
+        return admin_sensitive(strtoupper($value), 6, 8);
     }
 
     public function setIdCardAttribute($value): void
     {
         if ($value && ! strpos($value, '*')) {
-            $this->attributes['id_card'] = $value;
+            $this->attributes['id_card'] = strtoupper($value);
         }
     }
 
@@ -56,7 +56,7 @@ class Student extends Model
         }
         $first = substr($value, 0, 1);
         if ($first == 'G') {
-            return admin_sensitive($value, 7, 8);
+            return admin_sensitive(strtoupper($value), 7, 8);
         }
 
         return $value;
@@ -65,7 +65,7 @@ class Student extends Model
     public function setStudentCodeAttribute($value): void
     {
         if ($value && ! strpos($value, '*')) {
-            $this->attributes['student_code'] = $value;
+            $this->attributes['student_code'] = strtoupper($value);
         }
     }
 
@@ -81,8 +81,8 @@ class Student extends Model
             preg_match('/^([GJL])(.+)$/', $original, $res)) {
             $data = [
                 'type' => $res[1] ?? null,
-                'number' => $res[1] == 'G' ? admin_sensitive($res[2], 6, 8) : $res[2] ?? null,
-                'enc' => $res[2] ? base64_encode($res[2]) : null,
+                'number' => $res[1] == 'G' ? admin_sensitive(strtoupper($res[2]), 6, 8) : $res[2] ?? null,
+                'enc' => $res[2] ? base64_encode(strtoupper($res[2])) : null,
             ];
         }
 
@@ -106,7 +106,7 @@ class Student extends Model
      */
     public function getIdCardEncAttribute(): false|string
     {
-        return base64_encode($this->attributes['id_card']);
+        return base64_encode(strtoupper($this->attributes['id_card']));
     }
 
     /**

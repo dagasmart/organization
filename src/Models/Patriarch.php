@@ -54,22 +54,6 @@ class Patriarch extends Model
     }
 
     /**
-     * 身份证号加密
-     */
-    public function getIdCardEncAttribute(): false|string
-    {
-        return base64_encode($this->attributes['id_card']);
-    }
-
-    /**
-     * 手机号加密
-     */
-    public function getMobileEncAttribute(): false|string
-    {
-        return base64_encode($this->attributes['mobile']);
-    }
-
-    /**
      * 手机号脱敏
      */
     public function getMobileAttribute($value): false|string
@@ -85,18 +69,39 @@ class Patriarch extends Model
     }
 
     /**
+     * 手机号加密
+     */
+    public function getMobileEncAttribute(): false|string
+    {
+        return base64_encode($this->attributes['mobile']);
+    }
+
+    /**
      * 身份证号脱敏
      */
     public function getIdCardAttribute($value): false|string
     {
-        return admin_sensitive($value, 6, 8);
+        return admin_sensitive(strtoupper($value), 6, 8);
     }
 
+    /**
+     * 身份证号设置
+     * @param $value
+     * @return void
+     */
     public function setIdCardAttribute($value): void
     {
         if ($value && ! strpos($value, '*')) {
-            $this->attributes['id_card'] = $value;
+            $this->attributes['id_card'] = strtoupper($value);
         }
+    }
+
+    /**
+     * 身份证号加密
+     */
+    public function getIdCardEncAttribute(): false|string
+    {
+        return base64_encode(strtoupper($this->attributes['id_card']));
     }
 
     //    public function enterpriseThrough(): HasManyThrough

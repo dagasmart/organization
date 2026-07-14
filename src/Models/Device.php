@@ -16,6 +16,16 @@ class Device extends Model
 
     public $timestamps = true;
 
+    public function getDeviceSnAttribute($value): ?string
+    {
+        return strtoupper($value);
+    }
+
+    public function setDeviceSnAttribute($value): void
+    {
+        $this->attributes['device_sn'] = strtoupper($value);
+    }
+
     public function getImagesAttribute($value): ?array
     {
         return admin_images_url($value);

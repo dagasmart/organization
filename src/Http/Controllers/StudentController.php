@@ -167,6 +167,13 @@ class StudentController extends AdminController
                                             // ✅ 新增：防抖，避免输入过程中频繁请求
                                             'debounce' => 300,
                                             'actions' => [
+                                                [
+                                                    'actionType' => 'setValue',
+                                                    'componentName' => 'id_card',
+                                                    'args' => [
+                                                        'value' => '${id_card | upperCase}',
+                                                    ],
+                                                ],
                                                 // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
                                                 [
                                                     'actionType' => 'validate', // validate天然具有校验失败，阻断后续动作的功能
@@ -263,7 +270,7 @@ class StudentController extends AdminController
                                                     'expression' => '${!event.data.responseData.student_code_param && !!id_card}',
                                                     'args' => [
                                                         // 💡 base64Encode 再 base64Decode = 原值，直接用 id_card 即可
-                                                        'value' => '${id_card}',
+                                                        'value' => '${id_card | upperCase}',
                                                     ],
                                                 ],
                                                 [

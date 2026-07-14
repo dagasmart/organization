@@ -18,6 +18,17 @@ class Visitor extends Model
         'id_card' => 'string',
     ];
 
+    // 批量赋值保护
+    protected $fillable = [
+        'id_card',
+        'visitor_name',
+        'visitor_no',
+        'mobile',
+        'sex',
+        'avatar',
+        'is_verify',
+    ];
+
     protected $appends = ['id_card_enc', 'mobile_enc'];
 
     public $timestamps = true;

@@ -123,7 +123,7 @@ class PatriarchController extends AdminController
                             ->required()
                             ->validateOnChange()
                             ->validations([
-                                'matchRegexp' => '/^[\\d|*]{17}[\\dX]$/i',
+                                'matchRegexp' => '/^[\\d|*]{17}[\\dXx]$/i',
                             ])
                             ->validationErrors([
                                 'matchRegexp' => '请输入有效的身份证号码',
@@ -148,11 +148,31 @@ class PatriarchController extends AdminController
                                 ]) : false
                             )
                             ->onEvent([
-                                'blur' => [
+                                'change' => [
+                                    // ✅ 新增：防抖，避免输入过程中频繁请求
+                                    'debounce' => 300,
                                     'actions' => [
+                                        [
+                                            'actionType' => 'setValue',
+                                            'componentName' => 'id_card',
+                                            'args' => [
+                                                'value' => '${id_card | upperCase}',
+                                            ],
+                                        ],
+                                        // ✅ 新增：校验当前字段，失败则自动阻断后续所有动作
+                                        [
+                                            'actionType' => 'validate', // validate天然具有校验失败，阻断后续动作的功能
+                                            'componentName' => 'id_card',
+                                        ],
+                                        // ✅ 新增：编辑模式下直接跳过（保留原有逻辑）
                                         [
                                             'actionType' => 'stopPropagation',
                                             'expression' => '${isEdit}',
+                                        ],
+                                        // ✅ 新增：额外判断长度，防止正则通过但值不完整的情况
+                                        [
+                                            'actionType' => 'stopPropagation',
+                                            'expression' => '${!id_card || id_card.length !== 18}',
                                         ],
                                         [
                                             'actionType' => 'ajax',

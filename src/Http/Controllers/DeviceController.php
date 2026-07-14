@@ -77,6 +77,7 @@ class DeviceController extends AdminController
                         'name' => 'device_sn',
                         'type' => 'input-text',
                     ])
+                    ->copyable()
                     ->width(150),
                 amis()->TableColumn('state', '状态')
                     ->set('type', 'status'),
@@ -128,7 +129,22 @@ class DeviceController extends AdminController
                 ->clearable(),
             amis()->TextControl('device_sn', '设备编号')
                 ->clearable()
-                ->required(),
+                ->required()
+                ->onEvent([
+                    'change' => [
+                        // ✅ 新增：防抖，避免输入过程中频繁请求
+                        'debounce' => 300,
+                        'actions' => [
+                            [
+                                'actionType' => 'setValue',
+                                'componentName' => 'device_sn',
+                                'args' => [
+                                    'value' => '${device_sn | upperCase}',
+                                ],
+                            ],
+                        ],
+                    ],
+                ]),
             amis()->TextareaControl('device_desc', '设备描述')
                 ->clearable(),
             amis()->NumberControl('sort', '排序')
