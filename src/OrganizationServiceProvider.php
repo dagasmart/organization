@@ -5,7 +5,9 @@ namespace DagaSmart\Organization;
 use DagaSmart\BizAdmin\Extend\ServiceProvider;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\TextControl;
+use DagaSmart\Organization\Jobs\StudentImportJob;
 use Exception;
+use Illuminate\Support\Facades\Queue;
 
 class OrganizationServiceProvider extends ServiceProvider
 {
@@ -75,6 +77,11 @@ class OrganizationServiceProvider extends ServiceProvider
         ];
 
         return $this->menu = $menu;
+    }
+
+    public function boot(): void
+    {
+        Queue::route(StudentImportJob::class, queue: 'student-import', connection: 'redis');
     }
 
     /**

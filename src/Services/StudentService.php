@@ -2,13 +2,16 @@
 
 namespace DagaSmart\Organization\Services;
 
+use DagaSmart\Organization\Jobs\StudentImportJob;
 use DagaSmart\Organization\Models\Classes;
 use DagaSmart\Organization\Models\Enterprise;
 use DagaSmart\Organization\Models\EnterpriseGradeClassesStudent;
 use DagaSmart\Organization\Models\Grade;
 use DagaSmart\Organization\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 
 /**
  * 基础-学生服务类
@@ -75,6 +78,7 @@ class StudentService extends AdminService
         if (! empty($data['id'])) {
             return $this->update($data['id'], $data);
         }
+
         return parent::store($data);
     }
 
@@ -239,4 +243,25 @@ class StudentService extends AdminService
         return $row;
     }
 
+    public function studentImport($path = ''): ?JsonResponse
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        // 1. 生成唯一批次号（用于追踪进度）
+        $batchId = Str::uuid()->toString();
+
+        // 2. 派发到队列（立即返回，不阻塞用户）
+        StudentImportJob::dispatch(
+            filePath: storage_path(public_storage_path($path)),
+            userId: admin_user_id(),
+            batchId: $batchId
+        )->onQueue('student-import');
+
+        return response()->json([
+            'message' => '导入任务已提交',
+            'batch_id' => $batchId,
+        ]);
+    }
 }

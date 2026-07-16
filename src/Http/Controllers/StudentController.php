@@ -9,7 +9,6 @@ use DagaSmart\Organization\Enums\Enum;
 use DagaSmart\Organization\Services\StudentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * 基础-学生表
@@ -827,6 +826,7 @@ class StudentController extends AdminController
         );
     }
 
+    // 导入-秒级响应
     public function import(): JsonResponse|JsonResource
     {
         // 验证文件是否存在且不为空
@@ -834,6 +834,8 @@ class StudentController extends AdminController
             $file = request()->file('file');
             $filename = str_replace('.', '', microtime(true)).$file->getClientOriginalName(); // 使用时间戳和原始名称作为文件名
             $path = $file->storeAs('files', $filename, 'public'); // 存储到 public 磁盘的 uploads 目录下
+
+            $this->service->studentImport($path);
 
             return $this->response()->success(['value' => $path], '文件上传成功！'); // 返回成功消息
         } else {
