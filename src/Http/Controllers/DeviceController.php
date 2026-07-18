@@ -56,7 +56,7 @@ class DeviceController extends AdminController
                     ->set('options', Enum::DeviceType)
                     ->set('static', true),
                 amis()->TableColumn('device_name', '设备名称')->width(200),
-                amis()->TableColumn('rel.facility.level_name', '设施主体${enterprise_id}')
+                amis()->TableColumn('rel.facility.level_name', '设施主体')
                     ->searchable([
                         'name' => 'facility_id',
                         'type' => 'tree-select',

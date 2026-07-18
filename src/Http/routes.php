@@ -1,5 +1,7 @@
 <?php
 
+use DagaSmart\BizAdmin\Middleware\Authenticate;
+use DagaSmart\BizAdmin\Middleware\Permission;
 use DagaSmart\Organization\Http\Controllers;
 use DagaSmart\Organization\Http\Middleware;
 use Illuminate\Routing\Router;
@@ -10,7 +12,7 @@ Route::group([
     'middleware' => [Middleware\Middleware::class],
 ], function (Router $router) {
 
-    $router->get('enterprise/chart/data', [Controllers\EnterpriseController::class, 'chartData']);
+    $router->get('enterprise/chart/data', [Controllers\EnterpriseController::class, 'chartData'])->withoutMiddleware([Permission::class]);
     $router->get('enterprise/{social_credit_code}/check', [Controllers\EnterpriseController::class, 'enterpriseCheck']);
 
     $router->delete('enterprise/job/{id}/delete', [Controllers\EnterpriseController::class, 'jobDelete']);
@@ -18,19 +20,19 @@ Route::group([
     $router->post('enterprise/department/save', [Controllers\EnterpriseController::class, 'departmentSave']);
     $router->post('enterprise/job/save', [Controllers\EnterpriseController::class, 'jobSave']);
 
-    $router->get('enterprise/{enterprise_id}/department/data', [Controllers\EnterpriseController::class, 'departmentData']);
-    $router->get('enterprise/{enterprise_id}/job/data', [Controllers\EnterpriseController::class, 'jobData']);
+    $router->get('enterprise/{enterprise_id}/department/data', [Controllers\EnterpriseController::class, 'departmentData'])->withoutMiddleware([Permission::class]);
+    $router->get('enterprise/{enterprise_id}/job/data', [Controllers\EnterpriseController::class, 'jobData'])->withoutMiddleware([Permission::class]);
     $router->get('enterprise/{enterprise_id}/department/{department_id}/job/data', [Controllers\EnterpriseController::class, 'departmentJobData']);
 
-    $router->get('enterprise/nature/{stage_id}/option', [Controllers\EnterpriseController::class, 'natureOption']);
-    $router->get('enterprise/stage/{nature_id}/option', [Controllers\EnterpriseController::class, 'stageOption']);
-    $router->get('enterprise/stage/{stage_id}/grade/all', [Controllers\EnterpriseController::class, 'getGradeAll']);
-    $router->get('enterprise/{enterprise_id}/grade', [Controllers\GradeController::class, 'EnterpriseGrade']);
-    $router->get('enterprise/{enterprise_id}/grade/{grade_id}/classes', [Controllers\ClassesController::class, 'enterpriseGradeClasses']);
+    $router->get('enterprise/nature/{stage_id}/option', [Controllers\EnterpriseController::class, 'natureOption'])->withoutMiddleware([Permission::class]);
+    $router->get('enterprise/stage/{nature_id}/option', [Controllers\EnterpriseController::class, 'stageOption'])->withoutMiddleware([Permission::class]);
+    $router->get('enterprise/stage/{stage_id}/grade/all', [Controllers\EnterpriseController::class, 'getGradeAll'])->withoutMiddleware([Permission::class]);
+    $router->get('enterprise/{enterprise_id}/grade', [Controllers\GradeController::class, 'EnterpriseGrade'])->withoutMiddleware([Permission::class]);
+    $router->get('enterprise/{enterprise_id}/grade/{grade_id}/classes', [Controllers\ClassesController::class, 'enterpriseGradeClasses'])->withoutMiddleware([Permission::class]);
 
-    $router->get('worker/{enterprise_id}/department/data', [Controllers\WorkerController::class, 'departmentData']);
-    $router->get('worker/{enterprise_id}/job/data', [Controllers\WorkerController::class, 'jobData']);
-    $router->get('worker/{enterprise_id}/department/{department_id}/job/data', [Controllers\WorkerController::class, 'departmentJobData']);
+    $router->get('worker/{enterprise_id}/department/data', [Controllers\WorkerController::class, 'departmentData'])->withoutMiddleware([Permission::class]);
+    $router->get('worker/{enterprise_id}/job/data', [Controllers\WorkerController::class, 'jobData'])->withoutMiddleware([Permission::class]);
+    $router->get('worker/{enterprise_id}/department/{department_id}/job/data', [Controllers\WorkerController::class, 'departmentJobData'])->withoutMiddleware([Permission::class]);
 
     $router->get('enterprise/worker/{id_card}/check', [Controllers\WorkerController::class, 'EnterpriseWorkerCheck']);
     $router->get('enterprise/patriarch/{id_card}/check', [Controllers\PatriarchController::class, 'EnterprisePatriarchCheck']);
