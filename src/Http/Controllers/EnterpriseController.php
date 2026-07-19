@@ -64,7 +64,7 @@ class EnterpriseController extends AdminController
             ->id('crud_record')
             ->filterTogglable()
             ->headerToolbar([
-                $this->createButton(true)->permission('biz.enterprise.create'),
+                $this->createButton(true),
                 ...$this->baseHeaderToolBar(),
             ])
             ->filter($this->baseFilter()->body([
