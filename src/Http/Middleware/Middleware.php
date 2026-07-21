@@ -17,6 +17,8 @@ class Middleware
         if (! admin_extension_enabled('dagasmart.organization')) {
             return admin_response()->fail('软件已禁用，请开启');
         }
+        $params = [];
+        $request->attributes->add($params);
 
         return $next($request);
     }
