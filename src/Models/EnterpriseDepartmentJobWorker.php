@@ -13,12 +13,12 @@ class EnterpriseDepartmentJobWorker extends Model
     // 一行代码，自动拥有读隔离和写自动填充能力
     use ModuleMerIdTrait;
 
+    // 按需开启,模型表没有标记为空数组
+    protected $activeScopeFields = ['module', 'mer_id'];
+
     protected $table = 'biz_enterprise_department_job_worker';
 
     public $timestamps = false;
-
-    // 按需开启,模型表没有标记为空数组
-    protected $activeScopeFields = ['module', 'mer_id'];
 
     /**
      * 机构
@@ -51,5 +51,4 @@ class EnterpriseDepartmentJobWorker extends Model
     {
         return $this->hasOne(Worker::class, 'id', 'worker_id')->select(['id', 'worker_name', 'id_card', 'mobile']);
     }
-
 }
