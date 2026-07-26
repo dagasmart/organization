@@ -51,7 +51,7 @@ class WorkerController extends AdminController
                                 ->searchable()
                                 ->clearable(),
                             amis()->TreeSelectControl('department_id', '部门')
-                                ->source(admin_url('biz/worker/${enterprise_id||0}/department/data'))
+                                ->source(admin_url('extension/worker/${enterprise_id||0}/department/data'))
                                 ->disabledOn('${!enterprise_id}')
                                 ->onlyChildren(false)
                                 ->onlyLeaf(false)
@@ -68,7 +68,7 @@ class WorkerController extends AdminController
                                     ],
                                 ]),
                             amis()->TreeSelectControl('job_id', '职务')
-                                ->source(admin_url('biz/worker/${enterprise_id||0}/department/${department_id||0}/job/data'))
+                                ->source(admin_url('extension/worker/${enterprise_id||0}/department/${department_id||0}/job/data'))
                                 ->disabledOn('${!department_id}')
                                 ->id('test_job_list')
                                 ->onlyChildren(false)
@@ -208,7 +208,7 @@ class WorkerController extends AdminController
                                             'actionType' => 'ajax',
                                             'api' => [
                                                 'method' => 'GET',
-                                                'url' => admin_url('biz/enterprise/worker/${id_card||0}/check'),
+                                                'url' => admin_url('extension/enterprise/worker/${id_card||0}/check'),
                                             ],
                                         ],
                                         [
@@ -492,7 +492,7 @@ class WorkerController extends AdminController
                         ->searchable()
                         ->required(),
                     amis()->TreeSelectControl('department_id', '部门')
-                        ->source(admin_url('biz/worker/${combo[index].enterprise_id||0}/department/data'))
+                        ->source(admin_url('extension/worker/${combo[index].enterprise_id||0}/department/data'))
                         ->disabledOn('${!combo[index].enterprise_id}')
                         ->onlyChildren(false)
                         ->onlyLeaf(false)
@@ -510,7 +510,7 @@ class WorkerController extends AdminController
                             ],
                         ]),
                     amis()->TreeSelectControl('job_id', '职务')
-                        ->source(admin_url('biz/worker/${combo[index].enterprise_id||0}/department/${combo[index].department_id||0}/job/data'))
+                        ->source(admin_url('extension/worker/${combo[index].enterprise_id||0}/department/${combo[index].department_id||0}/job/data'))
                         ->disabledOn('${!combo[index].department_id}')
                         ->id('test_job_from')
                         ->onlyChildren(false)

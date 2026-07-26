@@ -178,7 +178,7 @@ class PatriarchController extends AdminController
                                             'actionType' => 'ajax',
                                             'api' => [
                                                 'method' => 'GET',
-                                                'url' => admin_url('biz/enterprise/patriarch/${id_card||0}/check'),
+                                                'url' => admin_url('extension/enterprise/patriarch/${id_card||0}/check'),
                                             ],
                                         ],
                                         [
@@ -398,7 +398,7 @@ class PatriarchController extends AdminController
                                         amis()->SelectControl('search_grade_id', '年级')
                                             ->id('searchGradeId')
                                             ->mode('horizontal')
-                                            ->source(admin_url('biz/enterprise/${search_enterprise_id||0}/grade'))
+                                            ->source(admin_url('extension/enterprise/${search_enterprise_id||0}/grade'))
                                             ->selectMode('group')
                                             ->autoComplete(false)
                                             ->labelWidth('25%')
@@ -425,7 +425,7 @@ class PatriarchController extends AdminController
                                             ->initFetch(false)
                                             ->autoComplete(false)
                                             ->labelWidth('30%')
-                                            ->source(admin_url('biz/enterprise/${search_enterprise_id||0}/grade/${search_grade_id||0}/classes'))
+                                            ->source(admin_url('extension/enterprise/${search_enterprise_id||0}/grade/${search_grade_id||0}/classes'))
                                             ->labelClassName('w-1/3')
                                             ->disabledOn('${!search_grade_id}')
                                             ->clearable(),
@@ -446,7 +446,7 @@ class PatriarchController extends AdminController
                                     ]),
                                     amis()->Divider()->color('var(--colors-brand-6)'),
                                     amis()->CRUD2Cards()
-                                        ->api(admin_url('biz/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
+                                        ->api(admin_url('extension/enterprise/student/search?enterprise_id=${search_enterprise_id}&grade_id=${search_grade_id}&classes_id=${search_classes_id}&student_name=${search_student_name}&id_card=${search_id_card}'))
                                         ->columnsCount(2)
                                         ->placeholder('请输入条件搜索学生')
                                         ->card([

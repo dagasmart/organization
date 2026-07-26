@@ -8,7 +8,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-    'prefix' => 'biz',
+    'prefix' => 'extension',
     'middleware' => [Middleware\Middleware::class],
 ], function (Router $router) {
 

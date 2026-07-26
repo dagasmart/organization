@@ -652,9 +652,9 @@ class EnterpriseService extends AdminService
         $data = [];
         if (is_school_module()) {
             $data[] = [
-                'icon' => '/extensions/biz/organization/icon/teacher.svg',
+                'icon' => '/extensions/extension/organization/icon/teacher.svg',
                 'text' => '老师管理',
-                'link' => '/biz/enterprise/worker',
+                'link' => '/extension/enterprise/worker',
                 'blank' => false,
                 'badge' => [
                     'mode' => 'text',
@@ -662,40 +662,40 @@ class EnterpriseService extends AdminService
                 ],
             ];
             $data[] = [
-                'icon' => '/extensions/biz/organization/icon/student.svg',
+                'icon' => '/extensions/extension/organization/icon/student.svg',
                 'text' => '学生管理',
-                'link' => '/biz/enterprise/student',
+                'link' => '/extension/enterprise/student',
                 'blank' => false,
                 'badge' => [
                     'mode' => 'dot',
                 ],
             ];
             $data[] = [
-                'icon' => '/extensions/biz/organization/icon/patriarch.svg',
+                'icon' => '/extensions/extension/organization/icon/patriarch.svg',
                 'text' => '家长管理',
-                'link' => '/biz/enterprise/patriarch',
+                'link' => '/extension/enterprise/patriarch',
                 'blank' => true,
             ];
         } else {
             $data[] = [
-                'icon' => '/extensions/biz/organization/icon/worker.svg',
+                'icon' => '/extensions/extension/organization/icon/worker.svg',
                 'text' => '员工管理',
-                'link' => '/biz/enterprise/worker',
+                'link' => '/extension/enterprise/worker',
                 'blank' => true,
                 'badge' => [
                     'mode' => 'dot',
                 ],
             ];
             $data[] = [
-                'icon' => '/extensions/biz/organization/icon/facility.svg',
+                'icon' => '/extensions/extension/organization/icon/facility.svg',
                 'text' => '设施管理',
-                'link' => '/biz/enterprise/facility',
+                'link' => '/extension/enterprise/facility',
                 'blank' => true,
             ];
             $data[] = [
-                'icon' => '/extensions/biz/organization/icon/device.svg',
+                'icon' => '/extensions/extension/organization/icon/device.svg',
                 'text' => '设备管理',
-                'link' => '/biz/enterprise/device',
+                'link' => '/extension/enterprise/device',
                 'blank' => true,
             ];
         }

@@ -65,7 +65,7 @@ class DepartmentController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->SelectControl('grade_id', '年级')
-                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                 ->value('${rel.grade_id}')
                 ->selectMode('group')
                 ->disabledOn('${!enterprise_id}')
@@ -95,7 +95,7 @@ class DepartmentController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->SelectControl('grade_id', '年级')
-                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                 ->selectMode('group')
                 ->searchable()
                 ->clearable()

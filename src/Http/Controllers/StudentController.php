@@ -37,12 +37,12 @@ class StudentController extends AdminController
                     ->searchable()
                     ->clearable(),
                 amis()->SelectControl('grade_id', '年级')
-                    ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                    ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                     ->selectMode('group')
                     ->searchable()
                     ->clearable(),
                 amis()->SelectControl('classes_id', '班级')
-                    ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
+                    ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
                     ->selectMode('group')
                     ->searchable()
                     ->clearable(),
@@ -69,12 +69,12 @@ class StudentController extends AdminController
                                 ->searchable()
                                 ->clearable(),
                             amis()->SelectControl('grade_id', '年级')
-                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                                 ->selectMode('group')
                                 ->searchable()
                                 ->clearable(),
                             amis()->SelectControl('classes_id', '班级')
-                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
+                                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
                                 ->selectMode('group')
                                 ->searchable()
                                 ->clearable(),
@@ -198,7 +198,7 @@ class StudentController extends AdminController
                                                     'actionType' => 'ajax',
                                                     'api' => [
                                                         'method' => 'GET',
-                                                        'url' => admin_url('biz/enterprise/student/${id_card||0}/check'),
+                                                        'url' => admin_url('extension/enterprise/student/${id_card||0}/check'),
                                                     ],
                                                     'loading' => true,
                                                 ],
@@ -538,7 +538,7 @@ class StudentController extends AdminController
                                 ->required(),
                             amis()->SelectControl('grade_id', '年级')
                                 // ->options($this->service->getGradeAll())
-                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                                 ->selectMode('group')
                                 ->value('${rel.grade.id}')
                                 ->searchable()
@@ -547,7 +547,7 @@ class StudentController extends AdminController
                                 ->required(),
                             amis()->SelectControl('classes_id', '班级')
                                 // ->options($this->service->getClassesAll())
-                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
+                                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade/${grade_id||0}/classes'))
                                 ->selectMode('group')
                                 ->value('${rel.classes.id}')
                                 ->searchable()
@@ -848,7 +848,7 @@ class StudentController extends AdminController
      */
     public function classesAction(): DialogAction
     {
-        $form = $this->baseForm()->api(admin_url('biz/enterprise/classes'))->data([
+        $form = $this->baseForm()->api(admin_url('extension/enterprise/classes'))->data([
             'enabled' => true,
             'sort' => 0,
         ])->body([
@@ -860,7 +860,7 @@ class StudentController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->SelectControl('grade_id', '年级')
-                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                 ->value('${rel.grade_id}')
                 ->selectMode('group')
                 ->searchable()
@@ -886,8 +886,8 @@ class StudentController extends AdminController
             ->level('primary');
 
         $editForm = (clone $form)
-            ->api('put:biz/enterprise/classes/${id}');
-        // ->initApi('biz/enterprise/classes/${id}/edit?_action=getData');
+            ->api('put:extension/enterprise/classes/${id}');
+        // ->initApi('extension/enterprise/classes/${id}/edit?_action=getData');
 
         $editButton = amis()->DialogAction()
             ->dialog(amis()->Dialog()->title(__('admin.edit'))->body($editForm))
@@ -910,7 +910,7 @@ class StudentController extends AdminController
                         amis()->Action()->actionType('submit')->label(admin_trans('admin.delete'))->level('danger'),
                     ])
                     ->body([
-                        amis()->Form()->wrapWithPanel(false)->api('delete:biz/enterprise/classes/${id}')->body([
+                        amis()->Form()->wrapWithPanel(false)->api('delete:extension/enterprise/classes/${id}')->body([
                             amis()->Tpl()->className('py-2')->tpl(admin_trans('admin.confirm_delete')),
                         ]),
                     ])
@@ -930,7 +930,7 @@ class StudentController extends AdminController
                         amis()->Action()->actionType('submit')->label(admin_trans('admin.delete'))->level('danger'),
                     ])
                     ->body([
-                        amis()->Form()->wrapWithPanel(false)->api('delete:biz/enterprise/classes/${ids}')->body([
+                        amis()->Form()->wrapWithPanel(false)->api('delete:extension/enterprise/classes/${ids}')->body([
                             amis()->Tpl()->className('py-2')->tpl(admin_trans('admin.confirm_delete')),
                         ]),
                     ])
@@ -946,7 +946,7 @@ class StudentController extends AdminController
                     ->bulkActions([$bulkDeleteButton])
                     ->perPageAvailable([10, 20, 30, 50, 100, 200])
                     ->footerToolbar(['switch-per-page', 'statistics', 'pagination'])
-                    ->api(admin_url('biz/enterprise/classes?_action=getData'))
+                    ->api(admin_url('extension/enterprise/classes?_action=getData'))
                     ->headerToolbar([
                         $createButton,
                         'bulkActions',
@@ -961,7 +961,7 @@ class StudentController extends AdminController
                                 ->clearable()
                                 ->size('md'),
                             amis()->SelectControl('grade_id', '年级')
-                                ->source(admin_url('biz/enterprise/${enterprise_id||0}/grade'))
+                                ->source(admin_url('extension/enterprise/${enterprise_id||0}/grade'))
                                 ->selectMode('group')
                                 ->searchable()
                                 ->clearable()

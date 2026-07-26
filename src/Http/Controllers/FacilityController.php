@@ -77,7 +77,7 @@ class FacilityController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('parent_id', '选择主体')
-                ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/${id||0}/options'))
+                ->source(admin_url('extension/enterprise/${enterprise_id||0}/facility/${id||0}/options'))
                 ->disabledOn('${!enterprise_id}')
                 ->searchable()
                 ->clearable(),
@@ -114,7 +114,7 @@ class FacilityController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('parent_id', '选择主体')
-                ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/${id||0}/options'))
+                ->source(admin_url('extension/enterprise/${enterprise_id||0}/facility/${id||0}/options'))
                 ->options($this->service->options())
                 ->disabledOn('${!enterprise_id}')
                 ->searchable()

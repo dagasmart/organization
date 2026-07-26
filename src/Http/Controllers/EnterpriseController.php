@@ -263,7 +263,7 @@ class EnterpriseController extends AdminController
             amis()->TreeControl('nature_id', false)
                 ->id('enterpriseNatureId')
                 // ->deferApi('basic/region/${value||0}/children')
-                ->source(admin_url('biz/enterprise/nature/${stage_id||0}/option'))
+                ->source(admin_url('extension/enterprise/nature/${stage_id||0}/option'))
                 ->options($this->service->getNatureAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
@@ -285,7 +285,7 @@ class EnterpriseController extends AdminController
             amis()->TreeControl('stage_id', false)
                 ->id('enterpriseStageId')
                 // ->deferApi('basic/region/${value||0}/children')
-                ->source(admin_url('biz/enterprise/stage/${nature_id||0}/option'))
+                ->source(admin_url('extension/enterprise/stage/${nature_id||0}/option'))
                 ->options($this->service->getStageAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
@@ -339,7 +339,7 @@ class EnterpriseController extends AdminController
                     ],
                 ],
             ])
-                ->api('biz/enterprise/chart/data?enterprise_id=${__enterprise_id}')
+                ->api('extension/enterprise/chart/data?enterprise_id=${__enterprise_id}')
                 ->interval(3000),
             amis()->HiddenControl('__enterprise_id')->resetValue(0),
         ]);
@@ -385,7 +385,7 @@ class EnterpriseController extends AdminController
                         ->needConfirm()
                         ->draggable()
                         ->addable()
-                        ->addApi('put:'.admin_url('biz/enterprise/${id:1}/department/save'))
+                        ->addApi('put:'.admin_url('extension/enterprise/${id:1}/department/save'))
                         ->editable()
                         ->removable()
                         ->onEvent([
@@ -463,7 +463,7 @@ class EnterpriseController extends AdminController
                                             'actionType' => 'ajax',
                                             'api' => [
                                                 'method' => 'GET',
-                                                'url' => admin_url('biz/enterprise/${social_credit_code||0}/check'),
+                                                'url' => admin_url('extension/enterprise/${social_credit_code||0}/check'),
                                             ],
                                             'loading' => true,
                                         ],
@@ -734,7 +734,7 @@ class EnterpriseController extends AdminController
                             ->clearable()
                             ->required(),
                         amis()->SelectControl('stage_id', '开办模式')
-                            ->source(admin_url('biz/enterprise/stage/${nature_id||0}/option'))
+                            ->source(admin_url('extension/enterprise/stage/${nature_id||0}/option'))
                             ->options($this->service->stageOption())
                             ->disabledOn('${!!isEdit && !is_creator}')
                             ->clearable()
@@ -814,7 +814,7 @@ class EnterpriseController extends AdminController
                 amis()->Alert()->showCloseButton()->body('请在【基本信息】选择‹开办模式›后，再选择学段年级。'),
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->CheckboxesControl('grade_id', null)
-                        ->source(admin_url('biz/enterprise/stage/${stage_id||0}/grade/all'))
+                        ->source(admin_url('extension/enterprise/stage/${stage_id||0}/grade/all'))
                         ->options($this->service->getGradeAll())
                         ->disabledOn('${!!isEdit && !is_creator}')
                         ->checkAll()
@@ -909,7 +909,7 @@ class EnterpriseController extends AdminController
             amis()->Tab()->title('学段年级')->body([
                 amis()->GroupControl()->mode('horizontal')->body([
                     amis()->CheckboxesControl('grade_id', null)
-                        ->source(admin_url('biz/enterprise/stage/${stage_id||0}/grade/all'))
+                        ->source(admin_url('extension/enterprise/stage/${stage_id||0}/grade/all'))
                         ->options($this->service->getGradeAll())
                         ->disabledOn('${!!isEdit && !is_creator}')
                         ->checkAll()
@@ -932,7 +932,7 @@ class EnterpriseController extends AdminController
         if ($dialog) {
             $form = $this
                 ->authForm(true)
-                ->api('put:/biz/enterprise/${id}/auth')
+                ->api('put:/extension/enterprise/${id}/auth')
                 ->redirect('');
 
             if ($dialog === 'drawer') {
@@ -1040,7 +1040,7 @@ class EnterpriseController extends AdminController
                 ->showCloseButton()
                 ->body('提示：部门至少保留一项'),
             amis()->TreeControl('department_id', false)
-                ->source(admin_url('biz/enterprise/${id||0}/department/data'))
+                ->source(admin_url('extension/enterprise/${id||0}/department/data'))
                 ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
                 ->heightAuto()
                 ->creatable()
@@ -1049,7 +1049,7 @@ class EnterpriseController extends AdminController
                     amis()->HiddenControl('enterprise_id')->value('${id}'),
                     amis()->TextControl('department_name', '部门名称')->required(),
                     amis()->TreeSelectControl('parent_id', '上级部门')
-                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->source(admin_url('extension/enterprise/${enterprise_id||0}/department/data'))
                         ->options($this->service->departmentData())
                         ->disabledOn('${!!parent}')
                         ->value('${parent.id}'),
@@ -1065,7 +1065,7 @@ class EnterpriseController extends AdminController
                         ->value(10)
                         ->required(),
                 ])
-                ->addApi(admin_url('biz/enterprise/department/save'))
+                ->addApi(admin_url('extension/enterprise/department/save'))
                 ->editable()
                 ->editableOn('${!!is_creator}')
                 ->editControls([
@@ -1073,7 +1073,7 @@ class EnterpriseController extends AdminController
                     amis()->HiddenControl('enterprise_id')->value('${id}'),
                     amis()->TextControl('department_name', '部门名称'),
                     amis()->TreeSelectControl('parent_id', '上级部门')
-                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->source(admin_url('extension/enterprise/${enterprise_id||0}/department/data'))
                         ->options($this->service->departmentData()),
                     amis()->TextareaControl('remark', '部门描述'),
                     amis()->SwitchControl('department_state', '状态')
@@ -1087,10 +1087,10 @@ class EnterpriseController extends AdminController
                         ->value(10)
                         ->required(),
                 ])
-                ->editApi(admin_url('biz/enterprise/department/save'))
+                ->editApi(admin_url('extension/enterprise/department/save'))
                 ->removable()
                 ->removableOn('${!!is_creator}')
-                ->deleteApi(admin_url('biz/enterprise/department/${id}/delete'))
+                ->deleteApi(admin_url('extension/enterprise/department/${id}/delete'))
                 ->showOutline()
                 ->searchable()
                 ->required(),
@@ -1138,18 +1138,18 @@ class EnterpriseController extends AdminController
                 ->showCloseButton()
                 ->body('提示：部门职务至少保留一项'),
             amis()->TreeControl('job_id', false)
-                ->source(admin_url('biz/enterprise/${id||0}/job/data'))
+                ->source(admin_url('extension/enterprise/${id||0}/job/data'))
                 ->menuTpl('${label}<span class="text-gray-400 rounded-lg ml-1 p-1 text-xs text-left w-14">${tag}</span>')
                 ->heightAuto()
                 ->creatable()
                 ->addControls([
                     amis()->HiddenControl('enterprise_id')->value('${id}'),
                     amis()->TreeSelectControl('department_id', '部门')
-                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->source(admin_url('extension/enterprise/${enterprise_id||0}/department/data'))
                         ->options($this->service->departmentData()),
                     amis()->TextControl('job_name', '职务')->required(),
                     amis()->TreeSelectControl('parent_id', '上级')
-                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/job/data'))
+                        ->source(admin_url('extension/enterprise/${enterprise_id||0}/job/data'))
                         ->options($this->service->jobData())
                         ->disabledOn('${!!parent}')
                         ->value('${parent.id}'),
@@ -1165,17 +1165,17 @@ class EnterpriseController extends AdminController
                         ->value(10)
                         ->required(),
                 ])
-                ->addApi(admin_url('biz/enterprise/job/save'))
+                ->addApi(admin_url('extension/enterprise/job/save'))
                 ->editable()
                 ->editControls([
                     amis()->HiddenControl('id'),
                     amis()->HiddenControl('enterprise_id')->value('${id}'),
                     amis()->TreeSelectControl('department_id', '部门')
-                        ->source(admin_url('biz/enterprise/${enterprise_id||0}/department/data'))
+                        ->source(admin_url('extension/enterprise/${enterprise_id||0}/department/data'))
                         ->options($this->service->departmentData()),
                     amis()->TextControl('job_name', '职务'),
                     amis()->TreeSelectControl('parent_id', '上级')
-                        ->source(admin_url('biz/enterprise/${enterprise_id}/job/data'))
+                        ->source(admin_url('extension/enterprise/${enterprise_id}/job/data'))
                         ->options($this->service->jobData()),
                     amis()->TextareaControl('remark', '描述'),
                     amis()->SwitchControl('job_state', '状态')
@@ -1189,9 +1189,9 @@ class EnterpriseController extends AdminController
                         ->value(10)
                         ->required(),
                 ])
-                ->editApi(admin_url('biz/enterprise/job/save'))
+                ->editApi(admin_url('extension/enterprise/job/save'))
                 ->removable()
-                ->deleteApi(admin_url('biz/enterprise/job/${id}/delete'))
+                ->deleteApi(admin_url('extension/enterprise/job/${id}/delete'))
                 ->showOutline()
                 ->searchable()
                 ->required(),

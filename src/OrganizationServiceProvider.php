@@ -19,14 +19,14 @@ class OrganizationServiceProvider extends ServiceProvider
         $menu[] = [
             'parent' => null,
             'title' => '基础维护',
-            'url' => '/biz/enterprise',
+            'url' => '/extension/enterprise',
             'url_type' => 1,
             'icon' => 'carbon:calendar-settings',
         ];
         $menu[] = [
             'parent' => '基础维护',
             'title' => '机构管理',
-            'url' => '/biz/enterprise/index',
+            'url' => '/extension/enterprise/index',
             'url_type' => 1,
             'icon' => 'teenyicons:school-outline',
         ];
@@ -34,21 +34,21 @@ class OrganizationServiceProvider extends ServiceProvider
             $menu[] = [
                 'parent' => '基础维护',
                 'title' => '老师管理',
-                'url' => '/biz/enterprise/worker',
+                'url' => '/extension/enterprise/worker',
                 'url_type' => 1,
                 'icon' => 'la:chalkboard-teacher',
             ];
             $menu[] = [
                 'parent' => '基础维护',
                 'title' => '学生管理',
-                'url' => '/biz/enterprise/student',
+                'url' => '/extension/enterprise/student',
                 'url_type' => 1,
                 'icon' => 'ph:student-light',
             ];
             $menu[] = [
                 'parent' => '基础维护',
                 'title' => '家长管理',
-                'url' => '/biz/enterprise/patriarch',
+                'url' => '/extension/enterprise/patriarch',
                 'url_type' => 1,
                 'icon' => 'ri:parent-line',
             ];
@@ -56,7 +56,7 @@ class OrganizationServiceProvider extends ServiceProvider
             $menu[] = [
                 'parent' => '基础维护',
                 'title' => '员工管理',
-                'url' => '/biz/enterprise/worker',
+                'url' => '/extension/enterprise/worker',
                 'url_type' => 1,
                 'icon' => 'healthicons:city-worker-outline',
             ];
@@ -64,14 +64,14 @@ class OrganizationServiceProvider extends ServiceProvider
         $menu[] = [
             'parent' => '基础维护',
             'title' => '基础设施',
-            'url' => '/biz/enterprise/facility',
+            'url' => '/extension/enterprise/facility',
             'url_type' => 1,
             'icon' => 'heroicons:building-office-2',
         ];
         $menu[] = [
             'parent' => '基础维护',
             'title' => '设备管理',
-            'url' => '/biz/enterprise/device',
+            'url' => '/extension/enterprise/device',
             'url_type' => 1,
             'icon' => 'ph:devices-light',
         ];

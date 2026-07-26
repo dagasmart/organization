@@ -105,7 +105,7 @@ class DeviceController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('facility_id', '设施主体')
-                ->source(admin_url('biz/enterprise/${enterprise_id||0}/facility/options'))
+                ->source(admin_url('extension/enterprise/${enterprise_id||0}/facility/options'))
                 ->value('${rel.facility.id}')
                 ->disabledOn('${!enterprise_id}')
                 ->onlyLeaf()
@@ -117,7 +117,7 @@ class DeviceController extends AdminController
                 ->clearable()
                 ->required(),
             amis()->TreeSelectControl('device_brand', '设备品牌')
-                ->source(admin_url('biz/enterprise/device/${device_type||0}/brand/options'))
+                ->source(admin_url('extension/enterprise/device/${device_type||0}/brand/options'))
                 ->placeholder('请选择品牌')
                 ->onlyLeaf()
                 ->clearable(),
