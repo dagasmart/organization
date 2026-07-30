@@ -652,7 +652,7 @@ class EnterpriseService extends AdminService
         $data = [];
         if (is_school_module()) {
             $data[] = [
-                'icon' => '/extensions/extension/organization/icon/teacher.svg',
+                'icon' => '/extensions/organization/icon/teacher.svg',
                 'text' => '老师管理',
                 'link' => '/extension/enterprise/worker',
                 'blank' => false,
@@ -662,7 +662,7 @@ class EnterpriseService extends AdminService
                 ],
             ];
             $data[] = [
-                'icon' => '/extensions/extension/organization/icon/student.svg',
+                'icon' => '/extensions/organization/icon/student.svg',
                 'text' => '学生管理',
                 'link' => '/extension/enterprise/student',
                 'blank' => false,
@@ -671,14 +671,14 @@ class EnterpriseService extends AdminService
                 ],
             ];
             $data[] = [
-                'icon' => '/extensions/extension/organization/icon/patriarch.svg',
+                'icon' => '/extensions/organization/icon/patriarch.svg',
                 'text' => '家长管理',
                 'link' => '/extension/enterprise/patriarch',
                 'blank' => true,
             ];
         } else {
             $data[] = [
-                'icon' => '/extensions/extension/organization/icon/worker.svg',
+                'icon' => '/extensions/organization/icon/worker.svg',
                 'text' => '员工管理',
                 'link' => '/extension/enterprise/worker',
                 'blank' => true,
@@ -687,13 +687,13 @@ class EnterpriseService extends AdminService
                 ],
             ];
             $data[] = [
-                'icon' => '/extensions/extension/organization/icon/facility.svg',
+                'icon' => '/extensions/organization/icon/facility.svg',
                 'text' => '设施管理',
                 'link' => '/extension/enterprise/facility',
                 'blank' => true,
             ];
             $data[] = [
-                'icon' => '/extensions/extension/organization/icon/device.svg',
+                'icon' => '/extensions/organization/icon/device.svg',
                 'text' => '设备管理',
                 'link' => '/extension/enterprise/device',
                 'blank' => true,

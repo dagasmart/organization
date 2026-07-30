@@ -7,6 +7,7 @@ use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\BizAdmin\Renderers\TextControl;
 use DagaSmart\Organization\Jobs\StudentImportJob;
 use Exception;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 
 class OrganizationServiceProvider extends ServiceProvider
@@ -96,6 +97,19 @@ class OrganizationServiceProvider extends ServiceProvider
         /**加载语言包**/
         if ($lang = parent::getLangPath()) {
             $this->loadTranslationsFrom($lang, $this->getCode());
+        }
+
+        // 复制图标
+        $source = admin_extension_path('organization/database/icon');
+        $target = public_extensions_path('organization/icon');
+        if (is_dir($source) && ! is_dir($target)) {
+            File::copyDirectory($source, $target); // 复制整个目录及其内容到目标目录
+        }
+        // 复制模板
+        $source = admin_extension_path('organization/database/template');
+        $target = public_extensions_path('organization/template');
+        if (is_dir($source) && ! is_dir($target)) {
+            File::copyDirectory($source, $target); // 复制整个目录及其内容到目标目录
         }
     }
 
