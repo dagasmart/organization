@@ -35,7 +35,7 @@ return new class extends Migration
             $table->index('mer_id');
 
             // ✅ 3. 唯一约束即主查询索引，框架自动生成 ≤63 字节安全名称
-            $table->unique(['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id']);
+            $table->unique(['enterprise_id', 'department_id', 'job_id', 'worker_id', 'module', 'mer_id'])->nullsNotDistinct();
 
             // ✅ 4. 外键约束（复用已存在的单列索引，零额外开销）
             $table->foreignId('enterprise_id')
