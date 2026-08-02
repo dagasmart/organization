@@ -6,10 +6,23 @@ use DagaSmart\BizAdmin\Enums\Enum as Enums;
 
 enum Enum
 {
+    /**
+     * 用户类型
+     */
     const string STUDENT = 'student'; // 学生
     const string PATRIARCH = 'patriarch'; // 家长
     const string WORKER = 'worker'; // 老师或员工
     const string VISITOR = 'visitor'; // 访客
+
+    /**
+     * 员工状态
+     */
+    const int WORKER_STATE_NONE = 0; // 未知
+    const int WORKER_STATE_NORMAL = 1; // 正常
+    const int WORKER_STATE_LEAVE = 2; // 病事假
+    const int WORKER_STATE_ACTING = 3; // 挂职
+    const int WORKER_STATE_SUSPEND = 4; // 停职
+    const int WORKER_STATE_RESIGN = 5; // 离职
 
     /**
      * 学生状态
@@ -26,12 +39,12 @@ enum Enum
      * 在职状态
      */
     public const array WorkStatus = [
-        ['value' => 0, 'label' => '未知'],
-        ['value' => 1, 'label' => '正常'],
-        ['value' => 2, 'label' => '病事假'],
-        ['value' => 3, 'label' => '挂职'],
-        ['value' => 4, 'label' => '停职'],
-        ['value' => 5, 'label' => '离职'],
+        ['value' => self::WORKER_STATE_NONE, 'label' => '未知'],
+        ['value' => self::WORKER_STATE_NORMAL, 'label' => '正常'],
+        ['value' => self::WORKER_STATE_LEAVE, 'label' => '病事假'],
+        ['value' => self::WORKER_STATE_ACTING, 'label' => '挂职'],
+        ['value' => self::WORKER_STATE_SUSPEND, 'label' => '停职'],
+        ['value' => self::WORKER_STATE_RESIGN, 'label' => '离职'],
     ];
 
     /**
