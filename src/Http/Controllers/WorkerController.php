@@ -643,17 +643,18 @@ class WorkerController extends AdminController
             amis()->Tab()->title('职务信息')->body([
                 amis()->ComboControl('combo', false)->items([
                     amis()->SelectControl('enterprise_id', '单位${index+1}')
-                        ->options($this->service->getEnterpriseAll())->required(),
+                        ->options($this->service->getEnterpriseAll())
+                        ->required(),
                     amis()->HiddenControl('worker_id')->value('${id}'),
                     amis()->TreeSelectControl('department_id', '部门')
-                        ->options($this->service->departmentData())
+                        ->source(admin_url('extension/worker/${combo[index].enterprise_id||0}/department/data'))
                         ->onlyChildren()
                         ->onlyLeaf()
                         ->hideNodePathLabel()
                         ->searchable()
                         ->required(),
                     amis()->TreeSelectControl('job_id', '职务')
-                        ->options($this->service->departmentJobData())
+                        ->source(admin_url('extension/worker/${combo[index].enterprise_id||0}/job/data'))
                         ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
                         ->multiple()
                         ->maxTagCount(5)

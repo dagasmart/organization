@@ -491,6 +491,7 @@ class EnterpriseService extends AdminService
             ->when($enterprise_id, function ($builder) use ($enterprise_id) {
                 $builder->where('enterprise_id', $enterprise_id);
             })
+            ->withoutGlobalScope(baseScope())
             ->get()
             ?->toArray();
 
@@ -502,9 +503,8 @@ class EnterpriseService extends AdminService
         $enterprise_id = request()->enterprise_id ?? 0;
         $model = new EnterpriseDepartmentJob;
         $data = $model->query()
-            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
-                $builder->where('enterprise_id', $enterprise_id);
-            })
+            ->where('enterprise_id', $enterprise_id)
+            ->withoutGlobalScope(baseScope())
             ->get()
             ?->toArray();
 
@@ -516,7 +516,7 @@ class EnterpriseService extends AdminService
         $enterprise_id = request()->enterprise_id ?? 0;
         $department_id = request()->department_id ?? 0;
         $model = new EnterpriseDepartmentJob;
-        $data = $model->query()
+        return $model->query()
             // ->where('enterprise_id', $enterprise_id)
             ->when($enterprise_id, function ($builder) use ($enterprise_id) {
                 $builder->where('enterprise_id', $enterprise_id);
@@ -524,10 +524,9 @@ class EnterpriseService extends AdminService
             ->when($department_id, function ($builder) use ($department_id) {
                 $builder->where('department_id', $department_id);
             })
+            ->withoutGlobalScope(baseScope())
             ->get()
             ?->toArray();
-
-        return $data;
     }
 
     public function departmentSave(): bool|int

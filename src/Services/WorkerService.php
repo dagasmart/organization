@@ -240,9 +240,7 @@ class WorkerService extends AdminService
         $model = new EnterpriseDepartment;
         $data = $model->query()
             ->where('enterprise_id', $enterprise_id)
-//            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
-//                $builder->where('enterprise_id', $enterprise_id);
-//            })
+            ->withoutGlobalScope(baseScope())
             ->get()
             ?->toArray();
 
@@ -272,6 +270,7 @@ class WorkerService extends AdminService
             ->when($department_id, function ($builder) use ($department_id) {
                 $builder->where('department_id', $department_id);
             })
+            ->withoutGlobalScope(baseScope())
             ->get();
 
         return $record?->load('children.children.children.children.children');
