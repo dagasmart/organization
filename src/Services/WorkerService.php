@@ -116,9 +116,16 @@ class WorkerService extends AdminService
 
     public function saving(&$data, $primaryKey = ''): void
     {
-        if (is_repeat($data['combo'])) {
-            admin_abort('机构信息12：部门或职务选项有重叠，请修改或删除');
+        // 定义需要联合判断的字段
+        $keys = ['enterprise_id', 'department_id', 'job_id'];
+        // 生成组合键并检测重复
+        $duplicates = collect($data['combo'])
+            ->map(fn ($item) => implode('|', array_map(fn ($k) => $item[$k] ?? '', $keys)))
+            ->duplicates();
+        if ($duplicates->isNotEmpty()) {
+            admin_abort(module_enterprise_alias().'/部门/职务 有重叠，请修改或删除: '.$duplicates->implode(','));
         }
+
         // 地区代码
         $region = $data['region_id'] ?? null;
         if ($region) {
@@ -237,12 +244,15 @@ class WorkerService extends AdminService
     public function departmentData(): array
     {
         $enterprise_id = request()->enterprise_id ?? 0;
+        if (blank($enterprise_id)) {
+            return []; // 防止无 enterprise_id 时查全表
+        }
         $model = new EnterpriseDepartment;
         $data = $model->query()
             ->where('enterprise_id', $enterprise_id)
-            ->withoutGlobalScope(baseScope())
+            ->withoutScopeFields(['module', 'mer_id'])
             ->get()
-            ?->toArray();
+            ->toArray();
 
         return array2tree($data);
     }
@@ -250,9 +260,13 @@ class WorkerService extends AdminService
     public function jobData(): array
     {
         $enterprise_id = request()->enterprise_id ?? 0;
+        if (blank($enterprise_id)) {
+            return []; // 防止无 enterprise_id 时查全表
+        }
         $model = new EnterpriseDepartmentJob;
         $data = $model->query()
             ->where('enterprise_id', $enterprise_id)
+            ->withoutScopeFields(['module', 'mer_id'])
             ->get()
             ?->toArray();
 
@@ -263,6 +277,9 @@ class WorkerService extends AdminService
     {
         $enterprise_id = request()->enterprise_id ?? $id ?? 0;
         $department_id = request()->department_id ?? 0;
+        if (blank($enterprise_id)) {
+            return null; // 防止无 enterprise_id 时查全表
+        }
         $model = new EnterpriseDepartmentJob;
 
         $record = $model->query()
@@ -270,7 +287,7 @@ class WorkerService extends AdminService
             ->when($department_id, function ($builder) use ($department_id) {
                 $builder->where('department_id', $department_id);
             })
-            ->withoutGlobalScope(baseScope())
+            ->withoutScopeFields(['module', 'mer_id'])
             ->get();
 
         return $record?->load('children.children.children.children.children');

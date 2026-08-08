@@ -486,6 +486,11 @@ class EnterpriseService extends AdminService
     public function departmentData(): array
     {
         $enterprise_id = request()->enterprise_id ?? 0;
+
+        if (blank($enterprise_id)) {
+            return [];
+        }
+
         $model = new EnterpriseDepartment;
         $data = $model->query()
             ->when($enterprise_id, function ($builder) use ($enterprise_id) {
@@ -501,6 +506,11 @@ class EnterpriseService extends AdminService
     public function jobData(): array
     {
         $enterprise_id = request()->enterprise_id ?? 0;
+
+        if (blank($enterprise_id)) {
+            return [];
+        }
+
         $model = new EnterpriseDepartmentJob;
         $data = $model->query()
             ->where('enterprise_id', $enterprise_id)
@@ -515,16 +525,19 @@ class EnterpriseService extends AdminService
     {
         $enterprise_id = request()->enterprise_id ?? 0;
         $department_id = request()->department_id ?? 0;
+
+        if (blank($enterprise_id)) {
+            return [];
+        }
+
         $model = new EnterpriseDepartmentJob;
+
         return $model->query()
-            // ->where('enterprise_id', $enterprise_id)
-            ->when($enterprise_id, function ($builder) use ($enterprise_id) {
-                $builder->where('enterprise_id', $enterprise_id);
-            })
+            ->where('enterprise_id', $enterprise_id)
             ->when($department_id, function ($builder) use ($department_id) {
                 $builder->where('department_id', $department_id);
             })
-            ->withoutGlobalScope(baseScope())
+            ->withoutScopeFields(['module', 'mer_id'])
             ->get()
             ?->toArray();
     }

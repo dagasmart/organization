@@ -654,7 +654,7 @@ class WorkerController extends AdminController
                         ->searchable()
                         ->required(),
                     amis()->TreeSelectControl('job_id', '职务')
-                        ->source(admin_url('extension/worker/${combo[index].enterprise_id||0}/job/data'))
+                        ->source(admin_url('extension/worker/${combo[index].enterprise_id||0}/department/${combo[index].department_id||0}/job/data'))
                         ->menuTpl('<div class="flex justify-between"><span style="color: var(--button-link-default-font-color);">${label}</span><span class="ml-2 rounded p-1 text-xs text-gray-500 text-center w-full">${tag}</span></div>')
                         ->multiple()
                         ->maxTagCount(5)

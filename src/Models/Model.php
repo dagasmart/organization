@@ -21,25 +21,4 @@ class Model extends BaseModel
     }
 
 
-    /**
-     * 排除当前模块
-     * @param Builder $query
-     * @return Builder
-     */
-    protected function scopeWithoutModule(Builder $query): Builder
-    {
-        return $query->withoutGlobalScopes()->whereNot('module', admin_current_module());
-    }
-
-    /**
-     * 排除当前商户
-     * @param Builder $query
-     * @return Builder
-     */
-    protected function scopeWithoutMerchant(Builder $query): Builder
-    {
-        return $query->withoutGlobalScopes()->whereNot('mer_id', admin_mer_id());
-    }
-
-
 }
