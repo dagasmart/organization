@@ -87,9 +87,9 @@ class OrganizationServiceProvider extends ServiceProvider
         ['name' => '编辑', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.index', 'abbr' => 'update', 'custom_order' => 3],
         ['name' => '查看', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.index', 'abbr' => 'showed', 'custom_order' => 4],
         ['name' => '筛选', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.index', 'abbr' => 'search', 'custom_order' => 5],
-        ['name' => '部门', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.department', 'abbr' => 'department', 'custom_order' => 6],
-        ['name' => '职务', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.job', 'abbr' => 'job', 'custom_order' => 7],
-        ['name' => '授权', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.auth', 'abbr' => 'auth', 'custom_order' => 8],
+        ['name' => '部门', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.index', 'abbr' => 'department', 'custom_order' => 6],
+        ['name' => '职务', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.index', 'abbr' => 'job', 'custom_order' => 7],
+        ['name' => '授权', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.index', 'abbr' => 'auth', 'custom_order' => 8],
         // 员工管理
         ['name' => '新增', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.worker', 'abbr' => 'create', 'custom_order' => 1],
         ['name' => '删除', 'namespace' => 'dagasmart.organization',  'code' => 'extension.enterprise.worker', 'abbr' => 'delete', 'custom_order' => 2],
