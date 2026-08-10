@@ -946,7 +946,7 @@ class EnterpriseController extends AdminController
             }
         }
 
-        $action->label($title)->level('link')->visible(admin_user()->administrator());
+        $action->label($title)->level('link')->visible(admin_can('auth'));
 
         return AdminPipeline::handle(AdminPipeline::PIPE_EDIT_ACTION, $action);
     }
@@ -1024,7 +1024,7 @@ class EnterpriseController extends AdminController
             }
         }
 
-        $action->label($title)->level('link')->visible(admin_user()->administrator());
+        $action->label($title)->level('link')->visible(admin_can('department'));
 
         return AdminPipeline::handle(AdminPipeline::PIPE_EDIT_ACTION, $action);
     }
@@ -1121,8 +1121,7 @@ class EnterpriseController extends AdminController
                 );
             }
         }
-
-        $action->label($title)->level('link')->visible(admin_user()->administrator());
+        $action->label($title)->level('link')->visible(admin_can('job'));
 
         return AdminPipeline::handle(AdminPipeline::PIPE_EDIT_ACTION, $action);
     }
