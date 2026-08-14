@@ -42,8 +42,16 @@ return new class extends Migration
 
             // ✅ 3. 唯一约束即主查询索引，框架自动生成 ≤63 字节安全名称
             $table->unique(['device_type', 'device_sn']);
-
         });
+
+        $driver = config('database.connections.'.$this->connection.'.driver');
+        if ($driver == 'mysql') {
+            DB::statement("ALTER TABLE {$this->name} AUTO_INCREMENT=1000000");
+        }
+        if ($driver == 'pgsql') {
+            DB::statement("alter sequence {$this->name}_id_seq restart with 1000000");
+        }
+
     }
 
     /**
