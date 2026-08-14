@@ -77,6 +77,7 @@ class DeviceService extends AdminService
     public function getEnterpriseAll(): array
     {
         $service = new EnterpriseService;
+
         return $service->getEnterpriseAll();
     }
 
@@ -113,6 +114,9 @@ class DeviceService extends AdminService
         $device_type = request()->device_type; // 设备类型
         $device_brand = request()->device_brand; // 设备品牌
 
+        $module = admin_current_module();
+        $mer_id = admin_mer_id();
+
         return $this->query()->from('biz_device', 'a')
             ->join('biz_enterprise_facility_device as b', 'a.id', '=', 'b.device_id')
             ->select(['a.id as value', admin_raw("concat(device_name, ' ', device_sn) as label"), 'a.device_name as name'])
@@ -128,6 +132,8 @@ class DeviceService extends AdminService
             ->when($device_brand, function ($query) use ($device_brand) {
                 $query->where('a.device_brand', $device_brand);
             })
+            ->where('b.module', $module)
+            ->where('b.mer_id', $mer_id)
             ->distinct()
             ->get()
             ->toArray();
