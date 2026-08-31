@@ -8,6 +8,7 @@ use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
 use DagaSmart\Organization\Services\EnterpriseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 /**
  * 基础-机构类
@@ -18,7 +19,7 @@ class EnterpriseController extends AdminController
 {
     protected string $serviceName = EnterpriseService::class;
 
-    public function index()
+    public function index(): JsonResponse|JsonResource
     {
         if ($this->actionOfGetData()) {
             return $this->response()->success($this->service->list());
@@ -27,10 +28,306 @@ class EnterpriseController extends AdminController
         return $this->response()->success($this->page());
     }
 
+    public function page(): Page
+    {
+        return $this->basePage()
+            ->name('page-home')
+            ->data(['dashboard_key' => base64_encode($this->getListPath())])
+            ->toolbar([
+                amis()->HiddenControl('readonly')->value(true),
+                amis()->Button()
+                    ->level('${readonly ? "primary" : "danger"}')
+                    ->icon('iconfont icon-${readonly ? "bcmlayout" : "eye"}')
+                    ->className('fixed shadow right-8')
+                    ->label('${readonly ? "布局" : "预览"}')
+                    ->onEvent([
+                        'click' => [
+                            'debounce' => 300,
+                            'actions' => [
+                                [
+                                    'actionType' => 'setValue',
+                                    'componentName' => 'readonly',
+                                    'args' => [
+                                        'value' => '${!readonly}', // ✅ 简化取反表达式
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]),
+                amis()->Button()
+                    ->level('info')
+                    ->icon('iconfont icon-waiting')
+                    ->className('fixed shadow right-32')
+                    ->label('还原')
+                    ->hiddenOn('${readonly}')
+                    ->actionType('drawer')
+                    ->drawer([
+                        'title' => '还原布局',
+                        'closeOnEsc' => true,
+                        'closeOnOutside' => true,
+                        'size' => 'sm',
+                        'body' => [
+                            amis()->Alert()->body('提示：还原点只保存每日最后一次变更记录')->showCloseButton(),
+                            amis()->TextControl('dashboard_key', '页面')->readOnly(),
+                        ],
+                    ]),
+                amis()->Button()
+                    ->level('success')
+                    ->icon('iconfont icon-edap-tool-btn-add')
+                    ->className('fixed shadow right-56')
+                    ->label('创建')
+                    ->hiddenOn('${readonly}')
+                    ->actionType('drawer')
+                    ->drawer([
+                        'title' => '创建组件',
+                        'closeOnEsc' => true,
+                        'closeOnOutside' => true,
+                        'size' => 'sm',
+                        'body' => amis()->Form()->mode('normal')
+                            ->api([
+                                'url' => '/layout/grid/create',
+                                'method' => 'post',
+                            ])
+                            ->body([
+                                amis()->Alert()
+                                    ->body('提示：选择组件类型并配置基础属性，之后编辑操作')
+                                    ->showCloseButton(),
+
+                                amis()->TextControl('dashboard_key', '页面')
+                                    ->value(base64_encode($this->getListPath()))
+                                    ->readOnly(),
+
+                                amis()->SelectControl('type', '组件类型')
+                                    ->options([
+                                        ['label' => '统计卡片', 'value' => 'stat'],
+                                        ['label' => '图表', 'value' => 'chart'],
+                                        ['label' => '表格', 'value' => 'table'],
+                                    ])
+                                    ->required(),
+
+                                amis()->TextControl('title', '标题')
+                                    ->placeholder('请输入组件标题'),
+
+                                amis()->GroupControl()->body([
+                                    amis()->NumberControl('w', '宽度')
+                                        ->min(1)->max(24)->value(6),
+                                    amis()->NumberControl('h', '高度')
+                                        ->min(1)->max(12)->value(4),
+                                ]),
+                            ])
+                            ->onEvent([
+                                'submitSucc' => [
+                                    'actions' => [
+                                        ['actionType' => 'closeDialog'],
+                                        ['actionType' => 'reload', 'target' => 'page-home-grid'],
+                                    ],
+                                ],
+                            ]),
+                    ]),
+            ])
+            ->toolbarClassName('relative z-50 text-right top-6')
+            ->body([
+                amis()->GridStack()
+                    ->id('page-home-grid') // 👈 必须绑定 ID，供事件精准定位
+                    ->name('page-home-grid') // 👈 必须绑定 ID，供事件精准定位
+                    ->readonly('${readonly}')
+                    ->style('background: transparent;')
+                    ->options([
+                        'column' => 24,
+                        'cellHeight' => 'auto',
+                        'margin' => 5,
+                        'animate' => true,
+                        'float' => false,
+                        'virtualRender' => false,
+                    ])
+                    ->onEvent([
+                        // ✅ 1. 复制事件：请求后端生成新 Body 并更新视图
+                        'widgetCopy' => [
+                            'actions' => [
+                                [
+                                    'actionType' => 'ajax',
+                                    'debounce' => 500,
+                                    'api' => [
+                                        'url' => '/layout/grid/copy',
+                                        'method' => 'post',
+                                        'data' => [
+                                            'dashboard_key' => base64_encode($this->getListPath()),
+                                            'originalId' => '${event.data.originalId}',
+                                            'newId' => '${event.data.newId}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        // ✅ 1. 编辑事件：请求后端生成新 Body 并更新视图
+                        'widgetEdit' => [
+                            'actions' => [
+                                amis()->DrawerAction()
+                                    ->data(['widget' => '${event.data.widget}'])
+                                    ->drawer([
+                                        'title' => '编辑组件',
+                                        'closeOnEsc' => true,
+                                        'closeOnOutside' => true,
+                                        'size' => 'sm',
+                                        'body' => amis()->Form()
+                                            ->mode('normal')
+                                            ->api([
+                                                'url' => '/layout/grid/edit',
+                                                'method' => 'post',
+                                            ])
+                                            ->body([
+                                                amis()->Alert()->body('提示：编辑只保存组件基本属性')->showCloseButton(),
+                                                amis()->HiddenControl('dashboard_key', '页面key')
+                                                    ->value(base64_encode($this->getListPath()))
+                                                    ->readOnly(),
+                                                amis()->TextControl('widget.id', '组件key')
+                                                    ->readOnly(),
+                                                amis()->GroupControl()->body([
+                                                    amis()->NumberControl('widget.w', '宽度')
+                                                        ->min(1)->max(24)->value(6),
+                                                    amis()->NumberControl('widget.h', '高度')
+                                                        ->min(1)->max(12)->value(4),
+                                                ]),
+                                                amis()->GroupControl()->body([
+                                                    amis()->SwitchControl('widget.locked', '锁定位置')
+                                                        ->onText('是')
+                                                        ->offText('否'),
+                                                    amis()->SwitchControl('widget.noMove', '自由移动')
+                                                        ->onText('是')
+                                                        ->offText('否'),
+                                                ]),
+                                                amis()->GroupControl()->body([
+                                                    amis()->SwitchControl('widget.noResize', '拖拽缩放')
+                                                        ->onText('是')
+                                                        ->offText('否'),
+                                                    amis()->SwitchControl('widget.autoPosition', '自动补位')
+                                                        ->onText('是')
+                                                        ->offText('否'),
+                                                ]),
+                                                amis()->GroupControl()->body([
+                                                    amis()->SwitchControl('widget.sizeToContent', '自适应高度')
+                                                        ->onText('是')
+                                                        ->offText('否'),
+                                                ]),
+                                            ])
+                                            ->onEvent([
+                                                'submitSucc' => [
+                                                    'actions' => [
+                                                        ['actionType' => 'closeDialog'],
+                                                        ['actionType' => 'custom', 'script' => 'window.setTimeout(() => window.$owl.refreshAmisPage(), 0)'],
+                                                    ],
+                                                ],
+                                            ]),
+                                    ]),
+                            ],
+                        ],
+                        // ✅ 1. 复制事件：请求后端生成新 Body 并更新视图
+                        'widgetDelete' => [
+                            'actions' => [
+                                [
+                                    'actionType' => 'ajax',
+                                    'debounce' => 500,
+                                    'api' => [
+                                        'url' => '/layout/grid/delete',
+                                        'method' => 'post',
+                                        'data' => [
+                                            'dashboard_key' => base64_encode($this->getListPath()),
+                                            'originalId' => '${event.data.id}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        // ✅ 2. 布局变更事件：持久化物理位置到后端
+                        'layoutChange' => [
+                            'actions' => [
+                                [
+                                    'actionType' => 'ajax',
+                                    'debounce' => 800,
+                                    'api' => [
+                                        'url' => '/layout/grid/save',
+                                        'method' => 'post',
+                                        'data' => [
+                                            'dashboard_key' => base64_encode($this->getListPath()),
+                                            'layout' => '${event.data.layout}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ])
+                    ->bodyMap($this->bodyMap())
+                    ->layoutData($this->layoutData()),
+            ]);
+    }
+
+    public function bodyMap(): array
+    {
+        $dashboard_key = base64_encode($this->getListPath());
+//        $record = $this->service->bodyMap($dashboard_key);
+        if (empty($record)) {
+            $defaultGrid = $this->templateGrid('default');
+            $tags = $defaultGrid->pluck('template', 'id')->toArray();
+            return array_map(function ($method) {
+                return method_exists($this, $method) ? $this->$method() : null;
+            }, $tags);
+//            if ($record) {
+//                $this->service->saveGridBody($dashboard_key, $tags, $record);
+//            }
+        }
+
+        return array_map(function ($method) {
+            return method_exists($this, $method) ? $this->$method() : null;
+        }, $record);
+    }
+
+    public function layoutData(): array
+    {
+        $dashboard_key = base64_encode($this->getListPath());
+//        $record = $this->service->pageGrid($dashboard_key);
+        if (empty($record)) {
+            $defaultGrid = $this->templateGrid('default');
+//            $tags = $defaultGrid->pluck('template', 'id')->toArray();
+//            $bodys = array_map(function ($method) {
+//                return method_exists($this, $method) ? $this->$method() : null;
+//            }, $tags);
+//            if ($bodys) {
+//                $this->service->saveGridBody($dashboard_key, $tags, $bodys);
+//            }
+            $record = $defaultGrid?->except(['template'])?->toArray();
+        }
+
+        return $record;
+    }
+
+    public function templateGrid($key = null): Collection
+    {
+        $record = [];
+        // 当前页默认
+        $record['default'] = [
+            ['id' => 'enterprise_grid_1', 'x' => 0, 'y' => 0, 'w' => 4, 'h' => 6, 'minH' => 3, 'sizeToContent' => false, 'template' => 'nature'],
+            ['id' => 'enterprise_grid_2', 'x' => 0, 'y' => 6, 'w' => 4, 'h' => 5, 'minH' => 3, 'sizeToContent' => false, 'template' => 'stage'],
+            ['id' => 'enterprise_grid_3', 'x' => 4, 'y' => 0, 'w' => 15, 'h' => 11, 'sizeToContent' => false, 'template' => 'list'],
+            ['id' => 'enterprise_grid_4', 'x' => 19, 'y' => 0, 'w' => 5, 'h' => 2, 'sizeToContent' => false, 'template' => 'nav'],
+            ['id' => 'enterprise_grid_5', 'x' => 19, 'y' => 3, 'w' => 5, 'h' => 3, 'sizeToContent' => false, 'template' => 'chart'],
+            ['id' => 'enterprise_grid_6', 'x' => 19, 'y' => 7, 'w' => 5, 'h' => 3, 'sizeToContent' => false, 'template' => 'chart'],
+            ['id' => 'enterprise_grid_7', 'x' => 19, 'y' => 11, 'w' => 5, 'h' => 3, 'sizeToContent' => false, 'template' => 'chart'],
+        ];
+        $collect = collect($record);
+        if (empty($key)) {
+            return $collect->flatten(1)->unique('id', true)->values();
+        }
+
+        // ✅ 用 collect() 包一层，保证返回类型统一
+        return collect($collect[$key] ?? []);
+    }
+
+
+
     /**
      * 左侧分类树，右侧分发列表
      */
-    public function page(): Page
+    public function page2(): Page
     {
         return amis()->Page()->body(
             amis()->Grid()->columns([
