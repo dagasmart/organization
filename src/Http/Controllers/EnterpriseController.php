@@ -33,6 +33,7 @@ class EnterpriseController extends AdminController
         return $this->basePage()
             ->name('page-home')
             ->data(['dashboard_key' => base64_encode($this->getListPath())])
+            ->toolbarClassName('relative z-50 text-right top-6 hidden')
             ->toolbar([
                 amis()->HiddenControl('readonly')->value(true),
                 amis()->Button()
@@ -125,7 +126,6 @@ class EnterpriseController extends AdminController
                             ]),
                     ]),
             ])
-            ->toolbarClassName('relative z-50 text-right top-6')
             ->body([
                 amis()->GridStack()
                     ->id('page-home-grid') // 👈 必须绑定 ID，供事件精准定位
@@ -305,8 +305,8 @@ class EnterpriseController extends AdminController
         $record = [];
         // 当前页默认
         $record['default'] = [
-            ['id' => 'enterprise_grid_1', 'x' => 0, 'y' => 0, 'w' => 4, 'h' => 6, 'minH' => 3, 'sizeToContent' => false, 'template' => 'nature'],
-            ['id' => 'enterprise_grid_2', 'x' => 0, 'y' => 6, 'w' => 4, 'h' => 5, 'minH' => 3, 'sizeToContent' => false, 'template' => 'stage'],
+            ['id' => 'enterprise_grid_1', 'x' => 0, 'y' => 0, 'w' => 4, 'h' => 5, 'minH' => 3, 'sizeToContent' => false, 'template' => 'nature'],
+            ['id' => 'enterprise_grid_2', 'x' => 0, 'y' => 6, 'w' => 4, 'h' => 6, 'minH' => 3, 'sizeToContent' => false, 'template' => 'stage'],
             ['id' => 'enterprise_grid_3', 'x' => 4, 'y' => 0, 'w' => 15, 'h' => 11, 'sizeToContent' => false, 'template' => 'list'],
             ['id' => 'enterprise_grid_4', 'x' => 19, 'y' => 0, 'w' => 5, 'h' => 2, 'sizeToContent' => false, 'template' => 'nav'],
             ['id' => 'enterprise_grid_5', 'x' => 19, 'y' => 3, 'w' => 5, 'h' => 3, 'sizeToContent' => false, 'template' => 'chart'],
