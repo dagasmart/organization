@@ -672,7 +672,7 @@ class EnterpriseController extends AdminController
     public function chart()
     {
 
-        return amis()->Card()->body([
+        return amis()->Card()->className('h-full')->body([
             amis()->Chart()->name('chartWorker')->height('max-h-screen')->config([
                 'color' => generateColors(null, null, 10),
                 'backgroundColor' => '',
@@ -686,7 +686,7 @@ class EnterpriseController extends AdminController
                 ],
                 'axisLine' => ['lineStyle' => ['color' => '#000']],
                 'yAxis' => ['type' => 'value'],
-                'grid' => ['left' => '5%', 'right' => '3%', 'top' => 30, 'bottom' => 20],
+                'grid' => ['left' => '10%', 'right' => '3%', 'top' => 30, 'bottom' => 30],
                 'legend' => ['data' => ['Visits', 'Bounce Rate']],
                 'series' => [
                     [
