@@ -8,6 +8,7 @@ use DagaSmart\BizAdmin\Support\Cores\AdminPipeline;
 use DagaSmart\Organization\Services\EnterpriseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -32,8 +33,12 @@ class EnterpriseController extends AdminController
     {
         return $this->basePage()
             ->name('page-home')
-            ->data(['dashboard_key' => base64_encode($this->getListPath())])
-            ->toolbarClassName('relative z-50 text-right top-6 hidden')
+            ->data([
+                'dashboard_key' => base64_encode($this->getListPath()),
+                'nature_id' => '',
+                'stage_id' => '',
+            ])
+            ->toolbarClassName('relative z-50 text-right top-6')
             ->toolbar([
                 amis()->HiddenControl('readonly')->value(true),
                 amis()->Button()
@@ -131,15 +136,29 @@ class EnterpriseController extends AdminController
                     ->id('page-home-grid') // 👈 必须绑定 ID，供事件精准定位
                     ->name('page-home-grid') // 👈 必须绑定 ID，供事件精准定位
                     ->readonly('${readonly}')
-                    ->style('background: transparent;')
+                    // ✅ React 的 style 必须是对象映射，传字符串会告警且样式不生效
+                    ->style(['background' => 'transparent'])
                     ->options([
                         'column' => 24,
-                        'cellHeight' => 'auto',
+                        // ❌ 'auto' 会把格子强制成正方形（高度 = 容器宽 / 24），
+                        //    窄屏列宽一缩，节点高度同步塌缩，内部组件必然被压扁。
+                        // ✅ 固定像素后，节点高度只由 h 决定，与屏宽解耦。
+                        //    注：强制降列是 columnOpts.breakpoints 的活，不是 cellHeight 的。
+                        'cellHeight' => 'auto', // 60
                         'margin' => 5,
                         'animate' => true,
                         'float' => false,
                         'virtualRender' => false,
+                        // 需要窄屏降列时再打开（同时要在 SCSS 里配对应断点样式）：
+                        // 'columnOpts' => [
+                        //     'breakpoints' => [
+                        //         ['w' => 1280, 'c' => 12],
+                        //         ['w' => 768, 'c' => 1],
+                        //     ],
+                        // ],
                     ])
+                    ->bodyMap($this->bodyMap())
+                    ->layoutData($this->layoutData())
                     ->onEvent([
                         // ✅ 1. 复制事件：请求后端生成新 Body 并更新视图
                         'widgetCopy' => [
@@ -255,11 +274,16 @@ class EnterpriseController extends AdminController
                                 ],
                             ],
                         ],
-                    ])
-                    ->bodyMap($this->bodyMap())
-                    ->layoutData($this->layoutData()),
+                    ]),
             ]);
     }
+
+    // ❌ 已删除 percentLayout()：
+    //    1) 前端 GridStackRenderer 无此 prop，会被展开到 <div> 上，
+    //       既触发 React 未知属性告警，又留下 percentlayout="[object Object]" 脏属性；
+    //    2) 方法内 $record 恒为空（读取逻辑被注释），实际每次都走模板推导，并未真正接通；
+    //    3) 24 列画布 + 固定 cellHeight 已能满足当前响应式需求，
+    //       若将来要窄屏降列，改用 options.columnOpts.breakpoints。
 
     public function bodyMap(): array
     {
@@ -294,7 +318,14 @@ class EnterpriseController extends AdminController
 //            if ($bodys) {
 //                $this->service->saveGridBody($dashboard_key, $tags, $bodys);
 //            }
-            $record = $defaultGrid?->except(['template'])?->toArray();
+            // ❌ 原写法 $defaultGrid?->except(['template']) 无效：
+            //    $defaultGrid 是下标 0..6 的列表 Collection，except() 按「顶层键名」剔除，
+            //    而 'template' 在每个 item 内部，永远匹配不到 → 一个都没删掉。
+            // ✅ 逐条 map 剔除后再取回列表。
+            $record = $defaultGrid
+                ->map(fn(array $item) => Arr::except($item, ['template']))
+                ->values()
+                ->toArray();
         }
 
         return $record;
@@ -560,7 +591,7 @@ class EnterpriseController extends AdminController
             amis()->TreeControl('nature_id', false)
                 ->id('enterpriseNatureId')
                 // ->deferApi('basic/region/${value||0}/children')
-                ->source(admin_url('extension/enterprise/nature/${stage_id||0}/option'))
+                ->source(admin_url('extension/enterprise/nature/0/option'))
                 ->options($this->service->getNatureAll())
                 ->nodeBehavior(['check', 'unfold'])
                 ->initiallyOpen(false)
@@ -569,7 +600,27 @@ class EnterpriseController extends AdminController
                 ->joinValues()
                 ->rootLabel('机构性质')
                 ->hideRoot(false)
-                ->cascade(),
+                ->cascade()
+                // ✅ 打通共享数据域：选中写回 Page.data.nature_id，驱动 list/chart 刷新（仅行为，不改样式）
+                ->onEvent([
+                    'change' => [
+                        'actions' => [
+                            [
+                                'actionType' => 'setValue',
+                                'componentName' => 'page-home',
+                                'args' => [
+                                    'value' => [
+                                        'nature_id' => '${event.data.value | number:0}',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'actionType' => 'reload',
+                                'componentId' => 'crud_record',
+                            ],
+                        ],
+                    ],
+                ]),
         ]);
     }
 
@@ -591,7 +642,27 @@ class EnterpriseController extends AdminController
                 ->joinValues()
                 ->rootLabel('开办模式')
                 ->hideRoot(false)
-                ->cascade(),
+                ->cascade()
+                // ✅ 打通共享数据域：选中写回 Page.data.stage_id，驱动 list/chart 刷新（仅行为，不改样式）
+                ->onEvent([
+                    'change' => [
+                        'actions' => [
+                            [
+                                'actionType' => 'setValue',
+                                'componentName' => 'page-home',
+                                'args' => [
+                                    'value' => [
+                                        'stage_id' => '${event.data.value | number:0}',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'actionType' => 'reload',
+                                'componentId' => 'crud_record',
+                            ],
+                        ],
+                    ],
+                ]),
         ]);
     }
 
@@ -601,8 +672,8 @@ class EnterpriseController extends AdminController
     public function chart()
     {
 
-        return amis()->Card()->className('w-full h-full')->body([
-            amis()->Chart()->name('chartWorker')->height('100%')->config([
+        return amis()->Card()->body([
+            amis()->Chart()->name('chartWorker')->height('max-h-screen')->config([
                 'color' => generateColors(null, null, 10),
                 'backgroundColor' => '',
                 'title' => ['text' => '员工人数'],
@@ -637,7 +708,7 @@ class EnterpriseController extends AdminController
                 ],
             ])
                 ->api('extension/enterprise/chart/data?enterprise_id=${__enterprise_id}')
-                ->interval(3000),
+                ->interval(30000),
             amis()->HiddenControl('__enterprise_id')->resetValue(0),
         ]);
     }
